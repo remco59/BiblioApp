@@ -100,6 +100,7 @@ export function StaffBooksPage() {
                 </td>
                 <td>
                   <Link to={`/staff/books/${b.id}`}>Bewerken</Link>{' '}
+                  <Link to={`/staff/labels?bookId=${b.id}`}>Etiketten</Link>{' '}
                   <button className="link danger" onClick={() => void remove(b.id, b.title)}>
                     Verwijderen
                   </button>

@@ -333,3 +333,102 @@ td {
 .filters select {
   width: 100%;
 }
+.bad {
+  color: var(--bad);
+}
+.ok {
+  color: var(--ok);
+}
+.scan {
+  display: flex;
+  gap: 0.5rem;
+  align-items: end;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.scan .field {
+  margin-bottom: 0;
+  min-width: 14rem;
+}
+.scan-video {
+  width: 100%;
+  max-width: 24rem;
+  border-radius: 0.5rem;
+}
+.member-card {
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  background: var(--card);
+  margin-bottom: 1rem;
+}
+.member-card h2 {
+  margin-top: 0;
+}
+.badges {
+  list-style: none;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding: 0;
+}
+.badges li {
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  padding: 0.1rem 0.75rem;
+}
+.badges li.bad {
+  border-color: var(--bad);
+}
+.log {
+  list-style: none;
+  padding: 0;
+}
+.log li {
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.labels {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 7rem);
+  gap: 0.5rem;
+}
+.labels li {
+  border: 1px dashed var(--border);
+  padding: 0.25rem;
+  display: grid;
+  gap: 0.25rem;
+  justify-items: center;
+  break-inside: avoid;
+}
+.label-title {
+  font-size: 0.65rem;
+  text-align: center;
+  overflow: hidden;
+  max-height: 1.9em;
+}
+.labels svg {
+  max-width: 100%;
+  height: auto;
+  background: #fff;
+}
+@media print {
+  .nav,
+  .skip,
+  .no-print,
+  .theme {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+    color: #000;
+  }
+  .labels li {
+    border-color: #999;
+  }
+}
+.table-wrap {
+  overflow-x: auto;
+}
