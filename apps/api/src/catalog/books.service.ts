@@ -11,6 +11,7 @@ import {
 } from './dto';
 import { normalizeIsbn } from './isbn.service';
 import { SearchService } from './search.service';
+import { QueueEffects, ReservationsService } from '../reservations/reservations.service';
 
 export const bookInclude = {
   genre: true,
@@ -50,6 +51,7 @@ export class BooksService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly searchService: SearchService,
+    private readonly reservations: ReservationsService,
   ) {}
 
   async list(query: SearchQueryDto): Promise<BookPageDto> {
@@ -111,6 +113,7 @@ export class BooksService {
         barcode: isStaff ? c.barcode : null,
       })),
       similar: similar.map(toBookDto),
+      reservationsWaiting: await this.reservations.waitingCount(id),
     };
   }
 
@@ -215,16 +218,25 @@ export class BooksService {
   async addCopy(bookId: number, barcode?: string) {
     const book = await this.prisma.book.findUnique({ where: { id: bookId } });
     if (!book) throw new NotFoundException('Boek niet gevonden');
-    if (barcode) {
-      try {
-        return await this.prisma.copy.create({ data: { bookId, barcode } });
-      } catch (e) {
-        if ((e as { code?: string }).code === 'P2002')
-          throw new ConflictException('Barcode bestaat al');
-        throw e;
-      }
+    const copy = barcode
+      ? await this.createCopy(bookId, barcode)
+      : await this.createAutoCopy(bookId);
+    await this.releaseToQueue(bookId);
+    return copy;
+  }
+
+  private async createCopy(bookId: number, barcode: string) {
+    try {
+      return await this.prisma.copy.create({ data: { bookId, barcode } });
+    } catch (e) {
+      if ((e as { code?: string }).code === 'P2002')
+        throw new ConflictException('Barcode bestaat al');
+      throw e;
     }
-    // Automatische barcode: BB + boek-id + volgnummer; bij botsing volgend nummer proberen.
+  }
+
+  /** Automatische barcode: BB + boek-id + volgnummer; bij botsing volgend nummer proberen. */
+  private async createAutoCopy(bookId: number) {
     let seq = (await this.prisma.copy.count({ where: { bookId } })) + 1;
     for (;;) {
       const code = `BB${String(bookId).padStart(4, '0')}${String(seq).padStart(2, '0')}`;
@@ -235,5 +247,38 @@ export class BooksService {
         seq++;
       }
     }
+  }
+
+  /** Een beschikbaar exemplaar gaat meteen naar de wachtrij; alle clients krijgen een update. */
+  private async releaseToQueue(bookId: number) {
+    const effects: QueueEffects = { notifications: [], bookIds: [bookId] };
+    await this.prisma.$transaction((tx) => this.reservations.fillQueue(tx, bookId, effects));
+    await this.reservations.publish(effects);
+  }
+
+  /** Handmatige statuswijziging door een medewerker; houdt reserveringen consistent. */
+  async setCopyStatus(
+    copyId: number,
+    status: 'AVAILABLE' | 'LOANED' | 'RESERVED_HOLD' | 'LOST' | 'DAMAGED',
+  ) {
+    if (status === 'RESERVED_HOLD') {
+      throw new ConflictException('Klaarleggen voor een reservering gebeurt automatisch');
+    }
+    const copy = await this.prisma.copy.findUnique({ where: { id: copyId } });
+    if (!copy) throw new NotFoundException('Exemplaar niet gevonden');
+    await this.prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT "id" FROM "Copy" WHERE "id" = ${copyId} FOR UPDATE`;
+      const hold = await tx.reservation.findFirst({ where: { copyId, status: 'READY' } });
+      if (hold) {
+        // Het klaargelegde exemplaar verdwijnt: de reservering wacht weer op een ander exemplaar.
+        await tx.reservation.update({
+          where: { id: hold.id },
+          data: { status: 'WAITING', copyId: null, readyAt: null, expiresAt: null },
+        });
+      }
+      await tx.copy.update({ where: { id: copyId }, data: { status } });
+    });
+    await this.releaseToQueue(copy.bookId);
+    return this.prisma.copy.findUniqueOrThrow({ where: { id: copyId } });
   }
 }

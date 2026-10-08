@@ -15,6 +15,11 @@ export function ProfilePage() {
     setMessage('Opgeslagen');
   }
 
+  async function setLocale(locale: 'nl' | 'en') {
+    const { error } = await api.PATCH('/api/users/me', { body: { locale } });
+    if (!error && user) setUser({ ...user, locale });
+  }
+
   async function download() {
     const res = await fetch('/api/users/me/export', { credentials: 'include' });
     const url = URL.createObjectURL(await res.blob());
@@ -45,6 +50,14 @@ export function ProfilePage() {
         {message && <p role="status">{message}</p>}
         <button type="submit">Opslaan</button>
       </form>
+      <h2>Taal van meldingen</h2>
+      <label className="field">
+        <span>Meldingen en e-mails in</span>
+        <select value={user.locale} onChange={(e) => void setLocale(e.target.value as 'nl' | 'en')}>
+          <option value="nl">Nederlands</option>
+          <option value="en">English</option>
+        </select>
+      </label>
       <h2>Mijn gegevens (AVG)</h2>
       <p>Download een kopie van al je persoonlijke gegevens.</p>
       <button onClick={download}>Gegevens exporteren</button>

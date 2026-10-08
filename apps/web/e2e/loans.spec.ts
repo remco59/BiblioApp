@@ -68,10 +68,11 @@ test('lid ziet en verlengt een uitleen', async ({ page, browser }) => {
     await loginAs(page, 'lid@biblio.nl');
     await page.getByRole('link', { name: 'Mijn uitleningen' }).click();
     await expect(page.getByRole('heading', { name: 'Nu geleend' })).toBeVisible();
-    await expect(page.getByRole('cell', { name: /verlengd/ })).toHaveCount(0);
+    const active = page.locator('table').first(); // "Nu geleend"
+    await expect(active.getByRole('cell', { name: /verlengd/ })).toHaveCount(0);
     await page.getByRole('button', { name: 'Verlengen' }).click();
     await expect(page.getByText('Verlengd', { exact: true })).toBeVisible();
-    await expect(page.getByRole('cell', { name: /1× verlengd/ })).toBeVisible();
+    await expect(active.getByRole('cell', { name: /1× verlengd/ })).toBeVisible();
   } finally {
     await staff.getByRole('tab', { name: 'Innemen' }).click();
     await staff.getByLabel('Scan ingeleverd exemplaar').fill(BARCODE);

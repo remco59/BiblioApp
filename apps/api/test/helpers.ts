@@ -23,6 +23,7 @@ export class MailStub {
 }
 
 export async function createApp() {
+  process.env.JOBS_DISABLED = '1'; // jobs inline uitvoeren i.p.v. via pg-boss
   const mail = new MailStub();
   const mod = await Test.createTestingModule({ imports: [AppModule] })
     .overrideProvider(MailService)
@@ -72,7 +73,7 @@ export async function createUser(
       member: {
         create: {
           memberNumber: `T-${email}`,
-          membershipUntil: new Date(Date.now() + 86400000),
+          membershipUntil: new Date(Date.now() + 365 * 86400000),
         },
       },
     },

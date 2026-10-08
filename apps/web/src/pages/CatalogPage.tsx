@@ -4,6 +4,7 @@ import type { BookPage, Filters } from '@biblio/api-client';
 import { api } from '../api';
 import { BookList } from '../components/BookCard';
 import { Pagination } from '../components/Pagination';
+import { useServerEvent } from '../lib/events';
 
 const SORTS = [
   ['relevance', 'Relevantie'],
@@ -21,6 +22,9 @@ export function CatalogPage() {
   const [result, setResult] = useState<BookPage | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [q, setQ] = useState(params.get('q') ?? '');
+  const [refresh, setRefresh] = useState(0);
+  // Realtime: beschikbaarheid verandert ergens → lijst opnieuw ophalen
+  useServerEvent('availability', () => setRefresh((n) => n + 1));
 
   const get = (k: string) => params.get(k) ?? '';
   const page = Number(get('page') || 1);
@@ -59,7 +63,7 @@ export function CatalogPage() {
     return () => {
       stale = true;
     };
-  }, [params]);
+  }, [params, refresh]);
 
   function update(changes: Record<string, string | null>, resetPage = true) {
     const next = new URLSearchParams(params);

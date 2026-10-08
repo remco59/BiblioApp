@@ -21,13 +21,15 @@ export class MailService {
     return this.transporter;
   }
 
-  async send(message: MailMessage): Promise<void> {
+  /** `throwOnError`: laat de fout door, zodat een job-queue het opnieuw kan proberen. */
+  async send(message: MailMessage, opts: { throwOnError?: boolean } = {}): Promise<void> {
     try {
       await this.transport.sendMail({
         from: process.env.MAIL_FROM ?? 'BiblioApp <noreply@biblio.local>',
         ...message,
       });
     } catch (err) {
+      if (opts.throwOnError) throw err;
       // Mailfouten mogen een registratie of reset niet laten mislukken.
       this.logger.error(`Mail naar ${message.to} mislukt: ${(err as Error).message}`);
     }

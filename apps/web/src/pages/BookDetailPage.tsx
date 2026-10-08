@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import type { BookDetail } from '@biblio/api-client';
 import { api } from '../api';
 import { useAuth } from '../auth';
 import { Availability, BookList, Cover } from '../components/BookCard';
+import { ReserveBox } from '../components/ReserveBox';
+import { useServerEvent } from '../lib/events';
 
 const STATUS: Record<string, string> = {
   AVAILABLE: 'Beschikbaar',
@@ -20,14 +22,21 @@ export function BookDetailPage() {
   const [notFound, setNotFound] = useState(false);
   const isStaff = user?.role === 'LIBRARIAN' || user?.role === 'ADMIN';
 
+  const load = useCallback(async () => {
+    const { data } = await api.GET('/api/books/{id}', { params: { path: { id: Number(id) } } });
+    if (data) setBook(data);
+    else setNotFound(true);
+  }, [id]);
+
   useEffect(() => {
     setBook(null);
     setNotFound(false);
-    api.GET('/api/books/{id}', { params: { path: { id: Number(id) } } }).then(({ data }) => {
-      if (data) setBook(data);
-      else setNotFound(true);
-    });
-  }, [id, user?.id]);
+    void load();
+  }, [load, user?.id]);
+  // Realtime: beschikbaarheid van dit boek veranderd
+  useServerEvent('availability', (d) => {
+    if (d.bookId === Number(id)) void load();
+  });
 
   if (notFound)
     return (
@@ -84,6 +93,7 @@ export function BookDetailPage() {
             )}
           </dl>
           <Availability book={book} />
+          <ReserveBox book={book} onChange={() => void load()} />
           {isStaff && (
             <p>
               <Link to={`/staff/books/${book.id}`}>Bewerken</Link>

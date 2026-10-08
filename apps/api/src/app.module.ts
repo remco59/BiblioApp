@@ -10,6 +10,12 @@ import { AdminSettingsController, DeskController, MeController } from './loans/l
 import { LoansService } from './loans/loans.service';
 import { MembersService } from './loans/members.service';
 import { SettingsService } from './loans/settings.service';
+import { JobsModule } from './jobs/jobs.module';
+import { EventsService } from './notifications/events.service';
+import { NotificationsService } from './notifications/notifications.service';
+import { MaintenanceService } from './reservations/maintenance.service';
+import { ReservationsController } from './reservations/reservations.controller';
+import { ReservationsService } from './reservations/reservations.service';
 import { HealthController } from './health/health.controller';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuditModule } from './audit/audit.module';
@@ -17,7 +23,7 @@ import { AuthModule } from './auth/auth.module';
 import { MailModule } from './mail/mail.module';
 
 @Module({
-  imports: [PrismaModule, AuditModule, MailModule, AuthModule],
+  imports: [PrismaModule, AuditModule, MailModule, JobsModule, AuthModule],
   controllers: [
     HealthController,
     BooksController,
@@ -25,8 +31,13 @@ import { MailModule } from './mail/mail.module';
     DeskController,
     AdminSettingsController,
     MeController,
+    ReservationsController,
   ],
   providers: [
+    EventsService,
+    NotificationsService,
+    ReservationsService,
+    MaintenanceService,
     LoansService,
     MembersService,
     SettingsService,

@@ -500,6 +500,166 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/me/reservations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ReservationsController_mine"];
+        put?: never;
+        post: operations["ReservationsController_reserve"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me/reservations/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ReservationsController_cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ReservationsController_notificationsList"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me/notifications/read-all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ReservationsController_readAll"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me/notifications/{id}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ReservationsController_read"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ReservationsController_stream"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/staff/reservations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ReservationsController_listActive"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/staff/reservations/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ReservationsController_staffCancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/staff/loans/{id}/remind": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ReservationsController_remind"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/jobs/nightly": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ReservationsController_runNightly"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/register": {
         parameters: {
             query?: never;
@@ -749,6 +909,8 @@ export interface components {
             copies: components["schemas"]["CopyDto"][];
             /** @description Vergelijkbare boeken */
             similar: components["schemas"]["BookDto"][];
+            /** @description Aantal leden dat op dit boek wacht */
+            reservationsWaiting: number;
         };
         BookInputDto: {
             title: string;
@@ -821,6 +983,13 @@ export interface components {
             overdue: boolean;
             /** @description Kan het lid dit nog verlengen? */
             canRenew: boolean;
+            /** @description Begonnen dagen te laat (alleen actief) */
+            daysLate: number;
+            /**
+             * Format: date-time
+             * @description Laatste aanmaning
+             */
+            lastNoticeAt: string | null;
         };
         CheckinDto: {
             barcode: string;
@@ -850,6 +1019,8 @@ export interface components {
             loan: components["schemas"]["LoanDto"];
             fine: components["schemas"]["FineDto"] | null;
             daysLate: number;
+            /** @description Naam van het lid voor wie het exemplaar nu klaarligt */
+            reservedFor: string | null;
         };
         MemberDto: {
             id: number;
@@ -909,6 +1080,14 @@ export interface components {
             lostFeeCents: number;
             damagedFeeCents: number;
             membershipMonths: number;
+            /** @description Dagen dat een gereserveerd boek klaarligt */
+            reservationHoldDays: number;
+            maxReservationsPerMember: number;
+            /** @description Herinnering zoveel dagen vóór de uiterste datum */
+            reminderDays: number;
+            /** @description Aanmaning herhalen na zoveel dagen */
+            overdueNoticeEveryDays: number;
+            membershipNoticeDays: number;
         };
         LabelDto: {
             barcode: string;
@@ -926,6 +1105,51 @@ export interface components {
             lostFeeCents?: number;
             damagedFeeCents?: number;
             membershipMonths?: number;
+        };
+        ReserveDto: {
+            bookId: number;
+        };
+        ReservationDto: {
+            id: number;
+            bookId: number;
+            title: string;
+            memberId: number;
+            memberName: string;
+            memberNumber: string;
+            /** @enum {string} */
+            status: "WAITING" | "READY" | "FULFILLED" | "CANCELLED" | "EXPIRED";
+            /** @description Plaats in de wachtrij (1 = eerstvolgende); null als niet wachtend */
+            position: number | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            readyAt: string | null;
+            /**
+             * Format: date-time
+             * @description Uiterste ophaaldatum
+             */
+            expiresAt: string | null;
+        };
+        NotificationDto: {
+            id: number;
+            type: string;
+            title: string;
+            body: string;
+            /** Format: date-time */
+            readAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        NotificationListDto: {
+            items: components["schemas"]["NotificationDto"][];
+            unread: number;
+        };
+        NightlyResultDto: {
+            reminders: number;
+            overdueNotices: number;
+            finesUpdated: number;
+            reservationsExpired: number;
+            membershipNotices: number;
         };
         RegisterDto: {
             email: string;
@@ -945,6 +1169,8 @@ export interface components {
             name: string;
             /** @enum {string} */
             role: "MEMBER" | "LIBRARIAN" | "ADMIN";
+            /** @enum {string} */
+            locale: "nl" | "en";
             memberNumber: string | null;
             /** @description Stuur mee als X-CSRF-Token bij POST/PATCH/DELETE */
             csrfToken: string;
@@ -957,7 +1183,12 @@ export interface components {
             password: string;
         };
         UpdateProfileDto: {
-            name: string;
+            name?: string;
+            /**
+             * @description Taal van meldingen en e-mails
+             * @enum {string}
+             */
+            locale?: "nl" | "en";
         };
     };
     responses: never;
@@ -1747,6 +1978,221 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["LoanDto"];
+                };
+            };
+        };
+    };
+    ReservationsController_mine: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReservationDto"][];
+                };
+            };
+        };
+    };
+    ReservationsController_reserve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReserveDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReservationDto"];
+                };
+            };
+        };
+    };
+    ReservationsController_cancel: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReservationDto"];
+                };
+            };
+        };
+    };
+    ReservationsController_notificationsList: {
+        parameters: {
+            query?: {
+                unread?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationListDto"];
+                };
+            };
+        };
+    };
+    ReservationsController_readAll: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ReservationsController_read: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ReservationsController_stream: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ReservationsController_listActive: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReservationDto"][];
+                };
+            };
+        };
+    };
+    ReservationsController_staffCancel: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReservationDto"];
+                };
+            };
+        };
+    };
+    ReservationsController_remind: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ReservationsController_runNightly: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NightlyResultDto"];
                 };
             };
         };

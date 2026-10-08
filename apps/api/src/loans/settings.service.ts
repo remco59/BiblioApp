@@ -13,6 +13,11 @@ export const SETTING_DEFAULTS = {
   lostFeeCents: 2500,
   damagedFeeCents: 500,
   membershipMonths: 12,
+  reservationHoldDays: 5,
+  maxReservationsPerMember: 5,
+  reminderDays: 2,
+  overdueNoticeEveryDays: 7,
+  membershipNoticeDays: 14,
 } as const;
 
 export type Settings = { -readonly [K in keyof typeof SETTING_DEFAULTS]: number };

@@ -1,5 +1,6 @@
 import { Link, NavLink, Route, Routes } from 'react-router-dom';
 import { RequireAuth, useAuth } from './auth';
+import { NotificationBell } from './components/NotificationBell';
 import { ThemeToggle } from './components/ThemeToggle';
 import { BookDetailPage } from './pages/BookDetailPage';
 import { CatalogPage } from './pages/CatalogPage';
@@ -11,11 +12,14 @@ import {
   VerifyEmailPage,
 } from './pages/AuthPages';
 import { MyLoansPage } from './pages/MyLoansPage';
+import { NotificationsPage } from './pages/NotificationsPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { DeskPage } from './pages/staff/DeskPage';
 import { LabelsPage } from './pages/staff/LabelsPage';
 import { MemberDetailPage } from './pages/staff/MemberDetailPage';
 import { MembersPage } from './pages/staff/MembersPage';
+import { OverduePage } from './pages/staff/OverduePage';
+import { ReservationsPage } from './pages/staff/ReservationsPage';
 import { SettingsPage } from './pages/staff/SettingsPage';
 import { BookFormPage } from './pages/staff/BookFormPage';
 import { LookupsPage } from './pages/staff/LookupsPage';
@@ -39,12 +43,15 @@ function Nav() {
           <>
             <NavLink to="/staff/desk">Balie</NavLink>
             <NavLink to="/staff/members">Leden</NavLink>
+            <NavLink to="/staff/overdue">Te laat</NavLink>
+            <NavLink to="/staff/reservations">Reserveringen</NavLink>
             <NavLink to="/staff/books">Beheer</NavLink>
           </>
         )}
         {user?.role === 'ADMIN' && <NavLink to="/admin/settings">Instellingen</NavLink>}
         {user ? (
           <>
+            <NotificationBell />
             <NavLink to="/profile">{user.name}</NavLink>
             <button className="link" onClick={() => void logout()}>
               Uitloggen
@@ -69,6 +76,30 @@ export function App() {
       <main id="main">
         <Routes>
           <Route path="/" element={<CatalogPage />} />
+          <Route
+            path="/notifications"
+            element={
+              <RequireAuth>
+                <NotificationsPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/staff/overdue"
+            element={
+              <RequireAuth roles={STAFF}>
+                <OverduePage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/staff/reservations"
+            element={
+              <RequireAuth roles={STAFF}>
+                <ReservationsPage />
+              </RequireAuth>
+            }
+          />
           <Route path="/books/:id" element={<BookDetailPage />} />
           <Route
             path="/staff/books"

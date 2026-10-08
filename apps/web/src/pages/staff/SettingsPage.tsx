@@ -13,6 +13,11 @@ const FIELDS: [keyof Settings, string, string][] = [
   ['lostFeeCents', 'Kosten verloren boek', 'cent'],
   ['damagedFeeCents', 'Kosten beschadigd boek', 'cent'],
   ['membershipMonths', 'Duur lidmaatschap bij verlengen', 'maanden'],
+  ['reservationHoldDays', 'Ophaaltermijn gereserveerd boek', 'dagen'],
+  ['maxReservationsPerMember', 'Maximaal aantal reserveringen per lid', 'reserveringen'],
+  ['reminderDays', 'Herinnering vóór uiterste datum', 'dagen'],
+  ['overdueNoticeEveryDays', 'Aanmaning herhalen na', 'dagen'],
+  ['membershipNoticeDays', 'Waarschuwing vóór einde lidmaatschap', 'dagen'],
 ];
 
 export function SettingsPage() {
@@ -22,6 +27,16 @@ export function SettingsPage() {
   useEffect(() => {
     api.GET('/api/staff/settings').then(({ data }) => setS(data ?? null));
   }, []);
+
+  const [job, setJob] = useState<string | null>(null);
+  async function runJob() {
+    const { data, error } = await api.POST('/api/admin/jobs/nightly');
+    setJob(
+      data
+        ? `Klaar: ${data.reminders} herinneringen, ${data.overdueNotices} aanmaningen, ${data.finesUpdated} boetes bijgewerkt, ${data.reservationsExpired} reserveringen verlopen, ${data.membershipNotices} lidmaatschapsmeldingen`
+        : errorMessage(error),
+    );
+  }
 
   async function save(e: FormEvent) {
     e.preventDefault();
@@ -58,6 +73,15 @@ export function SettingsPage() {
         )}
         <button type="submit">Opslaan</button>
       </form>
+      <h2>Nachtelijke job</h2>
+      <p>
+        Herinneringen, aanmaningen, boetes, verlopen reserveringen en lidmaatschapscontrole draaien
+        elke nacht om 03:00. Je kunt de job hier ook direct uitvoeren.
+      </p>
+      <button className="secondary" onClick={() => void runJob()}>
+        Nu uitvoeren
+      </button>
+      {job && <p role="status">{job}</p>}
     </>
   );
 }

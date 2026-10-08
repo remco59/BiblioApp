@@ -1185,6 +1185,268 @@
         ]
       }
     },
+    "/api/me/reservations": {
+      "post": {
+        "operationId": "ReservationsController_reserve",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReserveDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReservationDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "reservations"
+        ]
+      },
+      "get": {
+        "operationId": "ReservationsController_mine",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReservationDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "reservations"
+        ]
+      }
+    },
+    "/api/me/reservations/{id}/cancel": {
+      "post": {
+        "operationId": "ReservationsController_cancel",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReservationDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "reservations"
+        ]
+      }
+    },
+    "/api/me/notifications": {
+      "get": {
+        "operationId": "ReservationsController_notificationsList",
+        "parameters": [
+          {
+            "name": "unread",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationListDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "reservations"
+        ]
+      }
+    },
+    "/api/me/notifications/read-all": {
+      "post": {
+        "operationId": "ReservationsController_readAll",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "reservations"
+        ]
+      }
+    },
+    "/api/me/notifications/{id}/read": {
+      "post": {
+        "operationId": "ReservationsController_read",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "reservations"
+        ]
+      }
+    },
+    "/api/events": {
+      "get": {
+        "operationId": "ReservationsController_stream",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "reservations"
+        ]
+      }
+    },
+    "/api/staff/reservations": {
+      "get": {
+        "operationId": "ReservationsController_listActive",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReservationDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "reservations"
+        ]
+      }
+    },
+    "/api/staff/reservations/{id}/cancel": {
+      "post": {
+        "operationId": "ReservationsController_staffCancel",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReservationDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "reservations"
+        ]
+      }
+    },
+    "/api/staff/loans/{id}/remind": {
+      "post": {
+        "operationId": "ReservationsController_remind",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "reservations"
+        ]
+      }
+    },
+    "/api/admin/jobs/nightly": {
+      "post": {
+        "operationId": "ReservationsController_runNightly",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NightlyResultDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "reservations"
+        ]
+      }
+    },
     "/api/auth/register": {
       "post": {
         "operationId": "AuthController_register",
@@ -1703,6 +1965,10 @@
             "items": {
               "$ref": "#/components/schemas/BookDto"
             }
+          },
+          "reservationsWaiting": {
+            "type": "number",
+            "description": "Aantal leden dat op dit boek wacht"
           }
         },
         "required": [
@@ -1721,7 +1987,8 @@
           "copiesTotal",
           "copiesAvailable",
           "copies",
-          "similar"
+          "similar",
+          "reservationsWaiting"
         ]
       },
       "BookInputDto": {
@@ -1966,6 +2233,16 @@
           "canRenew": {
             "type": "boolean",
             "description": "Kan het lid dit nog verlengen?"
+          },
+          "daysLate": {
+            "type": "number",
+            "description": "Begonnen dagen te laat (alleen actief)"
+          },
+          "lastNoticeAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Laatste aanmaning"
           }
         },
         "required": [
@@ -1982,7 +2259,9 @@
           "outcome",
           "renewals",
           "overdue",
-          "canRenew"
+          "canRenew",
+          "daysLate",
+          "lastNoticeAt"
         ]
       },
       "CheckinDto": {
@@ -2081,12 +2360,18 @@
           },
           "daysLate": {
             "type": "number"
+          },
+          "reservedFor": {
+            "type": "string",
+            "nullable": true,
+            "description": "Naam van het lid voor wie het exemplaar nu klaarligt"
           }
         },
         "required": [
           "loan",
           "fine",
-          "daysLate"
+          "daysLate",
+          "reservedFor"
         ]
       },
       "MemberDto": {
@@ -2289,6 +2574,24 @@
           },
           "membershipMonths": {
             "type": "number"
+          },
+          "reservationHoldDays": {
+            "type": "number",
+            "description": "Dagen dat een gereserveerd boek klaarligt"
+          },
+          "maxReservationsPerMember": {
+            "type": "number"
+          },
+          "reminderDays": {
+            "type": "number",
+            "description": "Herinnering zoveel dagen vóór de uiterste datum"
+          },
+          "overdueNoticeEveryDays": {
+            "type": "number",
+            "description": "Aanmaning herhalen na zoveel dagen"
+          },
+          "membershipNoticeDays": {
+            "type": "number"
           }
         },
         "required": [
@@ -2301,7 +2604,12 @@
           "blockFinesThresholdCents",
           "lostFeeCents",
           "damagedFeeCents",
-          "membershipMonths"
+          "membershipMonths",
+          "reservationHoldDays",
+          "maxReservationsPerMember",
+          "reminderDays",
+          "overdueNoticeEveryDays",
+          "membershipNoticeDays"
         ]
       },
       "LabelDto": {
@@ -2357,6 +2665,162 @@
             "type": "number"
           }
         }
+      },
+      "ReserveDto": {
+        "type": "object",
+        "properties": {
+          "bookId": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "bookId"
+        ]
+      },
+      "ReservationDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "bookId": {
+            "type": "number"
+          },
+          "title": {
+            "type": "string"
+          },
+          "memberId": {
+            "type": "number"
+          },
+          "memberName": {
+            "type": "string"
+          },
+          "memberNumber": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "WAITING",
+              "READY",
+              "FULFILLED",
+              "CANCELLED",
+              "EXPIRED"
+            ]
+          },
+          "position": {
+            "type": "number",
+            "nullable": true,
+            "description": "Plaats in de wachtrij (1 = eerstvolgende); null als niet wachtend"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "readyAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Uiterste ophaaldatum"
+          }
+        },
+        "required": [
+          "id",
+          "bookId",
+          "title",
+          "memberId",
+          "memberName",
+          "memberNumber",
+          "status",
+          "position",
+          "createdAt",
+          "readyAt",
+          "expiresAt"
+        ]
+      },
+      "NotificationDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "readAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "title",
+          "body",
+          "readAt",
+          "createdAt"
+        ]
+      },
+      "NotificationListDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NotificationDto"
+            }
+          },
+          "unread": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "unread"
+        ]
+      },
+      "NightlyResultDto": {
+        "type": "object",
+        "properties": {
+          "reminders": {
+            "type": "number"
+          },
+          "overdueNotices": {
+            "type": "number"
+          },
+          "finesUpdated": {
+            "type": "number"
+          },
+          "reservationsExpired": {
+            "type": "number"
+          },
+          "membershipNotices": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "reminders",
+          "overdueNotices",
+          "finesUpdated",
+          "reservationsExpired",
+          "membershipNotices"
+        ]
       },
       "RegisterDto": {
         "type": "object",
@@ -2424,6 +2888,13 @@
               "ADMIN"
             ]
           },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "nl",
+              "en"
+            ]
+          },
           "memberNumber": {
             "type": "string",
             "nullable": true
@@ -2438,6 +2909,7 @@
           "email",
           "name",
           "role",
+          "locale",
           "memberNumber",
           "csrfToken"
         ]
@@ -2474,11 +2946,16 @@
         "properties": {
           "name": {
             "type": "string"
+          },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "nl",
+              "en"
+            ],
+            "description": "Taal van meldingen en e-mails"
           }
-        },
-        "required": [
-          "name"
-        ]
+        }
       }
     }
   }
