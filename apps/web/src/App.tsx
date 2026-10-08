@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
-import type { Book } from '@biblio/api-client';
 import { Link, NavLink, Route, Routes } from 'react-router-dom';
-import { api } from './api';
 import { RequireAuth, useAuth } from './auth';
+import { ThemeToggle } from './components/ThemeToggle';
+import { BookDetailPage } from './pages/BookDetailPage';
+import { CatalogPage } from './pages/CatalogPage';
 import {
   ForgotPasswordPage,
   LoginPage,
@@ -11,47 +11,11 @@ import {
   VerifyEmailPage,
 } from './pages/AuthPages';
 import { ProfilePage } from './pages/ProfilePage';
+import { BookFormPage } from './pages/staff/BookFormPage';
+import { LookupsPage } from './pages/staff/LookupsPage';
+import { StaffBooksPage } from './pages/staff/StaffBooksPage';
 
-export function BookList({ books }: { books: Book[] }) {
-  return (
-    <ul className="books">
-      {books.map((b) => (
-        <li key={b.id} className="book">
-          <h2>{b.title}</h2>
-          <p className="meta">
-            {b.authors.map((a) => a.name).join(', ')}
-            {b.genre ? ` · ${b.genre}` : ''}
-            {b.publishedYear ? ` · ${b.publishedYear}` : ''}
-          </p>
-          <p className={b.copiesAvailable > 0 ? 'avail ok' : 'avail none'}>
-            {b.copiesAvailable} van {b.copiesTotal} beschikbaar
-          </p>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function Catalog() {
-  const [books, setBooks] = useState<Book[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    api.GET('/api/books').then(({ data, error: err }) => {
-      if (data) setBooks(data);
-      else setError(String(err ?? 'Onbekende fout'));
-    });
-  }, []);
-
-  return (
-    <>
-      <h1>Catalogus</h1>
-      {error && <p role="alert">Kon boeken niet laden: {error}</p>}
-      {!books && !error && <p>Laden…</p>}
-      {books && <BookList books={books} />}
-    </>
-  );
-}
+const STAFF: ('LIBRARIAN' | 'ADMIN')[] = ['LIBRARIAN', 'ADMIN'];
 
 function Nav() {
   const { user, logout } = useAuth();
@@ -61,7 +25,12 @@ function Nav() {
         BiblioApp
       </Link>
       <nav aria-label="Hoofdmenu">
-        <NavLink to="/">Catalogus</NavLink>
+        <NavLink to="/" end>
+          Catalogus
+        </NavLink>
+        {(user?.role === 'LIBRARIAN' || user?.role === 'ADMIN') && (
+          <NavLink to="/staff/books">Beheer</NavLink>
+        )}
         {user ? (
           <>
             <NavLink to="/profile">{user.name}</NavLink>
@@ -72,6 +41,7 @@ function Nav() {
         ) : (
           <NavLink to="/login">Inloggen</NavLink>
         )}
+        <ThemeToggle />
       </nav>
     </header>
   );
@@ -80,10 +50,38 @@ function Nav() {
 export function App() {
   return (
     <>
+      <a href="#main" className="skip">
+        Naar de inhoud
+      </a>
       <Nav />
-      <main>
+      <main id="main">
         <Routes>
-          <Route path="/" element={<Catalog />} />
+          <Route path="/" element={<CatalogPage />} />
+          <Route path="/books/:id" element={<BookDetailPage />} />
+          <Route
+            path="/staff/books"
+            element={
+              <RequireAuth roles={STAFF}>
+                <StaffBooksPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/staff/books/:id"
+            element={
+              <RequireAuth roles={STAFF}>
+                <BookFormPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/staff/lookups"
+            element={
+              <RequireAuth roles={STAFF}>
+                <LookupsPage />
+              </RequireAuth>
+            }
+          />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />

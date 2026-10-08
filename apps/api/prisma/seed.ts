@@ -5,6 +5,10 @@ import { GENRES } from '@biblio/shared';
 
 const prisma = new PrismaClient();
 
+/** Maakt van 12 cijfers een geldig ISBN-13 (zodat CSV-export/-import werkt). */
+const withCheckDigit = (p12: string) =>
+  p12 + ((10 - ([...p12].reduce((s, d, i) => s + Number(d) * (i % 2 ? 3 : 1), 0) % 10)) % 10);
+
 const authors = [
   'Saskia Noort',
   'Herman Koch',
@@ -147,17 +151,21 @@ async function main() {
     authorIds.set(name, a.id);
   }
   for (const [i, b] of books.entries()) {
-    const book = await prisma.book.upsert({
-      where: { isbn: b.isbn },
-      update: {},
-      create: {
-        title: b.title,
-        isbn: b.isbn,
-        publishedYear: b.year,
-        genreId: genreIds.get(b.genre),
-        authors: { create: b.authors.map((n) => ({ authorId: authorIds.get(n)! })) },
-      },
-    });
+    const isbn = withCheckDigit(b.isbn.slice(0, 12));
+    const found = await prisma.book.findFirst({ where: { title: b.title } });
+    const book =
+      found ??
+      (await prisma.book.create({
+        data: {
+          title: b.title,
+          isbn,
+          publishedYear: b.year,
+          genreId: genreIds.get(b.genre),
+          authors: { create: b.authors.map((n) => ({ authorId: authorIds.get(n)! })) },
+        },
+      }));
+    if (found && found.isbn !== isbn)
+      await prisma.book.update({ where: { id: found.id }, data: { isbn } });
     for (let c = 1; c <= b.copies; c++) {
       const barcode = `BB${String(i + 1).padStart(3, '0')}${String(c).padStart(2, '0')}`;
       await prisma.copy.upsert({

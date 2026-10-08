@@ -53,3 +53,21 @@ Demo-accounts na `pnpm db:seed` (alleen buiten productie), wachtwoord `Welkom-12
 `lid@biblio.nl`, `bibliothecaris@biblio.nl`, `admin@biblio.nl`.
 
 TOTP-2FA is optioneel in het issue en is bewust nog niet gebouwd (staat ook in fase 6).
+
+## Catalogus (fase 3)
+
+- **Zoeken** (`GET /api/books?q=…`): Postgres full-text (Nederlands) + `pg_trgm` voor typefouten, over
+  titel, beschrijving, auteur, tag en ISBN; bij 0 resultaten komt er een “bedoelde je…”-suggestie.
+  Filters: genre, taal, jaar, tag, alleen beschikbaar; sorteren en pagineren. Beschikbaarheid wordt
+  altijd afgeleid uit de exemplaren (geen opgeslagen tellers).
+- **Beheer** (bibliothecaris/admin, `/staff/*`): boeken, exemplaren (automatische barcodes),
+  auteurs/genres/tags/reeksen, ISBN-lookup (Open Library, fallback Google Books), cover-upload,
+  CSV-import en -export (`isbn,title,authors,genres,…`; meerdere waarden gescheiden door `;`).
+- **Covers**: S3/MinIO als `S3_ENDPOINT` is gezet, anders lokaal in `apps/api/uploads`.
+- **Thema**: licht/donker/automatisch (rechtsboven); skip-link, labels en focus-stijlen voor WCAG AA.
+
+### Tests
+
+`pnpm test` draait unit- en integratietests. De end-to-end tests voor zoeken en beheer draaien met
+`pnpm --filter @biblio/web test:e2e` (vereist draaiende Postgres met seed-data; start API en web zelf).
+Lokaal kun je `PW_CHROMIUM=/pad/naar/chromium` zetten om een bestaande browser te gebruiken.

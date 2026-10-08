@@ -1,0 +1,97 @@
+import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
+import { SearchQueryDto } from './dto';
+
+const escapeLike = (s: string) => s.replace(/[\\%_]/g, '\\$&');
+
+export interface SearchResult {
+  ids: number[];
+  total: number;
+  suggestion: string | null;
+}
+
+/**
+ * Zoeken met Postgres full-text (Nederlands) + pg_trgm (typefouten) over titel, beschrijving,
+ * auteur, tag en ISBN. Beschikbaarheid is altijd afgeleid uit de exemplaren.
+ */
+@Injectable()
+export class SearchService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async search(dto: SearchQueryDto): Promise<SearchResult & { page: number; pageSize: number }> {
+    const page = dto.page ?? 1;
+    const pageSize = dto.pageSize ?? 12;
+    const q = dto.q?.trim() || undefined;
+
+    const where: Prisma.Sql[] = [];
+    let score = Prisma.sql`0`;
+
+    if (q) {
+      const like = `%${escapeLike(q)}%`;
+      const isbn = q.replace(/[\s-]/g, '');
+      const tsv = Prisma.sql`to_tsvector('dutch', b."title" || ' ' || coalesce(b."description", ''))`;
+      const authorSim = Prisma.sql`coalesce((SELECT max(word_similarity(${q}, a."name")) FROM "BookAuthor" ba JOIN "Author" a ON a."id" = ba."authorId" WHERE ba."bookId" = b."id"), 0)`;
+      where.push(Prisma.sql`(
+        ${tsv} @@ websearch_to_tsquery('dutch', ${q})
+        OR b."title" ILIKE ${like}
+        OR word_similarity(${q}, b."title") > 0.5
+        OR b."isbn" = ${isbn}
+        OR ${authorSim} > 0.5
+        OR EXISTS (SELECT 1 FROM "BookAuthor" ba JOIN "Author" a ON a."id" = ba."authorId" WHERE ba."bookId" = b."id" AND a."name" ILIKE ${like})
+        OR EXISTS (SELECT 1 FROM "BookTag" bt JOIN "Tag" t ON t."id" = bt."tagId" WHERE bt."bookId" = b."id" AND t."name" ILIKE ${like})
+      )`);
+      score = Prisma.sql`(
+        ts_rank(${tsv}, websearch_to_tsquery('dutch', ${q})) * 2
+        + word_similarity(${q}, b."title")
+        + ${authorSim} * 0.8
+        + (CASE WHEN b."isbn" = ${isbn} THEN 5 ELSE 0 END)
+        + (CASE WHEN b."title" ILIKE ${like} THEN 0.5 ELSE 0 END)
+      )`;
+    }
+    if (dto.genre)
+      where.push(Prisma.sql`b."genreId" IN (SELECT "id" FROM "Genre" WHERE "name" = ${dto.genre})`);
+    if (dto.language) where.push(Prisma.sql`b."language" = ${dto.language}`);
+    if (dto.tag)
+      where.push(
+        Prisma.sql`EXISTS (SELECT 1 FROM "BookTag" bt JOIN "Tag" t ON t."id" = bt."tagId" WHERE bt."bookId" = b."id" AND t."name" = ${dto.tag})`,
+      );
+    if (dto.yearFrom !== undefined) where.push(Prisma.sql`b."publishedYear" >= ${dto.yearFrom}`);
+    if (dto.yearTo !== undefined) where.push(Prisma.sql`b."publishedYear" <= ${dto.yearTo}`);
+    if (dto.available)
+      where.push(
+        Prisma.sql`EXISTS (SELECT 1 FROM "Copy" c WHERE c."bookId" = b."id" AND c."status" = 'AVAILABLE')`,
+      );
+
+    const whereSql = where.length ? Prisma.sql`WHERE ${Prisma.join(where, ' AND ')}` : Prisma.empty;
+    const sort = dto.sort ?? (q ? 'relevance' : 'title');
+    const orderBy = {
+      relevance: Prisma.sql`score DESC, b."title" ASC`,
+      title: Prisma.sql`lower(b."title") ASC, b."id" ASC`,
+      year_desc: Prisma.sql`b."publishedYear" DESC NULLS LAST, lower(b."title") ASC`,
+      year_asc: Prisma.sql`b."publishedYear" ASC NULLS LAST, lower(b."title") ASC`,
+      newest: Prisma.sql`b."createdAt" DESC, b."id" DESC`,
+    }[sort];
+
+    const [rows, count] = await Promise.all([
+      this.prisma.$queryRaw<{ id: number }[]>`
+        SELECT b."id", ${score} AS score FROM "Book" b ${whereSql}
+        ORDER BY ${orderBy} LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}`,
+      this.prisma.$queryRaw<{ n: bigint }[]>`SELECT count(*) AS n FROM "Book" b ${whereSql}`,
+    ]);
+    const total = Number(count[0]?.n ?? 0);
+    const suggestion = total === 0 && q ? await this.suggest(q) : null;
+    return { ids: rows.map((r) => r.id), total, page, pageSize, suggestion };
+  }
+
+  /** “Bedoelde je…”: dichtstbijzijnde titel of auteur op trigram-gelijkenis. */
+  private async suggest(q: string): Promise<string | null> {
+    const rows = await this.prisma.$queryRaw<{ label: string }[]>`
+      SELECT label FROM (
+        SELECT "title" AS label, similarity("title", ${q}) AS s FROM "Book"
+        UNION ALL
+        SELECT "name" AS label, similarity("name", ${q}) AS s FROM "Author"
+      ) x WHERE s > 0.2 ORDER BY s DESC LIMIT 1`;
+    return rows[0]?.label ?? null;
+  }
+}
