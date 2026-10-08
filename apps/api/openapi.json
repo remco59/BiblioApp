@@ -25,6 +25,117 @@
     "/api/books": {
       "get": {
         "operationId": "BooksController_list",
+        "parameters": [
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "genre",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "language",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tag",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "yearFrom",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "yearTo",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "available",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "relevance",
+                "title",
+                "year_desc",
+                "year_asc",
+                "newest"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 12,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookPageDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "catalog"
+        ]
+      }
+    },
+    "/api/catalog/filters": {
+      "get": {
+        "operationId": "BooksController_filters",
         "parameters": [],
         "responses": {
           "200": {
@@ -32,17 +143,14 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/BookDto"
-                  }
+                  "$ref": "#/components/schemas/FiltersDto"
                 }
               }
             }
           }
         },
         "tags": [
-          "books"
+          "catalog"
         ]
       }
     },
@@ -65,7 +173,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/BookDto"
+                  "$ref": "#/components/schemas/BookDetailDto"
                 }
               }
             }
@@ -75,7 +183,497 @@
           }
         },
         "tags": [
-          "books"
+          "catalog"
+        ]
+      }
+    },
+    "/api/covers/{key}": {
+      "get": {
+        "operationId": "BooksController_cover",
+        "parameters": [
+          {
+            "name": "key",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "catalog"
+        ]
+      }
+    },
+    "/api/staff/books": {
+      "post": {
+        "operationId": "StaffCatalogController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookInputDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "staff-catalog"
+        ]
+      }
+    },
+    "/api/staff/books/{id}": {
+      "patch": {
+        "operationId": "StaffCatalogController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookInputDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "staff-catalog"
+        ]
+      },
+      "delete": {
+        "operationId": "StaffCatalogController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "staff-catalog"
+        ]
+      }
+    },
+    "/api/staff/books/{id}/copies": {
+      "post": {
+        "operationId": "StaffCatalogController_addCopy",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CopyInputDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CopyDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "staff-catalog"
+        ]
+      }
+    },
+    "/api/staff/copies/{id}": {
+      "patch": {
+        "operationId": "StaffCatalogController_updateCopy",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CopyUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CopyDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "staff-catalog"
+        ]
+      },
+      "delete": {
+        "operationId": "StaffCatalogController_removeCopy",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "staff-catalog"
+        ]
+      }
+    },
+    "/api/staff/books/{id}/cover": {
+      "post": {
+        "operationId": "StaffCatalogController_uploadCover",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "coverUrl": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "staff-catalog"
+        ]
+      }
+    },
+    "/api/staff/isbn/{isbn}": {
+      "get": {
+        "operationId": "StaffCatalogController_lookup",
+        "parameters": [
+          {
+            "name": "isbn",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IsbnMetadataDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "staff-catalog"
+        ]
+      }
+    },
+    "/api/staff/books.csv": {
+      "get": {
+        "operationId": "StaffCatalogController_exportCsv",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "staff-catalog"
+        ]
+      }
+    },
+    "/api/staff/books/import": {
+      "post": {
+        "operationId": "StaffCatalogController_importCsv",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "text/csv": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportResultDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "staff-catalog"
+        ]
+      }
+    },
+    "/api/staff/lookups/{kind}": {
+      "get": {
+        "operationId": "StaffCatalogController_listLookup",
+        "parameters": [
+          {
+            "name": "kind",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NamedDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "staff-catalog"
+        ]
+      },
+      "post": {
+        "operationId": "StaffCatalogController_createLookup",
+        "parameters": [
+          {
+            "name": "kind",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NameDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NamedDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "staff-catalog"
+        ]
+      }
+    },
+    "/api/staff/lookups/{kind}/{id}": {
+      "patch": {
+        "operationId": "StaffCatalogController_renameLookup",
+        "parameters": [
+          {
+            "name": "kind",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NameDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NamedDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "staff-catalog"
+        ]
+      },
+      "delete": {
+        "operationId": "StaffCatalogController_deleteLookup",
+        "parameters": [
+          {
+            "name": "kind",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "staff-catalog"
         ]
       }
     },
@@ -377,6 +975,24 @@
             "type": "string",
             "nullable": true
           },
+          "coverUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "series": {
+            "type": "string",
+            "nullable": true
+          },
+          "seriesNumber": {
+            "type": "number",
+            "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "authors": {
             "type": "array",
             "items": {
@@ -395,10 +1011,378 @@
         "required": [
           "id",
           "title",
+          "isbn",
+          "description",
           "language",
+          "publishedYear",
+          "genre",
+          "coverUrl",
+          "series",
+          "seriesNumber",
+          "tags",
           "authors",
           "copiesTotal",
           "copiesAvailable"
+        ]
+      },
+      "BookPageDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BookDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "suggestion": {
+            "type": "string",
+            "nullable": true,
+            "description": "“Bedoelde je…” bij 0 resultaten"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pageSize",
+          "suggestion"
+        ]
+      },
+      "FiltersDto": {
+        "type": "object",
+        "properties": {
+          "genres": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "languages": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "minYear": {
+            "type": "number",
+            "nullable": true
+          },
+          "maxYear": {
+            "type": "number",
+            "nullable": true
+          }
+        },
+        "required": [
+          "genres",
+          "languages",
+          "tags",
+          "minYear",
+          "maxYear"
+        ]
+      },
+      "CopyDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "barcode": {
+            "type": "string",
+            "nullable": true,
+            "description": "Alleen zichtbaar voor medewerkers"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "AVAILABLE",
+              "LOANED",
+              "RESERVED_HOLD",
+              "LOST",
+              "DAMAGED"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "barcode",
+          "status"
+        ]
+      },
+      "BookDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "title": {
+            "type": "string"
+          },
+          "isbn": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "language": {
+            "type": "string"
+          },
+          "publishedYear": {
+            "type": "number",
+            "nullable": true
+          },
+          "genre": {
+            "type": "string",
+            "nullable": true
+          },
+          "coverUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "series": {
+            "type": "string",
+            "nullable": true
+          },
+          "seriesNumber": {
+            "type": "number",
+            "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "authors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AuthorDto"
+            }
+          },
+          "copiesTotal": {
+            "type": "number",
+            "description": "Totaal aantal exemplaren"
+          },
+          "copiesAvailable": {
+            "type": "number",
+            "description": "Beschikbare exemplaren (afgeleid)"
+          },
+          "copies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CopyDto"
+            }
+          },
+          "similar": {
+            "description": "Vergelijkbare boeken",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BookDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "isbn",
+          "description",
+          "language",
+          "publishedYear",
+          "genre",
+          "coverUrl",
+          "series",
+          "seriesNumber",
+          "tags",
+          "authors",
+          "copiesTotal",
+          "copiesAvailable",
+          "copies",
+          "similar"
+        ]
+      },
+      "BookInputDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "isbn": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          },
+          "publishedYear": {
+            "type": "number"
+          },
+          "genre": {
+            "type": "string"
+          },
+          "authors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "series": {
+            "type": "string"
+          },
+          "seriesNumber": {
+            "type": "number"
+          },
+          "coverUrl": {
+            "type": "string",
+            "description": "Externe cover-URL"
+          }
+        },
+        "required": [
+          "title"
+        ]
+      },
+      "CopyInputDto": {
+        "type": "object",
+        "properties": {
+          "barcode": {
+            "type": "string",
+            "description": "Leeg = automatisch genereren"
+          }
+        }
+      },
+      "CopyUpdateDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "AVAILABLE",
+              "LOANED",
+              "RESERVED_HOLD",
+              "LOST",
+              "DAMAGED"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "IsbnMetadataDto": {
+        "type": "object",
+        "properties": {
+          "isbn": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "authors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "publishedYear": {
+            "type": "number",
+            "nullable": true
+          },
+          "language": {
+            "type": "string",
+            "nullable": true
+          },
+          "coverUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "isbn",
+          "title",
+          "authors",
+          "description",
+          "publishedYear",
+          "language",
+          "coverUrl"
+        ]
+      },
+      "ImportResultDto": {
+        "type": "object",
+        "properties": {
+          "created": {
+            "type": "number"
+          },
+          "updated": {
+            "type": "number"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "created",
+          "updated",
+          "errors"
+        ]
+      },
+      "NamedDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "books": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "books"
+        ]
+      },
+      "NameDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
         ]
       },
       "RegisterDto": {

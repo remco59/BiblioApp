@@ -28,6 +28,11 @@ model Book {
   language      String       @default("nl")
   publishedYear Int?
   coverUrl      String?
+  coverKey      String?
+  seriesId      Int?
+  seriesNumber  Int?
+  series        Series?      @relation(fields: [seriesId], references: [id], onDelete: SetNull)
+  tags          BookTag[]
   genreId       Int?
   genre         Genre?       @relation(fields: [genreId], references: [id])
   authors       BookAuthor[]
@@ -36,6 +41,27 @@ model Book {
   updatedAt     DateTime     @updatedAt
 
   @@index([title])
+}
+
+model Series {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  books Book[]
+}
+
+model Tag {
+  id    Int       @id @default(autoincrement())
+  name  String    @unique
+  books BookTag[]
+}
+
+model BookTag {
+  bookId Int
+  tagId  Int
+  book   Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  tag    Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([bookId, tagId])
 }
 
 model BookAuthor {

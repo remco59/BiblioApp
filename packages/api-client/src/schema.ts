@@ -36,6 +36,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/catalog/filters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["BooksController_filters"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/books/{id}": {
         parameters: {
             query?: never;
@@ -50,6 +66,182 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/covers/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["BooksController_cover"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/staff/books": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["StaffCatalogController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/staff/books/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["StaffCatalogController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["StaffCatalogController_update"];
+        trace?: never;
+    };
+    "/api/staff/books/{id}/copies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["StaffCatalogController_addCopy"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/staff/copies/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["StaffCatalogController_removeCopy"];
+        options?: never;
+        head?: never;
+        patch: operations["StaffCatalogController_updateCopy"];
+        trace?: never;
+    };
+    "/api/staff/books/{id}/cover": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["StaffCatalogController_uploadCover"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/staff/isbn/{isbn}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["StaffCatalogController_lookup"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/staff/books.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["StaffCatalogController_exportCsv"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/staff/books/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["StaffCatalogController_importCsv"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/staff/lookups/{kind}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["StaffCatalogController_listLookup"];
+        put?: never;
+        post: operations["StaffCatalogController_createLookup"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/staff/lookups/{kind}/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["StaffCatalogController_deleteLookup"];
+        options?: never;
+        head?: never;
+        patch: operations["StaffCatalogController_renameLookup"];
         trace?: never;
     };
     "/api/auth/register": {
@@ -244,16 +436,107 @@ export interface components {
         BookDto: {
             id: number;
             title: string;
-            isbn?: string | null;
-            description?: string | null;
+            isbn: string | null;
+            description: string | null;
             language: string;
-            publishedYear?: number | null;
-            genre?: string | null;
+            publishedYear: number | null;
+            genre: string | null;
+            coverUrl: string | null;
+            series: string | null;
+            seriesNumber: number | null;
+            tags: string[];
             authors: components["schemas"]["AuthorDto"][];
             /** @description Totaal aantal exemplaren */
             copiesTotal: number;
             /** @description Beschikbare exemplaren (afgeleid) */
             copiesAvailable: number;
+        };
+        BookPageDto: {
+            items: components["schemas"]["BookDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            /** @description “Bedoelde je…” bij 0 resultaten */
+            suggestion: string | null;
+        };
+        FiltersDto: {
+            genres: string[];
+            languages: string[];
+            tags: string[];
+            minYear: number | null;
+            maxYear: number | null;
+        };
+        CopyDto: {
+            id: number;
+            /** @description Alleen zichtbaar voor medewerkers */
+            barcode: string | null;
+            /** @enum {string} */
+            status: "AVAILABLE" | "LOANED" | "RESERVED_HOLD" | "LOST" | "DAMAGED";
+        };
+        BookDetailDto: {
+            id: number;
+            title: string;
+            isbn: string | null;
+            description: string | null;
+            language: string;
+            publishedYear: number | null;
+            genre: string | null;
+            coverUrl: string | null;
+            series: string | null;
+            seriesNumber: number | null;
+            tags: string[];
+            authors: components["schemas"]["AuthorDto"][];
+            /** @description Totaal aantal exemplaren */
+            copiesTotal: number;
+            /** @description Beschikbare exemplaren (afgeleid) */
+            copiesAvailable: number;
+            copies: components["schemas"]["CopyDto"][];
+            /** @description Vergelijkbare boeken */
+            similar: components["schemas"]["BookDto"][];
+        };
+        BookInputDto: {
+            title: string;
+            isbn?: string;
+            description?: string;
+            language?: string;
+            publishedYear?: number;
+            genre?: string;
+            authors?: string[];
+            tags?: string[];
+            series?: string;
+            seriesNumber?: number;
+            /** @description Externe cover-URL */
+            coverUrl?: string;
+        };
+        CopyInputDto: {
+            /** @description Leeg = automatisch genereren */
+            barcode?: string;
+        };
+        CopyUpdateDto: {
+            /** @enum {string} */
+            status: "AVAILABLE" | "LOANED" | "RESERVED_HOLD" | "LOST" | "DAMAGED";
+        };
+        IsbnMetadataDto: {
+            isbn: string;
+            title: string;
+            authors: string[];
+            description: string | null;
+            publishedYear: number | null;
+            language: string | null;
+            coverUrl: string | null;
+        };
+        ImportResultDto: {
+            created: number;
+            updated: number;
+            errors: string[];
+        };
+        NamedDto: {
+            id: number;
+            name: string;
+            books: number;
+        };
+        NameDto: {
+            name: string;
         };
         RegisterDto: {
             email: string;
@@ -317,6 +600,36 @@ export interface operations {
     };
     BooksController_list: {
         parameters: {
+            query?: {
+                q?: string;
+                genre?: string;
+                language?: string;
+                tag?: string;
+                yearFrom?: number;
+                yearTo?: number;
+                available?: boolean;
+                sort?: "relevance" | "title" | "year_desc" | "year_asc" | "newest";
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookPageDto"];
+                };
+            };
+        };
+    };
+    BooksController_filters: {
+        parameters: {
             query?: never;
             header?: never;
             path?: never;
@@ -329,7 +642,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["BookDto"][];
+                    "application/json": components["schemas"]["FiltersDto"];
                 };
             };
         };
@@ -350,7 +663,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["BookDto"];
+                    "application/json": components["schemas"]["BookDetailDto"];
                 };
             };
             404: {
@@ -358,6 +671,344 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    BooksController_cover: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StaffCatalogController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BookInputDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookDetailDto"];
+                };
+            };
+        };
+    };
+    StaffCatalogController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StaffCatalogController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BookInputDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookDetailDto"];
+                };
+            };
+        };
+    };
+    StaffCatalogController_addCopy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CopyInputDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CopyDto"];
+                };
+            };
+        };
+    };
+    StaffCatalogController_removeCopy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StaffCatalogController_updateCopy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CopyUpdateDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CopyDto"];
+                };
+            };
+        };
+    };
+    StaffCatalogController_uploadCover: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file?: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        coverUrl?: string;
+                    };
+                };
+            };
+        };
+    };
+    StaffCatalogController_lookup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                isbn: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IsbnMetadataDto"];
+                };
+            };
+        };
+    };
+    StaffCatalogController_exportCsv: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StaffCatalogController_importCsv: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "text/csv": string;
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportResultDto"];
+                };
+            };
+        };
+    };
+    StaffCatalogController_listLookup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                kind: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NamedDto"][];
+                };
+            };
+        };
+    };
+    StaffCatalogController_createLookup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                kind: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NameDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NamedDto"];
+                };
+            };
+        };
+    };
+    StaffCatalogController_deleteLookup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                kind: string;
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StaffCatalogController_renameLookup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                kind: string;
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NameDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NamedDto"];
+                };
             };
         };
     };

@@ -35,6 +35,17 @@ export async function createApp() {
   return { app, mail, prisma: app.get(PrismaService) };
 }
 
+export async function resetCatalog(prisma: PrismaService) {
+  await prisma.copy.deleteMany();
+  await prisma.bookTag.deleteMany();
+  await prisma.bookAuthor.deleteMany();
+  await prisma.book.deleteMany();
+  await prisma.author.deleteMany();
+  await prisma.genre.deleteMany();
+  await prisma.tag.deleteMany();
+  await prisma.series.deleteMany();
+}
+
 export async function resetDb(prisma: PrismaService) {
   await prisma.auditLog.deleteMany();
   await prisma.emailToken.deleteMany();
