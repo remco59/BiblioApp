@@ -5,6 +5,9 @@ import { api } from '../api';
 import { useAuth } from '../auth';
 import { Availability, BookList, Cover } from '../components/BookCard';
 import { ReserveBox } from '../components/ReserveBox';
+import { Reviews } from '../components/Reviews';
+import { Stars } from '../components/Stars';
+import { WishlistButton } from '../components/WishlistButton';
 import { useServerEvent } from '../lib/events';
 
 const STATUS: Record<string, string> = {
@@ -55,6 +58,11 @@ export function BookDetailPage() {
         <div>
           <h1>{book.title}</h1>
           <p className="meta">{book.authors.map((a) => a.name).join(', ')}</p>
+          {book.ratingCount > 0 && (
+            <p>
+              <Stars value={book.ratingAverage} count={book.ratingCount} />
+            </p>
+          )}
           <dl>
             {book.genre && (
               <>
@@ -94,6 +102,9 @@ export function BookDetailPage() {
           </dl>
           <Availability book={book} />
           <ReserveBox book={book} onChange={() => void load()} />
+          <p>
+            <WishlistButton bookId={book.id} />
+          </p>
           {isStaff && (
             <p>
               <Link to={`/staff/books/${book.id}`}>Bewerken</Link>
@@ -124,6 +135,8 @@ export function BookDetailPage() {
           </tbody>
         </table>
       )}
+
+      <Reviews bookId={book.id} />
 
       {book.similar.length > 0 && (
         <>

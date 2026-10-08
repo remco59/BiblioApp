@@ -11,9 +11,13 @@ import {
   ForgotPasswordDto,
   LoginDto,
   RegisterDto,
+  RecoveryCodesDto,
   ResetPasswordDto,
   SessionUserDto,
   TokenDto,
+  TotpCodeDto,
+  TotpDisableDto,
+  TotpSetupDto,
 } from './dto';
 
 @ApiTags('auth')
@@ -45,7 +49,7 @@ export class AuthController {
   @HttpCode(200)
   @ApiOkResponse({ type: SessionUserDto })
   async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: FastifyReply) {
-    const { token, user } = await this.auth.login(dto.email, dto.password);
+    const { token, user } = await this.auth.login(dto.email, dto.password, dto.totp);
     res.setCookie(SESSION_COOKIE, token, {
       httpOnly: true,
       sameSite: 'lax',
@@ -86,5 +90,28 @@ export class AuthController {
   @HttpCode(204)
   async reset(@Body() dto: ResetPasswordDto) {
     await this.auth.resetPassword(dto.token, dto.password);
+  }
+
+  @Post('2fa/setup')
+  @HttpCode(200)
+  @ApiOkResponse({ type: TotpSetupDto })
+  setup2fa(@Req() req: AuthGuardRequest) {
+    return this.auth.setupTotp(req.user!.id);
+  }
+
+  @Post('2fa/enable')
+  @HttpCode(200)
+  @ApiOkResponse({ type: RecoveryCodesDto })
+  async enable2fa(
+    @Body() dto: TotpCodeDto,
+    @Req() req: AuthGuardRequest,
+  ): Promise<RecoveryCodesDto> {
+    return { codes: await this.auth.enableTotp(req.user!.id, dto.code) };
+  }
+
+  @Post('2fa/disable')
+  @HttpCode(204)
+  async disable2fa(@Body() dto: TotpDisableDto, @Req() req: AuthGuardRequest) {
+    await this.auth.disableTotp(req.user!.id, dto.password, dto.code);
   }
 }

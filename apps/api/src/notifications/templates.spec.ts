@@ -26,3 +26,28 @@ describe('notificatietemplates', () => {
     );
   });
 });
+
+describe('aanpasbare templates', () => {
+  it('vult plaatshouders en laat onbekende leeg', () => {
+    const n = renderNotification(
+      'RESERVATION_READY',
+      'nl',
+      { title: 'X', date: new Date('2026-03-05T12:00:00Z') },
+      { title: 'Hoi {{title}}', body: 'Tot {{date}} {{bestaatniet}}!' },
+    );
+    expect(n).toEqual({ title: 'Hoi X', body: 'Tot 5 maart 2026 !' });
+  });
+
+  it('plakt een notitie met een spatie ervoor', () => {
+    expect(
+      renderNotification('SUGGESTION_UPDATED', 'nl', {
+        title: 'T',
+        status: 'goedgekeurd',
+        note: 'Komt in november.',
+      }).body,
+    ).toBe('Je suggestie “T” heeft nu de status: goedgekeurd. Komt in november.');
+    expect(
+      renderNotification('SUGGESTION_UPDATED', 'en', { title: 'T', status: 'approved' }).body,
+    ).toBe('Your suggestion “T” now has the status: approved.');
+  });
+});

@@ -106,3 +106,28 @@ Lokaal kun je `PW_CHROMIUM=/pad/naar/chromium` zetten om een bestaande browser t
   (taalvoorkeur in het profiel).
 - **Realtime** via Server-Sent Events (`GET /api/events`): beschikbaarheid (iedereen) en eigen meldingen.
 - **Staff**: overzicht te late boeken met handmatige aanmaning (`/staff/overdue`) en alle reserveringen.
+
+## Community en rapportage (fase 6)
+
+- **Reviews en sterren**: alleen leden die het boek hebben geleend; elke review (en elke wijziging) gaat
+  eerst langs moderatie (`/staff/moderation`); gemiddelde en verdeling op de boekpagina en in de catalogus.
+- **Verlanglijst** (`/my/wishlist`) met melding zodra een verlangd boek beschikbaar komt (niet bij
+  klaarleggen voor een reservering, niet voor wie het net inleverde, niet dubbel zolang ongelezen).
+- **Aankoopsuggesties** indienen (`/my/suggestions`) en afhandelen door medewerkers (status + opmerking
+  → melding aan het lid).
+- **Aanbevelingen**: “vergelijkbare boeken” op score (auteur, reeks, genre, trefwoorden, beoordeling) en
+  “Aanbevolen voor jou” op basis van geleende boeken en verlanglijst.
+- **Rapportages** (`/staff/reports`, `GET /api/staff/reports/*`): populairste boeken, uitleenvolume (per
+  dag/maand), achterstanden en boete-inkomsten; elk met `?format=csv`.
+- **Admin**: gebruikers en rollen (sessies vervallen bij wijziging; geen zelf-uitsluiting en altijd
+  minimaal één actieve admin), account uitschakelen, auditlog-viewer en aanpasbare e-mailtemplates
+  (plaatshouders `{{title}}`, `{{date}}`, …; terugzetten naar standaard mogelijk).
+- **2FA (TOTP)**: instellen met QR-code in het profiel, 10 eenmalige herstelcodes (gehasht opgeslagen),
+  een code werkt maar één keer (geen replay). Zelf geïmplementeerd volgens RFC 6238 en getest met de
+  RFC-testvectoren.
+- **Online boetebetaling** via een provider-interface (`PaymentProvider`). Standaard (buiten productie)
+  de `mock`-provider met een nep-betaalpagina (`/pay/mock/:ref`). In productie is online betalen uit
+  tot je een echte provider koppelt: implementeer `PaymentProvider` (`createCheckout` en `fetchStatus`,
+  bv. voor Mollie), registreer die in `PaymentsService` en wijs je webhook naar
+  `POST /api/payments/webhook {providerRef}`; de status wordt altijd bij de provider opgevraagd en een
+  betaling wordt idempotent geboekt. Zet `PAYMENT_PROVIDER=none` om het uit te zetten.

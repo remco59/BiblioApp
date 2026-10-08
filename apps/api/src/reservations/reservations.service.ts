@@ -5,6 +5,7 @@ import { DomainError } from '../loans/errors';
 import { SettingsService } from '../loans/settings.service';
 import { EventsService } from '../notifications/events.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { CommunityService } from '../community/community.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { ReservationDto } from './dto';
 
@@ -20,6 +21,8 @@ type Row = Prisma.ReservationGetPayload<{ include: typeof include }>;
 export interface QueueEffects {
   notifications: Notification[];
   bookIds: number[];
+  /** Gebruikers die géén verlanglijst-melding krijgen (bijv. wie het boek net zelf inleverde). */
+  skipWishlistUserIds?: number[];
 }
 
 @Injectable()
@@ -30,6 +33,7 @@ export class ReservationsService {
     private readonly notifications: NotificationsService,
     private readonly events: EventsService,
     private readonly audit: AuditService,
+    private readonly community: CommunityService,
   ) {}
 
   /** Realtime + e-mail na een gecommitte wijziging. */
@@ -37,6 +41,9 @@ export class ReservationsService {
     for (const bookId of new Set(effects.bookIds))
       this.events.emit({ type: 'availability', bookId });
     await this.notifications.dispatch(effects.notifications);
+    // Verlanglijst: boek is (weer) beschikbaar gekomen
+    for (const bookId of new Set(effects.bookIds))
+      await this.community.notifyWishlistAvailable(bookId, effects.skipWishlistUserIds);
   }
 
   private async toDto(r: Row): Promise<ReservationDto> {

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { BooksService, bookInclude } from './books.service';
+import { bookInclude } from './book-mapper';
+import { BooksService } from './books.service';
 import { parseCsv, toCsv } from './csv';
 import { ImportResultDto } from './dto';
 import { isValidIsbn, normalizeIsbn } from './isbn.service';

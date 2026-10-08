@@ -8,6 +8,9 @@ import { NotificationType, renderNotification, TemplateData } from './templates'
 
 const EMAIL_JOB = 'send-notification-email';
 
+const bookData = (d: TemplateData): Prisma.InputJsonValue | undefined =>
+  d.bookId ? { bookId: d.bookId } : undefined;
+
 @Injectable()
 export class NotificationsService implements OnModuleInit {
   constructor(
@@ -34,8 +37,17 @@ export class NotificationsService implements OnModuleInit {
       where: { id: userId },
       select: { locale: true },
     });
-    const { title, body } = renderNotification(type, user.locale, data);
-    return tx.notification.create({ data: { userId, type, title, body } });
+    const locale = user.locale === 'en' ? 'en' : 'nl';
+    const override = await tx.emailTemplate.findUnique({
+      where: { type_locale: { type, locale } },
+    });
+    const { title, body } = renderNotification(
+      type,
+      locale,
+      data,
+      override && { title: override.subject, body: override.body },
+    );
+    return tx.notification.create({ data: { userId, type, title, body, data: bookData(data) } });
   }
 
   /** Na commit: realtime event + e-mail via de job-queue (met retries). */

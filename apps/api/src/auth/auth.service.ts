@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  HttpStatus,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -11,7 +12,10 @@ import { AuditService } from '../audit/audit.service';
 import { MailService } from '../mail/mail.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { SessionUserDto } from './dto';
+import { DomainError } from '../loans/errors';
 import { hashToken, newToken } from './tokens';
+import { generateSecret, otpauthUrl, verifyTotp } from './totp';
+import { randomBytes } from 'node:crypto';
 
 const SESSION_TTL_MS = 7 * 24 * 3600 * 1000;
 const VERIFY_TTL_MS = 24 * 3600 * 1000;
@@ -94,7 +98,11 @@ export class AuthService {
     await this.audit.log('auth.verify_email', row.userId);
   }
 
-  async login(email: string, password: string): Promise<{ token: string; user: SessionUserDto }> {
+  async login(
+    email: string,
+    password: string,
+    totpCode?: string,
+  ): Promise<{ token: string; user: SessionUserDto }> {
     const user = await this.prisma.user.findUnique({
       where: { email: email.toLowerCase() },
       include: { member: true },
@@ -105,6 +113,20 @@ export class AuthService {
       throw new UnauthorizedException('Onjuiste inloggegevens');
     }
     if (!user.emailVerifiedAt) throw new ForbiddenException('E-mailadres nog niet bevestigd');
+    if (user.disabledAt)
+      throw new DomainError(
+        'Dit account is uitgeschakeld',
+        'ACCOUNT_DISABLED',
+        HttpStatus.FORBIDDEN,
+      );
+    if (user.totpEnabledAt) {
+      if (!totpCode)
+        throw new DomainError('Voer je 2FA-code in', 'TOTP_REQUIRED', HttpStatus.UNAUTHORIZED);
+      if (!(await this.checkSecondFactor(user, totpCode))) {
+        await this.audit.log('auth.login_failed', user.id, { reason: '2fa' });
+        throw new DomainError('Onjuiste 2FA-code', 'TOTP_INVALID', HttpStatus.UNAUTHORIZED);
+      }
+    }
     const token = newToken();
     const csrfToken = newToken();
     await this.prisma.session.create({
@@ -126,6 +148,7 @@ export class AuthService {
       name: string;
       role: string;
       locale: string;
+      totpEnabledAt?: Date | null;
       member?: { memberNumber: string } | null;
     },
     csrfToken: string,
@@ -136,6 +159,7 @@ export class AuthService {
       name: user.name,
       role: user.role,
       locale: user.locale,
+      totpEnabled: !!user.totpEnabledAt,
       memberNumber: user.member?.memberNumber ?? null,
       csrfToken,
     };
@@ -180,5 +204,80 @@ export class AuthService {
       return null;
     }
     return session;
+  }
+
+  /** Tweede factor: TOTP-code (eenmalig per tijdstap) of een herstelcode (eenmalig). */
+  private async checkSecondFactor(
+    user: { id: number; totpSecret: string | null; totpLastStep: number | null },
+    code: string,
+  ): Promise<boolean> {
+    const clean = code.trim().replace(/\s/g, '');
+    if (user.totpSecret && /^\d{6}$/.test(clean)) {
+      const step = verifyTotp(user.totpSecret, clean);
+      if (step === null) return false;
+      // Dezelfde (of een oudere) stap mag niet opnieuw gebruikt worden
+      const claimed = await this.prisma.user.updateMany({
+        where: { id: user.id, OR: [{ totpLastStep: null }, { totpLastStep: { lt: step } }] },
+        data: { totpLastStep: step },
+      });
+      return claimed.count === 1;
+    }
+    const used = await this.prisma.recoveryCode.updateMany({
+      where: { userId: user.id, codeHash: hashToken(clean.toLowerCase()), usedAt: null },
+      data: { usedAt: new Date() },
+    });
+    if (used.count === 1) await this.audit.log('auth.recovery_code_used', user.id);
+    return used.count === 1;
+  }
+
+  async setupTotp(userId: number) {
+    const user = await this.prisma.user.findUniqueOrThrow({ where: { id: userId } });
+    if (user.totpEnabledAt) throw new DomainError('2FA staat al aan', 'TOTP_ALREADY_ENABLED');
+    const secret = generateSecret();
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { totpSecret: secret, totpLastStep: null },
+    });
+    return { secret, otpauthUrl: otpauthUrl(secret, user.email) };
+  }
+
+  /** Schakelt 2FA in na het bevestigen van een code; geeft eenmalig de herstelcodes terug. */
+  async enableTotp(userId: number, code: string): Promise<string[]> {
+    const user = await this.prisma.user.findUniqueOrThrow({ where: { id: userId } });
+    if (user.totpEnabledAt) throw new DomainError('2FA staat al aan', 'TOTP_ALREADY_ENABLED');
+    const step = user.totpSecret ? verifyTotp(user.totpSecret, code.trim()) : null;
+    if (step === null)
+      throw new DomainError('Onjuiste code', 'TOTP_INVALID', HttpStatus.BAD_REQUEST);
+    const codes = Array.from({ length: 10 }, () => randomBytes(5).toString('hex'));
+    await this.prisma.$transaction([
+      this.prisma.user.update({
+        where: { id: userId },
+        data: { totpEnabledAt: new Date(), totpLastStep: step },
+      }),
+      this.prisma.recoveryCode.deleteMany({ where: { userId } }),
+      this.prisma.recoveryCode.createMany({
+        data: codes.map((c) => ({ userId, codeHash: hashToken(c) })),
+      }),
+    ]);
+    await this.audit.log('auth.2fa_enabled', userId);
+    return codes;
+  }
+
+  async disableTotp(userId: number, password: string, code: string) {
+    const user = await this.prisma.user.findUniqueOrThrow({ where: { id: userId } });
+    if (!user.totpEnabledAt) throw new DomainError('2FA staat niet aan', 'TOTP_NOT_ENABLED');
+    if (!(await verify(user.passwordHash, password).catch(() => false))) {
+      throw new DomainError('Onjuist wachtwoord', 'PASSWORD_INVALID', HttpStatus.FORBIDDEN);
+    }
+    if (!(await this.checkSecondFactor(user, code)))
+      throw new DomainError('Onjuiste code', 'TOTP_INVALID', HttpStatus.BAD_REQUEST);
+    await this.prisma.$transaction([
+      this.prisma.user.update({
+        where: { id: userId },
+        data: { totpEnabledAt: null, totpSecret: null, totpLastStep: null },
+      }),
+      this.prisma.recoveryCode.deleteMany({ where: { userId } }),
+    ]);
+    await this.audit.log('auth.2fa_disabled', userId);
   }
 }

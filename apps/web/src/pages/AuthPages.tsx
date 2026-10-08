@@ -41,16 +41,25 @@ export function LoginPage() {
   const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [totp, setTotp] = useState('');
+  const [needsCode, setNeedsCode] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function submit(e: FormEvent) {
     e.preventDefault();
     setError(null);
-    const { data, error: err } = await api.POST('/api/auth/login', { body: { email, password } });
+    const { data, error: err } = await api.POST('/api/auth/login', {
+      body: { email, password, totp: totp || undefined },
+    });
     if (data) {
       setUser(data);
       navigate((location.state as { from?: string } | null)?.from ?? '/', { replace: true });
-    } else setError(errorMessage(err));
+    } else {
+      if ((err as { code?: string } | undefined)?.code === 'TOTP_REQUIRED') {
+        setNeedsCode(true);
+        setError(null);
+      } else setError(errorMessage(err));
+    }
   }
 
   return (
@@ -70,6 +79,19 @@ export function LoginPage() {
           onChange={setPassword}
           autoComplete="current-password"
         />
+        {needsCode && (
+          <label className="field">
+            <span>2FA-code (of herstelcode)</span>
+            <input
+              value={totp}
+              onChange={(e) => setTotp(e.target.value)}
+              autoComplete="one-time-code"
+              inputMode="numeric"
+              autoFocus
+              required
+            />
+          </label>
+        )}
         {error && (
           <p role="alert" className="error">
             {error}

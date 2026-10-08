@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import type { Book } from '@biblio/api-client';
+import { Stars } from './Stars';
 
 export function Cover({
   book,
@@ -48,6 +49,11 @@ export function BookCard({ book }: { book: Book }) {
           {book.genre ? ` · ${book.genre}` : ''}
           {book.publishedYear ? ` · ${book.publishedYear}` : ''}
         </p>
+        {book.ratingCount > 0 && (
+          <p className="meta">
+            <Stars value={book.ratingAverage} count={book.ratingCount} />
+          </p>
+        )}
         <Availability book={book} />
       </div>
     </li>

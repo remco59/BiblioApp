@@ -30,6 +30,14 @@ export function MyLoansPage() {
     void load();
   }
 
+  async function payOnline(fineId: number) {
+    const { data, error } = await api.POST('/api/me/fines/{id}/pay-online', {
+      params: { path: { id: fineId } },
+    });
+    if (data) window.location.href = data.checkoutUrl;
+    else setMessage({ text: errorMessage(error), error: true });
+  }
+
   async function cancel(id: number) {
     await api.POST('/api/me/reservations/{id}/cancel', { params: { path: { id } } });
     setMessage({ text: 'Reservering geannuleerd' });
@@ -86,7 +94,14 @@ export function MyLoansPage() {
         </ul>
       )}
       <h2>Boetes</h2>
-      <FineTable fines={m.fines} />
+      <FineTable
+        fines={m.fines}
+        actions={(f) => (
+          <button className="link" onClick={() => void payOnline(f.id)}>
+            Online betalen
+          </button>
+        )}
+      />
       <h2>Geschiedenis</h2>
       <LoanTable loans={m.loans.filter((l) => l.returnedAt)} />
     </>

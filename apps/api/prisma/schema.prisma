@@ -21,25 +21,27 @@ model Genre {
 }
 
 model Book {
-  id            Int           @id @default(autoincrement())
+  id            Int            @id @default(autoincrement())
   title         String
-  isbn          String?       @unique
+  isbn          String?        @unique
   description   String?
-  language      String        @default("nl")
+  language      String         @default("nl")
   publishedYear Int?
   coverUrl      String?
   coverKey      String?
   seriesId      Int?
   seriesNumber  Int?
-  series        Series?       @relation(fields: [seriesId], references: [id], onDelete: SetNull)
+  series        Series?        @relation(fields: [seriesId], references: [id], onDelete: SetNull)
   tags          BookTag[]
   genreId       Int?
-  genre         Genre?        @relation(fields: [genreId], references: [id])
+  genre         Genre?         @relation(fields: [genreId], references: [id])
   authors       BookAuthor[]
   copies        Copy[]
   reservations  Reservation[]
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  reviews       Review[]
+  wishlisted    WishlistItem[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 
   @@index([title])
 }
@@ -116,11 +118,19 @@ model User {
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
   locale          String         @default("nl")
+  disabledAt      DateTime?
+  totpSecret      String?
+  totpEnabledAt   DateTime?
+  totpLastStep    Int?
   member          Member?
   notifications   Notification[]
   sessions        Session[]
   emailTokens     EmailToken[]
   auditLogs       AuditLog[]
+  recoveryCodes   RecoveryCode[]
+  reviews         Review[]
+  wishlistItems   WishlistItem[]
+  suggestions     Suggestion[]
 }
 
 model Member {
@@ -198,6 +208,7 @@ model Loan {
   @@index([memberId])
   @@index([copyId])
   @@index([dueAt])
+  @@index([loanedAt])
 }
 
 enum FineReason {
@@ -207,18 +218,19 @@ enum FineReason {
 }
 
 model Fine {
-  id          Int        @id @default(autoincrement())
-  memberId    Int
-  member      Member     @relation(fields: [memberId], references: [id])
-  loanId      Int?
-  loan        Loan?      @relation(fields: [loanId], references: [id])
-  reason      FineReason
-  amountCents Int
-  note        String?
-  waivedAt    DateTime?
-  waivedById  Int?
-  createdAt   DateTime   @default(now())
-  payments    Payment[]
+  id             Int             @id @default(autoincrement())
+  memberId       Int
+  member         Member          @relation(fields: [memberId], references: [id])
+  loanId         Int?
+  loan           Loan?           @relation(fields: [loanId], references: [id])
+  reason         FineReason
+  amountCents    Int
+  note           String?
+  waivedAt       DateTime?
+  waivedById     Int?
+  createdAt      DateTime        @default(now())
+  payments       Payment[]
+  onlinePayments OnlinePayment[]
 
   @@index([memberId])
 }
@@ -278,4 +290,104 @@ model Notification {
   createdAt DateTime  @default(now())
 
   @@index([userId, readAt])
+}
+
+model RecoveryCode {
+  id       Int       @id @default(autoincrement())
+  userId   Int
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  codeHash String
+  usedAt   DateTime?
+
+  @@index([userId])
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Review {
+  id             Int          @id @default(autoincrement())
+  bookId         Int
+  book           Book         @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  userId         Int
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating         Int
+  body           String?
+  status         ReviewStatus @default(PENDING)
+  moderationNote String?
+  moderatedById  Int?
+  moderatedAt    DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([bookId, userId])
+  @@index([bookId, status])
+}
+
+model WishlistItem {
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bookId    Int
+  book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([userId, bookId])
+}
+
+enum SuggestionStatus {
+  SUBMITTED
+  APPROVED
+  REJECTED
+  ORDERED
+  ADDED
+}
+
+model Suggestion {
+  id          Int              @id @default(autoincrement())
+  userId      Int
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  author      String
+  isbn        String?
+  reason      String?
+  status      SuggestionStatus @default(SUBMITTED)
+  staffNote   String?
+  handledById Int?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([status])
+}
+
+model EmailTemplate {
+  id      Int    @id @default(autoincrement())
+  type    String
+  locale  String
+  subject String
+  body    String
+
+  @@unique([type, locale])
+}
+
+enum OnlinePaymentStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+model OnlinePayment {
+  id          Int                 @id @default(autoincrement())
+  fineId      Int
+  fine        Fine                @relation(fields: [fineId], references: [id], onDelete: Cascade)
+  amountCents Int
+  provider    String
+  providerRef String              @unique
+  status      OnlinePaymentStatus @default(PENDING)
+  createdAt   DateTime            @default(now())
+  paidAt      DateTime?
+
+  @@index([fineId])
 }

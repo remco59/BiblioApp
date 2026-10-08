@@ -263,6 +263,11 @@ export class LoansService {
         });
         reservedFor = hold?.member.user.name ?? null;
       }
+      const returner = await tx.member.findUniqueOrThrow({
+        where: { id: loan.memberId },
+        select: { userId: true },
+      });
+      effects.skipWishlistUserIds = [returner.userId];
       return { loanId: loan.id, fineId, late, reservedFor };
     });
     await this.audit.log('loan.checkin', staffUserId, {
