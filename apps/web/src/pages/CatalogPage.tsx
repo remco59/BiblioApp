@@ -4,7 +4,6 @@ import type { BookPage, Filters } from '@biblio/api-client';
 import { api } from '../api';
 import { BookList } from '../components/BookCard';
 import { Pagination } from '../components/Pagination';
-import { Recommendations } from '../components/Recommendations';
 import { useServerEvent } from '../lib/events';
 
 const SORTS = [
@@ -98,7 +97,6 @@ export function CatalogPage() {
         <button type="submit">Zoeken</button>
       </form>
 
-      {params.toString() === '' && <Recommendations refresh={refresh} />}
       <div className="catalog-layout">
         <form className="filters" aria-label="Filters" onSubmit={(e) => e.preventDefault()}>
           <label className="field">

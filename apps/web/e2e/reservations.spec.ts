@@ -54,7 +54,7 @@ test('reserveren, klaarleggen bij inname en live melding aan het lid', async ({ 
 
   // 2. Lid ziet het boek niet beschikbaar en reserveert
   await loginAs(lid, 'lid@biblio.nl');
-  await lid.goto('/?q=' + encodeURIComponent(TITLE));
+  await lid.goto('/catalogus?q=' + encodeURIComponent(TITLE));
   await lid.getByRole('link', { name: TITLE }).click();
   await expect(lid.getByText(/0 van 1 beschikbaar/)).toBeVisible();
   await lid.getByRole('button', { name: 'Reserveren' }).click();

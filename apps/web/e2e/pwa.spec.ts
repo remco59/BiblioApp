@@ -7,7 +7,7 @@ test.describe('PWA', () => {
       'href',
       '/manifest.webmanifest',
     );
-    await expect(page.locator('meta[name=theme-color]')).toHaveAttribute('content', '#1d4ed8');
+    await expect(page.locator('meta[name=theme-color]')).toHaveAttribute('content', '#7a4a2a');
 
     const manifest = await (await request.get('/manifest.webmanifest')).json();
     expect(manifest).toMatchObject({
@@ -38,7 +38,7 @@ test.describe('PWA', () => {
     await page.evaluate(() => navigator.serviceWorker.ready);
     // eerste pagina is gecachet na installatie; laad opnieuw zodat de SW de pagina beheert
     await page.reload();
-    await expect(page.getByRole('heading', { name: 'Catalogus' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Goede|Welkom/ })).toBeVisible();
 
     const cacheKeys = await page.evaluate(async () => {
       const names = await caches.keys();
@@ -54,7 +54,7 @@ test.describe('PWA', () => {
 
     await context.setOffline(true);
     await page.reload();
-    await expect(page.getByRole('heading', { name: 'Catalogus' })).toBeVisible(); // shell uit de cache
+    await expect(page.getByRole('heading', { name: /Goede|Welkom/ })).toBeVisible(); // shell uit de cache
     // een diepe pagina valt terug op de shell (SPA) – en de offline-pagina bestaat als vangnet
     await page.goto('/privacy');
     await expect(page.getByRole('heading', { name: 'Privacy' })).toBeVisible();

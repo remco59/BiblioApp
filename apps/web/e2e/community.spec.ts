@@ -45,7 +45,7 @@ test('lid leent, schrijft een review, medewerker keurt goed en de sterren versch
 
   // (Dat je zonder uitleen niet kunt reviewen is in de API-tests gedekt; dev-data kan al een uitleen bevatten.)
   await loginAs(lid, 'lid@biblio.nl');
-  await lid.goto('/?q=' + TITLE);
+  await lid.goto('/catalogus?q=' + TITLE);
   await lid.getByRole('link', { name: TITLE }).click();
   await expect(lid.getByRole('heading', { name: 'Reviews' })).toBeVisible();
 
@@ -82,7 +82,7 @@ test('lid leent, schrijft een review, medewerker keurt goed en de sterren versch
   await lid.reload();
   await expect(lid.locator('.reviews').getByText('Heerlijk tijdsbeeld.')).toBeVisible();
   await expect(lid.getByRole('img', { name: /4 van 5 sterren/ }).first()).toBeVisible();
-  await lid.goto('/?q=' + TITLE);
+  await lid.goto('/catalogus?q=' + TITLE);
   await expect(lid.getByRole('img', { name: /4 van 5 sterren/ })).toBeVisible();
 
   await staffCtx.close();
@@ -91,7 +91,7 @@ test('lid leent, schrijft een review, medewerker keurt goed en de sterren versch
 
 test('verlanglijst en aankoopsuggestie', async ({ page }) => {
   await loginAs(page, 'lid@biblio.nl');
-  await page.goto('/?q=' + TITLE);
+  await page.goto('/catalogus?q=' + TITLE);
   await page.getByRole('link', { name: TITLE }).click();
   await page.getByRole('button', { name: /Op verlanglijst/ }).click();
   await expect(page.getByRole('button', { name: /Op je verlanglijst/ })).toBeVisible();
