@@ -677,6 +677,514 @@
         ]
       }
     },
+    "/api/staff/loans/checkout": {
+      "post": {
+        "operationId": "DeskController_checkout",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckoutDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "desk"
+        ]
+      }
+    },
+    "/api/staff/loans/checkin": {
+      "post": {
+        "operationId": "DeskController_checkin",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckinDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckinResultDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "desk"
+        ]
+      }
+    },
+    "/api/staff/loans/{id}/lost": {
+      "post": {
+        "operationId": "DeskController_lost",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckinResultDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "desk"
+        ]
+      }
+    },
+    "/api/staff/loans/{id}/renew": {
+      "post": {
+        "operationId": "DeskController_renew",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "desk"
+        ]
+      }
+    },
+    "/api/staff/loans": {
+      "get": {
+        "operationId": "DeskController_list",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "active",
+                "overdue"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LoanDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "desk"
+        ]
+      }
+    },
+    "/api/staff/members": {
+      "get": {
+        "operationId": "DeskController_searchMembers",
+        "parameters": [
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MemberDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "desk"
+        ]
+      }
+    },
+    "/api/staff/members/{id}": {
+      "get": {
+        "operationId": "DeskController_member",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "desk"
+        ]
+      }
+    },
+    "/api/staff/members/{id}/block": {
+      "patch": {
+        "operationId": "DeskController_block",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BlockDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "desk"
+        ]
+      }
+    },
+    "/api/staff/members/{id}/extend": {
+      "post": {
+        "operationId": "DeskController_extend",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExtendDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "desk"
+        ]
+      }
+    },
+    "/api/staff/fines/{id}/pay": {
+      "post": {
+        "operationId": "DeskController_pay",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PayDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FineDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "desk"
+        ]
+      }
+    },
+    "/api/staff/fines/{id}/waive": {
+      "post": {
+        "operationId": "DeskController_waive",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FineDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "desk"
+        ]
+      }
+    },
+    "/api/staff/settings": {
+      "get": {
+        "operationId": "DeskController_getSettings",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "desk"
+        ]
+      }
+    },
+    "/api/staff/labels": {
+      "get": {
+        "operationId": "DeskController_labels",
+        "parameters": [
+          {
+            "name": "bookId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LabelDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "desk"
+        ]
+      }
+    },
+    "/api/admin/settings": {
+      "patch": {
+        "operationId": "AdminSettingsController_update",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSettingsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/me/membership": {
+      "get": {
+        "operationId": "MeController_membership",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/api/me/loans/{id}/renew": {
+      "post": {
+        "operationId": "MeController_renew",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "me"
+        ]
+      }
+    },
     "/api/auth/register": {
       "post": {
         "operationId": "AuthController_register",
@@ -1384,6 +1892,471 @@
         "required": [
           "name"
         ]
+      },
+      "CheckoutDto": {
+        "type": "object",
+        "properties": {
+          "memberNumber": {
+            "type": "string",
+            "description": "Lidnummer (pas) van het lid"
+          },
+          "barcode": {
+            "type": "string",
+            "description": "Barcode van het exemplaar"
+          }
+        },
+        "required": [
+          "memberNumber",
+          "barcode"
+        ]
+      },
+      "LoanDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "bookId": {
+            "type": "number"
+          },
+          "title": {
+            "type": "string"
+          },
+          "barcode": {
+            "type": "string"
+          },
+          "memberId": {
+            "type": "number"
+          },
+          "memberNumber": {
+            "type": "string"
+          },
+          "memberName": {
+            "type": "string"
+          },
+          "loanedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dueAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "returnedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "RETURNED",
+              "LOST",
+              "DAMAGED"
+            ],
+            "nullable": true
+          },
+          "renewals": {
+            "type": "number"
+          },
+          "overdue": {
+            "type": "boolean",
+            "description": "Actief en over de uiterste inleverdatum"
+          },
+          "canRenew": {
+            "type": "boolean",
+            "description": "Kan het lid dit nog verlengen?"
+          }
+        },
+        "required": [
+          "id",
+          "bookId",
+          "title",
+          "barcode",
+          "memberId",
+          "memberNumber",
+          "memberName",
+          "loanedAt",
+          "dueAt",
+          "returnedAt",
+          "outcome",
+          "renewals",
+          "overdue",
+          "canRenew"
+        ]
+      },
+      "CheckinDto": {
+        "type": "object",
+        "properties": {
+          "barcode": {
+            "type": "string"
+          },
+          "condition": {
+            "type": "string",
+            "enum": [
+              "OK",
+              "DAMAGED"
+            ],
+            "default": "OK"
+          }
+        },
+        "required": [
+          "barcode"
+        ]
+      },
+      "FineDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "memberId": {
+            "type": "number"
+          },
+          "loanId": {
+            "type": "number",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "OVERDUE",
+              "LOST",
+              "DAMAGED"
+            ]
+          },
+          "amountCents": {
+            "type": "number"
+          },
+          "paidCents": {
+            "type": "number"
+          },
+          "outstandingCents": {
+            "type": "number",
+            "description": "Nog te betalen (0 als betaald of kwijtgescholden)"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "PAID",
+              "WAIVED"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "memberId",
+          "loanId",
+          "title",
+          "reason",
+          "amountCents",
+          "paidCents",
+          "outstandingCents",
+          "status",
+          "createdAt"
+        ]
+      },
+      "CheckinResultDto": {
+        "type": "object",
+        "properties": {
+          "loan": {
+            "$ref": "#/components/schemas/LoanDto"
+          },
+          "fine": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/FineDto"
+              }
+            ]
+          },
+          "daysLate": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "loan",
+          "fine",
+          "daysLate"
+        ]
+      },
+      "MemberDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "userId": {
+            "type": "number"
+          },
+          "memberNumber": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "membershipUntil": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "membershipValid": {
+            "type": "boolean"
+          },
+          "blocked": {
+            "type": "boolean"
+          },
+          "blockedReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "activeLoans": {
+            "type": "number"
+          },
+          "overdueLoans": {
+            "type": "number"
+          },
+          "outstandingFinesCents": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "memberNumber",
+          "name",
+          "email",
+          "membershipUntil",
+          "membershipValid",
+          "blocked",
+          "blockedReason",
+          "activeLoans",
+          "overdueLoans",
+          "outstandingFinesCents"
+        ]
+      },
+      "MemberDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "userId": {
+            "type": "number"
+          },
+          "memberNumber": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "membershipUntil": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "membershipValid": {
+            "type": "boolean"
+          },
+          "blocked": {
+            "type": "boolean"
+          },
+          "blockedReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "activeLoans": {
+            "type": "number"
+          },
+          "overdueLoans": {
+            "type": "number"
+          },
+          "outstandingFinesCents": {
+            "type": "number"
+          },
+          "loans": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LoanDto"
+            }
+          },
+          "fines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FineDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "memberNumber",
+          "name",
+          "email",
+          "membershipUntil",
+          "membershipValid",
+          "blocked",
+          "blockedReason",
+          "activeLoans",
+          "overdueLoans",
+          "outstandingFinesCents",
+          "loans",
+          "fines"
+        ]
+      },
+      "BlockDto": {
+        "type": "object",
+        "properties": {
+          "blocked": {
+            "type": "boolean"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "blocked"
+        ]
+      },
+      "ExtendDto": {
+        "type": "object",
+        "properties": {
+          "months": {
+            "type": "number",
+            "description": "Aantal maanden (standaard: instelling)"
+          }
+        }
+      },
+      "PayDto": {
+        "type": "object",
+        "properties": {
+          "amountCents": {
+            "type": "number",
+            "description": "Bedrag in centen"
+          },
+          "method": {
+            "type": "string",
+            "default": "CASH"
+          }
+        },
+        "required": [
+          "amountCents"
+        ]
+      },
+      "SettingsDto": {
+        "type": "object",
+        "properties": {
+          "loanDays": {
+            "type": "number"
+          },
+          "maxRenewals": {
+            "type": "number"
+          },
+          "renewalDays": {
+            "type": "number"
+          },
+          "maxLoansPerMember": {
+            "type": "number"
+          },
+          "finePerDayCents": {
+            "type": "number"
+          },
+          "fineCapCents": {
+            "type": "number"
+          },
+          "blockFinesThresholdCents": {
+            "type": "number",
+            "description": "Vanaf dit openstaande bedrag mag een lid niet meer lenen"
+          },
+          "lostFeeCents": {
+            "type": "number"
+          },
+          "damagedFeeCents": {
+            "type": "number"
+          },
+          "membershipMonths": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "loanDays",
+          "maxRenewals",
+          "renewalDays",
+          "maxLoansPerMember",
+          "finePerDayCents",
+          "fineCapCents",
+          "blockFinesThresholdCents",
+          "lostFeeCents",
+          "damagedFeeCents",
+          "membershipMonths"
+        ]
+      },
+      "LabelDto": {
+        "type": "object",
+        "properties": {
+          "barcode": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "bookId": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "barcode",
+          "title",
+          "bookId"
+        ]
+      },
+      "UpdateSettingsDto": {
+        "type": "object",
+        "properties": {
+          "loanDays": {
+            "type": "number"
+          },
+          "maxRenewals": {
+            "type": "number"
+          },
+          "renewalDays": {
+            "type": "number"
+          },
+          "maxLoansPerMember": {
+            "type": "number"
+          },
+          "finePerDayCents": {
+            "type": "number"
+          },
+          "fineCapCents": {
+            "type": "number"
+          },
+          "blockFinesThresholdCents": {
+            "type": "number"
+          },
+          "lostFeeCents": {
+            "type": "number"
+          },
+          "damagedFeeCents": {
+            "type": "number"
+          },
+          "membershipMonths": {
+            "type": "number"
+          }
+        }
       },
       "RegisterDto": {
         "type": "object",

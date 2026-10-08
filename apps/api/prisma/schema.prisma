@@ -88,6 +88,7 @@ model Copy {
   bookId    Int
   book      Book       @relation(fields: [bookId], references: [id], onDelete: Cascade)
   createdAt DateTime   @default(now())
+  loans     Loan[]
 
   @@index([bookId])
 }
@@ -124,7 +125,11 @@ model Member {
   user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   memberNumber    String    @unique
   membershipUntil DateTime
+  blocked         Boolean   @default(false)
+  blockedReason   String?
   createdAt       DateTime  @default(now())
+  loans           Loan[]
+  fines           Fine[]
 }
 
 model Session {
@@ -159,4 +164,69 @@ model AuditLog {
 
   @@index([userId])
   @@index([action])
+}
+
+enum LoanOutcome {
+  RETURNED
+  LOST
+  DAMAGED
+}
+
+model Loan {
+  id           Int          @id @default(autoincrement())
+  copyId       Int
+  copy         Copy         @relation(fields: [copyId], references: [id])
+  memberId     Int
+  member       Member       @relation(fields: [memberId], references: [id])
+  loanedAt     DateTime     @default(now())
+  dueAt        DateTime
+  returnedAt   DateTime?
+  outcome      LoanOutcome?
+  renewals     Int          @default(0)
+  loanedById   Int?
+  returnedById Int?
+  fines        Fine[]
+
+  @@index([memberId])
+  @@index([copyId])
+  @@index([dueAt])
+}
+
+enum FineReason {
+  OVERDUE
+  LOST
+  DAMAGED
+}
+
+model Fine {
+  id          Int        @id @default(autoincrement())
+  memberId    Int
+  member      Member     @relation(fields: [memberId], references: [id])
+  loanId      Int?
+  loan        Loan?      @relation(fields: [loanId], references: [id])
+  reason      FineReason
+  amountCents Int
+  note        String?
+  waivedAt    DateTime?
+  waivedById  Int?
+  createdAt   DateTime   @default(now())
+  payments    Payment[]
+
+  @@index([memberId])
+}
+
+model Payment {
+  id           Int      @id @default(autoincrement())
+  fineId       Int
+  fine         Fine     @relation(fields: [fineId], references: [id], onDelete: Cascade)
+  amountCents  Int
+  method       String   @default("CASH")
+  receivedById Int?
+  paidAt       DateTime @default(now())
+}
+
+model Setting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
 }

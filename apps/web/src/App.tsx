@@ -10,7 +10,13 @@ import {
   ResetPasswordPage,
   VerifyEmailPage,
 } from './pages/AuthPages';
+import { MyLoansPage } from './pages/MyLoansPage';
 import { ProfilePage } from './pages/ProfilePage';
+import { DeskPage } from './pages/staff/DeskPage';
+import { LabelsPage } from './pages/staff/LabelsPage';
+import { MemberDetailPage } from './pages/staff/MemberDetailPage';
+import { MembersPage } from './pages/staff/MembersPage';
+import { SettingsPage } from './pages/staff/SettingsPage';
 import { BookFormPage } from './pages/staff/BookFormPage';
 import { LookupsPage } from './pages/staff/LookupsPage';
 import { StaffBooksPage } from './pages/staff/StaffBooksPage';
@@ -28,9 +34,15 @@ function Nav() {
         <NavLink to="/" end>
           Catalogus
         </NavLink>
+        {user && <NavLink to="/my/loans">Mijn uitleningen</NavLink>}
         {(user?.role === 'LIBRARIAN' || user?.role === 'ADMIN') && (
-          <NavLink to="/staff/books">Beheer</NavLink>
+          <>
+            <NavLink to="/staff/desk">Balie</NavLink>
+            <NavLink to="/staff/members">Leden</NavLink>
+            <NavLink to="/staff/books">Beheer</NavLink>
+          </>
         )}
+        {user?.role === 'ADMIN' && <NavLink to="/admin/settings">Instellingen</NavLink>}
         {user ? (
           <>
             <NavLink to="/profile">{user.name}</NavLink>
@@ -71,6 +83,54 @@ export function App() {
             element={
               <RequireAuth roles={STAFF}>
                 <BookFormPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/my/loans"
+            element={
+              <RequireAuth>
+                <MyLoansPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/staff/desk"
+            element={
+              <RequireAuth roles={STAFF}>
+                <DeskPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/staff/members"
+            element={
+              <RequireAuth roles={STAFF}>
+                <MembersPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/staff/members/:id"
+            element={
+              <RequireAuth roles={STAFF}>
+                <MemberDetailPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/staff/labels"
+            element={
+              <RequireAuth roles={STAFF}>
+                <LabelsPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/admin/settings"
+            element={
+              <RequireAuth roles={['ADMIN']}>
+                <SettingsPage />
               </RequireAuth>
             }
           />

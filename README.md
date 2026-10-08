@@ -71,3 +71,19 @@ TOTP-2FA is optioneel in het issue en is bewust nog niet gebouwd (staat ook in f
 `pnpm test` draait unit- en integratietests. De end-to-end tests voor zoeken en beheer draaien met
 `pnpm --filter @biblio/web test:e2e` (vereist draaiende Postgres met seed-data; start API en web zelf).
 Lokaal kun je `PW_CHROMIUM=/pad/naar/chromium` zetten om een bestaande browser te gebruiken.
+
+## Uitleenproces (fase 4)
+
+- **Balie** (`/staff/desk`): uitlenen en innemen via barcodescanner (typt de code + Enter) of camera
+  (BarcodeDetector-API, waar de browser dat ondersteunt). Resultaten verschijnen direct in een logboek.
+- **Uitlenen is één transactie**: het exemplaar en het lid worden met `SELECT … FOR UPDATE` vergrendeld,
+  zodat parallelle uitleningen elkaar niet kunnen passeren; een partiële unieke index
+  (`Loan_copyId_active_key`) is het vangnet in de database. Er is een concurrency-test voor.
+- **Controles**: leenlimiet, geblokkeerd lid, geldig lidmaatschap, openstaande boetes (vanaf een drempel).
+- **Verlengen** door lid (`/my/loans`) of medewerker, met maximum, niet als te laat, niet bij
+  reservering (haak `LoansService.hasWaitingReservation`, ingevuld in fase 5).
+- **Boetes**: per begonnen dag te laat (met maximum) bij inname; beschadigd en verloren hebben vaste
+  kosten. Betalen (deels), kwijtschelden en lid blokkeren/deblokkeren/lidmaatschap verlengen via `/staff/members`.
+- **Instellingen** (`/admin/settings`, alleen admin): termijnen, limieten en tarieven staan in de database.
+- **Etiketten** (`/staff/labels`): Code128-barcodes, afdrukvriendelijk.
+- Foutcodes: de API geeft bij domeinfouten `{ message, code }` (bijv. `COPY_LOANED`, `LOAN_LIMIT`).

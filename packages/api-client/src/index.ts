@@ -16,3 +16,9 @@ export function createApiClient(baseUrl = '') {
     fetch: (request) => globalThis.fetch(request),
   });
 }
+
+export type Loan = components['schemas']['LoanDto'];
+export type Fine = components['schemas']['FineDto'];
+export type Member = components['schemas']['MemberDto'];
+export type MemberDetail = components['schemas']['MemberDetailDto'];
+export type Settings = components['schemas']['SettingsDto'];

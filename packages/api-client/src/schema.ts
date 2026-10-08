@@ -244,6 +244,262 @@ export interface paths {
         patch: operations["StaffCatalogController_renameLookup"];
         trace?: never;
     };
+    "/api/staff/loans/checkout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["DeskController_checkout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/staff/loans/checkin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["DeskController_checkin"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/staff/loans/{id}/lost": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["DeskController_lost"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/staff/loans/{id}/renew": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["DeskController_renew"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/staff/loans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["DeskController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/staff/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["DeskController_searchMembers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/staff/members/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["DeskController_member"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/staff/members/{id}/block": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["DeskController_block"];
+        trace?: never;
+    };
+    "/api/staff/members/{id}/extend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["DeskController_extend"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/staff/fines/{id}/pay": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["DeskController_pay"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/staff/fines/{id}/waive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["DeskController_waive"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/staff/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["DeskController_getSettings"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/staff/labels": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["DeskController_labels"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["AdminSettingsController_update"];
+        trace?: never;
+    };
+    "/api/me/membership": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["MeController_membership"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me/loans/{id}/renew": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["MeController_renew"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/register": {
         parameters: {
             query?: never;
@@ -537,6 +793,139 @@ export interface components {
         };
         NameDto: {
             name: string;
+        };
+        CheckoutDto: {
+            /** @description Lidnummer (pas) van het lid */
+            memberNumber: string;
+            /** @description Barcode van het exemplaar */
+            barcode: string;
+        };
+        LoanDto: {
+            id: number;
+            bookId: number;
+            title: string;
+            barcode: string;
+            memberId: number;
+            memberNumber: string;
+            memberName: string;
+            /** Format: date-time */
+            loanedAt: string;
+            /** Format: date-time */
+            dueAt: string;
+            /** Format: date-time */
+            returnedAt: string | null;
+            /** @enum {string|null} */
+            outcome: "RETURNED" | "LOST" | "DAMAGED" | null;
+            renewals: number;
+            /** @description Actief en over de uiterste inleverdatum */
+            overdue: boolean;
+            /** @description Kan het lid dit nog verlengen? */
+            canRenew: boolean;
+        };
+        CheckinDto: {
+            barcode: string;
+            /**
+             * @default OK
+             * @enum {string}
+             */
+            condition?: "OK" | "DAMAGED";
+        };
+        FineDto: {
+            id: number;
+            memberId: number;
+            loanId: number | null;
+            title: string | null;
+            /** @enum {string} */
+            reason: "OVERDUE" | "LOST" | "DAMAGED";
+            amountCents: number;
+            paidCents: number;
+            /** @description Nog te betalen (0 als betaald of kwijtgescholden) */
+            outstandingCents: number;
+            /** @enum {string} */
+            status: "OPEN" | "PAID" | "WAIVED";
+            /** Format: date-time */
+            createdAt: string;
+        };
+        CheckinResultDto: {
+            loan: components["schemas"]["LoanDto"];
+            fine: components["schemas"]["FineDto"] | null;
+            daysLate: number;
+        };
+        MemberDto: {
+            id: number;
+            userId: number;
+            memberNumber: string;
+            name: string;
+            email: string;
+            /** Format: date-time */
+            membershipUntil: string;
+            membershipValid: boolean;
+            blocked: boolean;
+            blockedReason: string | null;
+            activeLoans: number;
+            overdueLoans: number;
+            outstandingFinesCents: number;
+        };
+        MemberDetailDto: {
+            id: number;
+            userId: number;
+            memberNumber: string;
+            name: string;
+            email: string;
+            /** Format: date-time */
+            membershipUntil: string;
+            membershipValid: boolean;
+            blocked: boolean;
+            blockedReason: string | null;
+            activeLoans: number;
+            overdueLoans: number;
+            outstandingFinesCents: number;
+            loans: components["schemas"]["LoanDto"][];
+            fines: components["schemas"]["FineDto"][];
+        };
+        BlockDto: {
+            blocked: boolean;
+            reason?: string;
+        };
+        ExtendDto: {
+            /** @description Aantal maanden (standaard: instelling) */
+            months?: number;
+        };
+        PayDto: {
+            /** @description Bedrag in centen */
+            amountCents: number;
+            /** @default CASH */
+            method?: string;
+        };
+        SettingsDto: {
+            loanDays: number;
+            maxRenewals: number;
+            renewalDays: number;
+            maxLoansPerMember: number;
+            finePerDayCents: number;
+            fineCapCents: number;
+            /** @description Vanaf dit openstaande bedrag mag een lid niet meer lenen */
+            blockFinesThresholdCents: number;
+            lostFeeCents: number;
+            damagedFeeCents: number;
+            membershipMonths: number;
+        };
+        LabelDto: {
+            barcode: string;
+            title: string;
+            bookId: number;
+        };
+        UpdateSettingsDto: {
+            loanDays?: number;
+            maxRenewals?: number;
+            renewalDays?: number;
+            maxLoansPerMember?: number;
+            finePerDayCents?: number;
+            fineCapCents?: number;
+            blockFinesThresholdCents?: number;
+            lostFeeCents?: number;
+            damagedFeeCents?: number;
+            membershipMonths?: number;
         };
         RegisterDto: {
             email: string;
@@ -1008,6 +1397,356 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["NamedDto"];
+                };
+            };
+        };
+    };
+    DeskController_checkout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CheckoutDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LoanDto"];
+                };
+            };
+        };
+    };
+    DeskController_checkin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CheckinDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CheckinResultDto"];
+                };
+            };
+        };
+    };
+    DeskController_lost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CheckinResultDto"];
+                };
+            };
+        };
+    };
+    DeskController_renew: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LoanDto"];
+                };
+            };
+        };
+    };
+    DeskController_list: {
+        parameters: {
+            query?: {
+                status?: "active" | "overdue";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LoanDto"][];
+                };
+            };
+        };
+    };
+    DeskController_searchMembers: {
+        parameters: {
+            query?: {
+                q?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberDto"][];
+                };
+            };
+        };
+    };
+    DeskController_member: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberDetailDto"];
+                };
+            };
+        };
+    };
+    DeskController_block: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BlockDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberDto"];
+                };
+            };
+        };
+    };
+    DeskController_extend: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExtendDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberDto"];
+                };
+            };
+        };
+    };
+    DeskController_pay: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PayDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FineDto"];
+                };
+            };
+        };
+    };
+    DeskController_waive: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FineDto"];
+                };
+            };
+        };
+    };
+    DeskController_getSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SettingsDto"];
+                };
+            };
+        };
+    };
+    DeskController_labels: {
+        parameters: {
+            query?: {
+                bookId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LabelDto"][];
+                };
+            };
+        };
+    };
+    AdminSettingsController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateSettingsDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SettingsDto"];
+                };
+            };
+        };
+    };
+    MeController_membership: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberDetailDto"];
+                };
+            };
+        };
+    };
+    MeController_renew: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LoanDto"];
                 };
             };
         };
