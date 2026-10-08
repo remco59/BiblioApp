@@ -39,3 +39,17 @@ pnpm dev                    # API :3000, web :5173
 
 Na een API-wijziging: draai `pnpm openapi` en commit `apps/api/openapi.json` en
 `packages/api-client/src/schema.ts` (CI controleert dit).
+
+## Authenticatie (fase 2)
+
+Zelfgebouwd: argon2id-hashing, sessies in Postgres (httpOnly-cookie `sid`, 7 dagen),
+CSRF-token per sessie (header `X-CSRF-Token` bij POST/PATCH/DELETE; komt mee in `/api/auth/me`
+en de login-respons), rate limiting op login/registratie/wachtwoord-vergeten, e-mailverificatie
+en wachtwoordreset (mails zichtbaar in Mailpit op http://localhost:8025). Rollen `MEMBER`,
+`LIBRARIAN`, `ADMIN` worden server-side afgedwongen met een globale guard; routes zijn standaard
+beschermd, publieke routes krijgen `@Public()`, rolbeperking `@Roles(...)`.
+
+Demo-accounts na `pnpm db:seed` (alleen buiten productie), wachtwoord `Welkom-123456`:
+`lid@biblio.nl`, `bibliothecaris@biblio.nl`, `admin@biblio.nl`.
+
+TOTP-2FA is optioneel in het issue en is bewust nog niet gebouwd (staat ook in fase 6).

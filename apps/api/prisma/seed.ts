@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
+import { hash } from '@node-rs/argon2';
 import { GENRES } from '@biblio/shared';
 
 const prisma = new PrismaClient();
@@ -107,6 +108,32 @@ const books: Seed[] = [
   },
 ];
 
+/** Demo-accounts voor lokale ontwikkeling (wachtwoord: Welkom-123456). */
+async function seedDemoUsers() {
+  const passwordHash = await hash('Welkom-123456');
+  const demo = [
+    { email: 'admin@biblio.nl', name: 'Anna Admin', role: 'ADMIN' as const },
+    { email: 'bibliothecaris@biblio.nl', name: 'Bas Bibliothecaris', role: 'LIBRARIAN' as const },
+    { email: 'lid@biblio.nl', name: 'Lieke Lid', role: 'MEMBER' as const },
+  ];
+  for (const [i, d] of demo.entries()) {
+    const user = await prisma.user.upsert({
+      where: { email: d.email },
+      update: {},
+      create: { ...d, passwordHash, emailVerifiedAt: new Date() },
+    });
+    await prisma.member.upsert({
+      where: { userId: user.id },
+      update: {},
+      create: {
+        userId: user.id,
+        memberNumber: `L${100001 + i}`,
+        membershipUntil: new Date(Date.now() + 365 * 24 * 3600 * 1000),
+      },
+    });
+  }
+}
+
 async function main() {
   const genreIds = new Map<string, number>();
   for (const name of GENRES) {
@@ -140,6 +167,7 @@ async function main() {
       });
     }
   }
+  if (process.env.NODE_ENV !== 'production') await seedDemoUsers();
   console.log(`Seed klaar: ${books.length} boeken.`);
 }
 

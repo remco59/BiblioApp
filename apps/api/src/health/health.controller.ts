@@ -1,3 +1,4 @@
+import { Public } from '../auth/decorators';
 import { Controller, Get } from '@nestjs/common';
 import { ApiOkResponse, ApiProperty, ApiTags } from '@nestjs/swagger';
 import { PrismaService } from '../prisma/prisma.service';
@@ -7,6 +8,7 @@ class HealthDto {
   @ApiProperty() database: boolean;
 }
 
+@Public()
 @ApiTags('health')
 @Controller('health')
 export class HealthController {

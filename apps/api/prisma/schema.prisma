@@ -65,3 +65,72 @@ model Copy {
 
   @@index([bookId])
 }
+
+enum Role {
+  MEMBER
+  LIBRARIAN
+  ADMIN
+}
+
+enum EmailTokenType {
+  VERIFY_EMAIL
+  RESET_PASSWORD
+}
+
+model User {
+  id              Int          @id @default(autoincrement())
+  email           String       @unique
+  name            String
+  passwordHash    String
+  role            Role         @default(MEMBER)
+  emailVerifiedAt DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  member          Member?
+  sessions        Session[]
+  emailTokens     EmailToken[]
+  auditLogs       AuditLog[]
+}
+
+model Member {
+  id              Int       @id @default(autoincrement())
+  userId          Int       @unique
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  memberNumber    String    @unique
+  membershipUntil DateTime
+  createdAt       DateTime  @default(now())
+}
+
+model Session {
+  id         String   @id // sha256 van het cookie-token
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  csrfToken  String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+}
+
+model EmailToken {
+  id        Int            @id @default(autoincrement())
+  userId    Int
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      EmailTokenType
+  tokenHash String         @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime       @default(now())
+}
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String
+  detail    Json?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+}

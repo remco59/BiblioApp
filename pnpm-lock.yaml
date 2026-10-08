@@ -35,6 +35,9 @@ importers:
       '@biblio/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@fastify/cookie':
+        specifier: ^9.4.0
+        version: 9.4.0
       '@fastify/static':
         specifier: ^7.0.4
         version: 7.0.4
@@ -50,6 +53,9 @@ importers:
       '@nestjs/swagger':
         specifier: ^8.1.0
         version: 8.1.1(@fastify/static@7.0.4)(@nestjs/common@10.4.22(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@10.4.22(@nestjs/common@10.4.22(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(rxjs@7.8.2))(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)
+      '@node-rs/argon2':
+        specifier: ^2.2.2
+        version: 2.2.2
       '@prisma/client':
         specifier: ^6.2.1
         version: 6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3)
@@ -62,6 +68,12 @@ importers:
       dotenv:
         specifier: ^16.4.7
         version: 16.6.1
+      fastify:
+        specifier: ^4.28.1
+        version: 4.28.1
+      nodemailer:
+        specifier: ^10.0.16
+        version: 10.0.16
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
@@ -78,9 +90,15 @@ importers:
       '@types/node':
         specifier: ^22.10.5
         version: 22.20.5
+      '@types/nodemailer':
+        specifier: ^8.0.2
+        version: 8.0.2
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@22.20.5)(ts-node@10.9.2(@types/node@22.20.5)(typescript@5.9.3))
+      light-my-request:
+        specifier: ^6.6.0
+        version: 6.6.0
       prisma:
         specifier: ^6.2.1
         version: 6.19.3(typescript@5.9.3)
@@ -108,6 +126,9 @@ importers:
       react-dom:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
+      react-router-dom:
+        specifier: ^6.30.6
+        version: 6.30.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     devDependencies:
       '@testing-library/jest-dom':
         specifier: ^6.6.3
@@ -737,6 +758,9 @@ packages:
   '@fastify/ajv-compiler@3.6.0':
     resolution: {integrity: sha512-LwdXQJjmMD+GwLOkP7TVC68qa+pSSogeWWmznRJ/coyTcfe9qA05AHFSe1eZFwK6q+xVRpChnvFUkf1iYaSZsQ==}
 
+  '@fastify/cookie@9.4.0':
+    resolution: {integrity: sha512-Th+pt3kEkh4MQD/Q2q1bMuJIB5NX/D5SwSpOKu3G/tjoGbwfpurIMJsWSPS0SJJ4eyjtmQ8OipDQspf8RbUOlg==}
+
   '@fastify/cors@9.0.1':
     resolution: {integrity: sha512-YY9Ho3ovI+QHIL2hW+9X4XqQjXLjJqsU+sMV/xFsxZkE8p3GNnYVFpoOxF7SsP5ZL76gwvbo3V9L+FIekBGU4Q==}
 
@@ -981,6 +1005,88 @@ packages:
       '@nestjs/platform-express':
         optional: true
 
+  '@node-rs/argon2-android-arm-eabi@2.2.2':
+    resolution: {integrity: sha512-c11BOrPLBWNC1cDyzGB+Bil+flmxfZbB2hv8EhcobmAsFKMyqkHPNhUY4qhcjv1U+4+Vmw4G8H+l224iO2g/Dw==}
+    engines: {node: '>= 10'}
+    cpu: [arm]
+    os: [android]
+
+  '@node-rs/argon2-android-arm64@2.2.2':
+    resolution: {integrity: sha512-dpMYIoxhN/wY6hFH+3MM5kQErcH3luMekkszbkDF3NKqhB1kFRntkOLDpFY87oItBSHJrsoYkXC3vBRhjYoCjQ==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [android]
+
+  '@node-rs/argon2-darwin-arm64@2.2.2':
+    resolution: {integrity: sha512-vxVAXcIG0iiHizkCuImmzVhOFsRnU4Z79xiOxdISLyI+QhOAWbbTaVSXw0PNfThB3zAdkzzDJ/WWu52Hs/qHGg==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@node-rs/argon2-darwin-x64@2.2.2':
+    resolution: {integrity: sha512-r7GbSFpFZZ9EAV9cvIm9prUjOupK7QQXTyP+FJ6bWSMq0h+qRDBlUOXQXduDIIrLEGoBVelixKUtf4ksZ0ljoQ==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [darwin]
+
+  '@node-rs/argon2-freebsd-x64@2.2.2':
+    resolution: {integrity: sha512-AmWxDSmQgprilD6NX3jmxCgcDvWAW7kGJnnWQo+0qav6nfMXdPZYgSezK/skmw1GBWipr4yZMIUzpeNHnVpMxg==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [freebsd]
+
+  '@node-rs/argon2-linux-arm-gnueabihf@2.2.2':
+    resolution: {integrity: sha512-M1gnPBTr9GFeEUWkQ53qCJeTsX03C3kcUeHnDbN7dU2xkI58wMP4Z1sEBN7WmKJ/fTHYEgti4truz7r4A82DLg==}
+    engines: {node: '>= 10'}
+    cpu: [arm]
+    os: [linux]
+
+  '@node-rs/argon2-linux-arm64-gnu@2.2.2':
+    resolution: {integrity: sha512-4CYDlIdITlLSVcAXYUtEoGUahRaayPXM+4Rcfg3BZx9WGi6UB8HUycs6GNMTPYXV5kVXCpyE2u1HmYUpgmIzOQ==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [linux]
+
+  '@node-rs/argon2-linux-arm64-musl@2.2.2':
+    resolution: {integrity: sha512-FYlfj3XgQ1xrx6HzQbKbUcKiYMG/3iSi/X81KyhHaItTJ7vZlMwrbVLl9yqDmvotKUF6VjrhrlZ8KRbbzchseA==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [linux]
+
+  '@node-rs/argon2-linux-x64-gnu@2.2.2':
+    resolution: {integrity: sha512-ULXLs8UFYZANlwiROM7AeccxZndr2Xk3IstADq3jAUhnwV2W75mxMBTABUZ+7AdKRhPLOrxU77OgnMWlDkYJQg==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [linux]
+
+  '@node-rs/argon2-linux-x64-musl@2.2.2':
+    resolution: {integrity: sha512-zgjIwc9TyGodn62vGc+36DGwFqVV5e7L8Ptd2FQWuBxe5aFrcFxvtDGn1/qfYwoHLv09utgtR+RBAPCXepWG3Q==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [linux]
+
+  '@node-rs/argon2-win32-arm64-msvc@2.2.2':
+    resolution: {integrity: sha512-3nLhvLie/ec5xfxUBXXqGMb7oGeqF+YXrcGckqaTaGkPtOBozho0Kh2IuP/zi9BcOriirTG2LW3gtIOfpuh+mQ==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [win32]
+
+  '@node-rs/argon2-win32-ia32-msvc@2.2.2':
+    resolution: {integrity: sha512-6RJKD6cFl7UeiYJLjRsXPywVXSFSaSDdr6xGpztNDV31QHCEecWnsnNmKxzi4gVpln2F9XeWEtIgM4Nqw1hLbA==}
+    engines: {node: '>= 10'}
+    cpu: [ia32]
+    os: [win32]
+
+  '@node-rs/argon2-win32-x64-msvc@2.2.2':
+    resolution: {integrity: sha512-dQOO9S4QKBaVul0Uyk/2quJc/OBeHNZRJP+GZZTy1A5kYIaAfIJGHUYLY6oFoAlcuLIkdFouLaHX3fCl8tZm/w==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [win32]
+
+  '@node-rs/argon2@2.2.2':
+    resolution: {integrity: sha512-NtdlPPWtR5U4BxX5EGJYza+UklNaoWORmkaKCMqf/nyKeXWKVwNt8KfQoRpNT7OB1DcEwmePafO4wZyW+sbfCQ==}
+    engines: {node: '>= 10'}
+
   '@nuxtjs/opencollective@0.3.2':
     resolution: {integrity: sha512-um0xL3fO7Mf4fDxcqx9KryrB7zgRM5JSlvGN5AGkP6JLM5XEKyjeAiPbNxdXVXQ16isuAhYpvP88NgL2BGd6aA==}
     engines: {node: '>=8.0.0', npm: '>=5.0.0'}
@@ -1032,6 +1138,10 @@ packages:
   '@redocly/openapi-core@1.34.20':
     resolution: {integrity: sha512-ypeBZ/6BKXR9+7/TtbKhbl4UgD7raHhPS12oknlKno2A8+lnFkxIwiE/Aklu6L2cd/ioH+fCWuMxi9/p3EyAPw==}
     engines: {node: '>=18.17.0', npm: '>=9.5.0'}
+
+  '@remix-run/router@1.23.4':
+    resolution: {integrity: sha512-q7j5geK7xs3UJSdm9/iytUNclBnLmYx1EnSeCFXHPeutdqgIMeFeHtUZgS3EhlKxdBEAu8OwtJCwmLrEzpSs7Q==}
+    engines: {node: '>=14.0.0'}
 
   '@rolldown/pluginutils@1.0.0-beta.27':
     resolution: {integrity: sha512-+d0F4MKMCbeVUJwG96uQ4SgAznZNSq93I3V+9NHA4OpvqG8mRCpGdKmK8l/dl02h2CCDHwW2FqilnTyDcAnqjA==}
@@ -1265,6 +1375,9 @@ packages:
 
   '@types/node@22.20.5':
     resolution: {integrity: sha512-U2+DNr+wSjpsTS/wZGYHq7GcwfuSmKiKvoPvK22zwTlRhU91yOniN4qRR5KhIjvif7ysw/dz/hKmfDH0Ris4aA==}
+
+  '@types/nodemailer@8.0.2':
+    resolution: {integrity: sha512-c7M5ox8p0nEOfbJ2E9Qcmt8/QCu/VzsiAhzBiZbvky2PhKZDHpKB3sQHBM5MEZNkCfBOaS6S9//AGPRTNB7IaA==}
 
   '@types/prop-types@15.7.15':
     resolution: {integrity: sha512-F6bEyamV9jKGAFBEmlQnesRPGOQqS2+Uwi0Em15xenOxHaf2hv6L8YCVn3rPdPJOiJfPiCnLIRyvwVaqMY3MIw==}
@@ -1674,6 +1787,10 @@ packages:
 
   convert-source-map@2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
+
+  cookie-signature@1.2.2:
+    resolution: {integrity: sha512-D76uU73ulSXrD1UXF4KE2TMxVVwhsnCgfAyTg9k8P6KGZjlXKrOLe4dJQKI3Bxi5wjesZoFXJWElNWBjPZMbhg==}
+    engines: {node: '>=6.6.0'}
 
   cookie@0.7.2:
     resolution: {integrity: sha512-yki5XnKuf750l50uGTllt6kKILY4nQ1eNIQatoXEByZ5dWgnKqbnqmTrBE5B4N7lrMJKQ2ytWMiTO2o0v6Ew/w==}
@@ -2485,6 +2602,9 @@ packages:
   light-my-request@6.3.0:
     resolution: {integrity: sha512-bWTAPJmeWQH5suJNYwG0f5cs0p6ho9e6f1Ppoxv5qMosY+s9Ir2+ZLvvHcgA7VTDop4zl/NCHhOVVqU+kd++Ow==}
 
+  light-my-request@6.6.0:
+    resolution: {integrity: sha512-CHYbu8RtboSIoVsHZ6Ye4cj4Aw/yg2oAFimlF7mNvfDV192LR7nDiKtSIfCuLT7KokPSTn/9kfVLm5OGN0A28A==}
+
   lines-and-columns@1.2.4:
     resolution: {integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==}
 
@@ -2624,6 +2744,10 @@ packages:
   node-releases@2.0.58:
     resolution: {integrity: sha512-BdiKAgbfRlvfMq/XzO/AF9NPmaA8a+YpLAyAFTVFBj3gARrAIfWvNq7Q7NE4se3KgFu0KkrvQMxTS0XVnsGzHg==}
     engines: {node: '>=18'}
+
+  nodemailer@10.0.16:
+    resolution: {integrity: sha512-VL9xKErxN+el77o8eBOuYKUPMyEx7F9hfnDCuiUKJRp9v3wnWMOudYgP/SWbwSHy8rUL4cylobuXtki1LpQS7A==}
+    engines: {node: '>=20.0.0'}
 
   normalize-path@3.0.0:
     resolution: {integrity: sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==}
@@ -2858,6 +2982,19 @@ packages:
   react-refresh@0.17.0:
     resolution: {integrity: sha512-z6F7K9bV85EfseRCp2bzrpyQ0Gkw1uLoCel9XBVWPg/TjRj94SkJzUTGfOa4bs7iJvBWtQG0Wq7wnI0syw3EBQ==}
     engines: {node: '>=0.10.0'}
+
+  react-router-dom@6.30.6:
+    resolution: {integrity: sha512-0RHKZz7wwffvkU+2MFVT2NnjK44ssLEV+m0CAJaS2Ksmorrwj7WxH00jO0SOCW26/tINUnJHToXblDs33I38YQ==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      react: '>=16.8'
+      react-dom: '>=16.8'
+
+  react-router@6.30.6:
+    resolution: {integrity: sha512-5HfK7k5im7LTOB0EqCQmfvy4C13G92Ssj1VTmouTK3AJvyjKTnFuCV0vcMAD/JS+JC4DvDIBRrlAeJIFjh5VWg==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      react: '>=16.8'
 
   react@18.3.1:
     resolution: {integrity: sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==}
@@ -3916,6 +4053,11 @@ snapshots:
       ajv-formats: 2.1.1(ajv@8.20.0)
       fast-uri: 2.4.7
 
+  '@fastify/cookie@9.4.0':
+    dependencies:
+      cookie-signature: 1.2.2
+      fastify-plugin: 4.5.1
+
   '@fastify/cors@9.0.1':
     dependencies:
       fastify-plugin: 4.5.1
@@ -4262,6 +4404,61 @@ snapshots:
       '@nestjs/core': 10.4.22(@nestjs/common@10.4.22(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(rxjs@7.8.2)
       tslib: 2.8.1
 
+  '@node-rs/argon2-android-arm-eabi@2.2.2':
+    optional: true
+
+  '@node-rs/argon2-android-arm64@2.2.2':
+    optional: true
+
+  '@node-rs/argon2-darwin-arm64@2.2.2':
+    optional: true
+
+  '@node-rs/argon2-darwin-x64@2.2.2':
+    optional: true
+
+  '@node-rs/argon2-freebsd-x64@2.2.2':
+    optional: true
+
+  '@node-rs/argon2-linux-arm-gnueabihf@2.2.2':
+    optional: true
+
+  '@node-rs/argon2-linux-arm64-gnu@2.2.2':
+    optional: true
+
+  '@node-rs/argon2-linux-arm64-musl@2.2.2':
+    optional: true
+
+  '@node-rs/argon2-linux-x64-gnu@2.2.2':
+    optional: true
+
+  '@node-rs/argon2-linux-x64-musl@2.2.2':
+    optional: true
+
+  '@node-rs/argon2-win32-arm64-msvc@2.2.2':
+    optional: true
+
+  '@node-rs/argon2-win32-ia32-msvc@2.2.2':
+    optional: true
+
+  '@node-rs/argon2-win32-x64-msvc@2.2.2':
+    optional: true
+
+  '@node-rs/argon2@2.2.2':
+    optionalDependencies:
+      '@node-rs/argon2-android-arm-eabi': 2.2.2
+      '@node-rs/argon2-android-arm64': 2.2.2
+      '@node-rs/argon2-darwin-arm64': 2.2.2
+      '@node-rs/argon2-darwin-x64': 2.2.2
+      '@node-rs/argon2-freebsd-x64': 2.2.2
+      '@node-rs/argon2-linux-arm-gnueabihf': 2.2.2
+      '@node-rs/argon2-linux-arm64-gnu': 2.2.2
+      '@node-rs/argon2-linux-arm64-musl': 2.2.2
+      '@node-rs/argon2-linux-x64-gnu': 2.2.2
+      '@node-rs/argon2-linux-x64-musl': 2.2.2
+      '@node-rs/argon2-win32-arm64-msvc': 2.2.2
+      '@node-rs/argon2-win32-ia32-msvc': 2.2.2
+      '@node-rs/argon2-win32-x64-msvc': 2.2.2
+
   '@nuxtjs/opencollective@0.3.2':
     dependencies:
       chalk: 4.1.2
@@ -4332,6 +4529,8 @@ snapshots:
       yaml-ast-parser: 0.0.43
     transitivePeerDependencies:
       - supports-color
+
+  '@remix-run/router@1.23.4': {}
 
   '@rolldown/pluginutils@1.0.0-beta.27': {}
 
@@ -4529,6 +4728,10 @@ snapshots:
   '@types/node@22.20.5':
     dependencies:
       undici-types: 6.21.0
+
+  '@types/nodemailer@8.0.2':
+    dependencies:
+      '@types/node': 22.20.5
 
   '@types/prop-types@15.7.15': {}
 
@@ -4984,6 +5187,8 @@ snapshots:
       safe-buffer: 5.2.1
 
   convert-source-map@2.0.0: {}
+
+  cookie-signature@1.2.2: {}
 
   cookie@0.7.2: {}
 
@@ -6042,6 +6247,12 @@ snapshots:
       process-warning: 4.0.1
       set-cookie-parser: 2.7.2
 
+  light-my-request@6.6.0:
+    dependencies:
+      cookie: 1.1.1
+      process-warning: 4.0.1
+      set-cookie-parser: 2.7.2
+
   lines-and-columns@1.2.4: {}
 
   locate-path@5.0.0:
@@ -6148,6 +6359,8 @@ snapshots:
   node-int64@0.4.0: {}
 
   node-releases@2.0.58: {}
+
+  nodemailer@10.0.16: {}
 
   normalize-path@3.0.0: {}
 
@@ -6375,6 +6588,18 @@ snapshots:
   react-is@18.3.1: {}
 
   react-refresh@0.17.0: {}
+
+  react-router-dom@6.30.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      '@remix-run/router': 1.23.4
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      react-router: 6.30.6(react@18.3.1)
+
+  react-router@6.30.6(react@18.3.1):
+    dependencies:
+      '@remix-run/router': 1.23.4
+      react: 18.3.1
 
   react@18.3.1:
     dependencies:
