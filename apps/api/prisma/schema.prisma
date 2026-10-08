@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Author {
+  id        Int          @id @default(autoincrement())
+  name      String
+  createdAt DateTime     @default(now())
+  books     BookAuthor[]
+}
+
+model Genre {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  books Book[]
+}
+
+model Book {
+  id            Int          @id @default(autoincrement())
+  title         String
+  isbn          String?      @unique
+  description   String?
+  language      String       @default("nl")
+  publishedYear Int?
+  coverUrl      String?
+  genreId       Int?
+  genre         Genre?       @relation(fields: [genreId], references: [id])
+  authors       BookAuthor[]
+  copies        Copy[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@index([title])
+}
+
+model BookAuthor {
+  bookId   Int
+  authorId Int
+  book     Book   @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  author   Author @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@id([bookId, authorId])
+}
+
+enum CopyStatus {
+  AVAILABLE
+  LOANED
+  RESERVED_HOLD
+  LOST
+  DAMAGED
+}
+
+model Copy {
+  id        Int        @id @default(autoincrement())
+  barcode   String     @unique
+  status    CopyStatus @default(AVAILABLE)
+  bookId    Int
+  book      Book       @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  createdAt DateTime   @default(now())
+
+  @@index([bookId])
+}
