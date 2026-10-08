@@ -7,6 +7,7 @@ import { DomainError } from '../loans/errors';
 import { SettingsService } from '../loans/settings.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { PrivacyService } from '../privacy/privacy.service';
 import { NightlyResultDto } from './dto';
 import { ReservationsService } from './reservations.service';
 
@@ -24,6 +25,7 @@ export class MaintenanceService implements OnModuleInit {
     private readonly reservations: ReservationsService,
     private readonly audit: AuditService,
     private readonly jobs: JobsService,
+    private readonly privacy: PrivacyService,
   ) {}
 
   onModuleInit() {
@@ -41,6 +43,8 @@ export class MaintenanceService implements OnModuleInit {
       finesUpdated: 0,
       reservationsExpired: 0,
       membershipNotices: 0,
+      retentionDeleted: 0,
+      membersAnonymized: 0,
     };
     const step = async (name: string, fn: () => Promise<void>) => {
       try {
@@ -121,6 +125,13 @@ export class MaintenanceService implements OnModuleInit {
         result.membershipNotices++;
       });
     }
+
+    // 5. AVG: bewaartermijnen en inactieve leden
+    await step('bewaartermijnen', async () => {
+      const r = await this.privacy.runRetention(now);
+      result.retentionDeleted = r.deleted;
+      result.membersAnonymized = r.anonymized;
+    });
 
     await this.audit.log('job.nightly', null, result as unknown as Prisma.InputJsonValue);
     return result;

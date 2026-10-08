@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Offline – BiblioApp</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        max-width: 32rem;
+        margin: 4rem auto;
+        padding: 0 1rem;
+        line-height: 1.5;
+        color: #1a1a1a;
+      }
+      @media (prefers-color-scheme: dark) {
+        body {
+          background: #121316;
+          color: #ececec;
+        }
+      }
+      button {
+        font: inherit;
+        padding: 0.5rem 1rem;
+        border-radius: 0.35rem;
+        border: 0;
+        background: #1d4ed8;
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Je bent offline</h1>
+      <p>
+        Er is geen internetverbinding. Catalogus, uitleningen en reserveringen zijn pas weer
+        beschikbaar als je weer online bent.
+      </p>
+      <button onclick="location.reload()">Opnieuw proberen</button>
+    </main>
+  </body>
+</html>

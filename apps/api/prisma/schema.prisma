@@ -12,6 +12,8 @@ model Author {
   name      String
   createdAt DateTime     @default(now())
   books     BookAuthor[]
+
+  @@index([name(ops: raw("gin_trgm_ops"))], type: Gin, map: "Author_name_trgm_idx")
 }
 
 model Genre {
@@ -44,6 +46,7 @@ model Book {
   updatedAt     DateTime       @updatedAt
 
   @@index([title])
+  @@index([title(ops: raw("gin_trgm_ops"))], type: Gin, map: "Book_title_trgm_idx")
 }
 
 model Series {

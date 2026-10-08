@@ -87,14 +87,14 @@
             "required": false,
             "in": "query",
             "schema": {
+              "type": "string",
               "enum": [
                 "relevance",
                 "title",
                 "year_desc",
                 "year_asc",
                 "newest"
-              ],
-              "type": "string"
+              ]
             }
           },
           {
@@ -2420,6 +2420,175 @@
         ]
       }
     },
+    "/api/health/ready": {
+      "get": {
+        "operationId": "OpsController_ready",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadyDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "ops"
+        ]
+      }
+    },
+    "/api/metrics": {
+      "get": {
+        "operationId": "OpsController_scrape",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "ops"
+        ]
+      }
+    },
+    "/api/privacy/policy": {
+      "get": {
+        "operationId": "PrivacyController_policy",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PolicyDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "privacy"
+        ]
+      }
+    },
+    "/api/me/account/delete": {
+      "post": {
+        "operationId": "PrivacyController_deleteAccount",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteAccountDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "privacy"
+        ]
+      }
+    },
+    "/api/admin/users/{id}/anonymize": {
+      "post": {
+        "operationId": "PrivacyController_adminAnonymize",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "privacy"
+        ]
+      }
+    },
+    "/api/users/me": {
+      "patch": {
+        "operationId": "UsersController_updateProfile",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfileDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Profiel bijgewerkt"
+          }
+        },
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/users/me/export": {
+      "get": {
+        "operationId": "UsersController_export",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Export van alle persoonlijke gegevens"
+          }
+        },
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/staff/ping": {
+      "get": {
+        "operationId": "UsersController_staffPing",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Alleen voor medewerkers"
+          }
+        },
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/admin/ping": {
+      "get": {
+        "operationId": "UsersController_adminPing",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Alleen voor beheerders"
+          }
+        },
+        "tags": [
+          "users"
+        ]
+      }
+    },
     "/api/auth/register": {
       "post": {
         "operationId": "AuthController_register",
@@ -2655,72 +2824,6 @@
         },
         "tags": [
           "auth"
-        ]
-      }
-    },
-    "/api/users/me": {
-      "patch": {
-        "operationId": "UsersController_updateProfile",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateProfileDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Profiel bijgewerkt"
-          }
-        },
-        "tags": [
-          "users"
-        ]
-      }
-    },
-    "/api/users/me/export": {
-      "get": {
-        "operationId": "UsersController_export",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Export van alle persoonlijke gegevens"
-          }
-        },
-        "tags": [
-          "users"
-        ]
-      }
-    },
-    "/api/staff/ping": {
-      "get": {
-        "operationId": "UsersController_staffPing",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Alleen voor medewerkers"
-          }
-        },
-        "tags": [
-          "users"
-        ]
-      }
-    },
-    "/api/admin/ping": {
-      "get": {
-        "operationId": "UsersController_adminPing",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Alleen voor beheerders"
-          }
-        },
-        "tags": [
-          "users"
         ]
       }
     }
@@ -3421,6 +3524,7 @@
           },
           "fine": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/FineDto"
@@ -3661,6 +3765,22 @@
           },
           "membershipNoticeDays": {
             "type": "number"
+          },
+          "retentionLoanMonths": {
+            "type": "number",
+            "description": "AVG: afgesloten uitleningen en afgehandelde boetes worden na zoveel maanden verwijderd"
+          },
+          "retentionAuditMonths": {
+            "type": "number",
+            "description": "AVG: auditlog wordt na zoveel maanden verwijderd"
+          },
+          "retentionNotificationDays": {
+            "type": "number",
+            "description": "AVG: gelezen meldingen worden na zoveel dagen verwijderd"
+          },
+          "retentionInactiveMemberMonths": {
+            "type": "number",
+            "description": "AVG: leden zonder activiteit worden na zoveel maanden na afloop van hun lidmaatschap geanonimiseerd"
           }
         },
         "required": [
@@ -3678,7 +3798,11 @@
           "maxReservationsPerMember",
           "reminderDays",
           "overdueNoticeEveryDays",
-          "membershipNoticeDays"
+          "membershipNoticeDays",
+          "retentionLoanMonths",
+          "retentionAuditMonths",
+          "retentionNotificationDays",
+          "retentionInactiveMemberMonths"
         ]
       },
       "LabelDto": {
@@ -3731,6 +3855,33 @@
             "type": "number"
           },
           "membershipMonths": {
+            "type": "number"
+          },
+          "reservationHoldDays": {
+            "type": "number"
+          },
+          "maxReservationsPerMember": {
+            "type": "number"
+          },
+          "reminderDays": {
+            "type": "number"
+          },
+          "overdueNoticeEveryDays": {
+            "type": "number"
+          },
+          "membershipNoticeDays": {
+            "type": "number"
+          },
+          "retentionLoanMonths": {
+            "type": "number"
+          },
+          "retentionAuditMonths": {
+            "type": "number"
+          },
+          "retentionNotificationDays": {
+            "type": "number"
+          },
+          "retentionInactiveMemberMonths": {
             "type": "number"
           }
         }
@@ -3881,6 +4032,14 @@
           },
           "membershipNotices": {
             "type": "number"
+          },
+          "retentionDeleted": {
+            "type": "number",
+            "description": "AVG: verwijderde verouderde records"
+          },
+          "membersAnonymized": {
+            "type": "number",
+            "description": "AVG: geanonimiseerde inactieve leden"
           }
         },
         "required": [
@@ -3888,7 +4047,9 @@
           "overdueNotices",
           "finesUpdated",
           "reservationsExpired",
-          "membershipNotices"
+          "membershipNotices",
+          "retentionDeleted",
+          "membersAnonymized"
         ]
       },
       "ReviewSummaryDto": {
@@ -3981,6 +4142,7 @@
           "mine": {
             "nullable": true,
             "description": "Je eigen review (ook als die nog niet goedgekeurd is)",
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/ReviewDto"
@@ -4524,6 +4686,84 @@
           "outcome"
         ]
       },
+      "ReadyDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "database": {
+            "type": "boolean"
+          },
+          "migrations": {
+            "type": "boolean"
+          },
+          "jobs": {
+            "type": "boolean",
+            "description": "Job-queue actief (of bewust uitgeschakeld)"
+          }
+        },
+        "required": [
+          "status",
+          "database",
+          "migrations",
+          "jobs"
+        ]
+      },
+      "PolicyDto": {
+        "type": "object",
+        "properties": {
+          "retentionLoanMonths": {
+            "type": "number"
+          },
+          "retentionAuditMonths": {
+            "type": "number"
+          },
+          "retentionNotificationDays": {
+            "type": "number"
+          },
+          "retentionInactiveMemberMonths": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "retentionLoanMonths",
+          "retentionAuditMonths",
+          "retentionNotificationDays",
+          "retentionInactiveMemberMonths"
+        ]
+      },
+      "DeleteAccountDto": {
+        "type": "object",
+        "properties": {
+          "password": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "description": "2FA-code of herstelcode (alleen als 2FA aanstaat)"
+          }
+        },
+        "required": [
+          "password"
+        ]
+      },
+      "UpdateProfileDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "nl",
+              "en"
+            ],
+            "description": "Taal van meldingen en e-mails"
+          }
+        }
+      },
       "RegisterDto": {
         "type": "object",
         "properties": {
@@ -4708,22 +4948,6 @@
           "password",
           "code"
         ]
-      },
-      "UpdateProfileDto": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "locale": {
-            "type": "string",
-            "enum": [
-              "nl",
-              "en"
-            ],
-            "description": "Taal van meldingen en e-mails"
-          }
-        }
       }
     }
   }

@@ -24,6 +24,7 @@ export class MailStub {
 
 export async function createApp() {
   process.env.JOBS_DISABLED = '1'; // jobs inline uitvoeren i.p.v. via pg-boss
+  process.env.RATE_LIMIT_MAX ??= '1000000'; // algemene limiet staat uit; apart getest in ops.e2e-spec
   const mail = new MailStub();
   const mod = await Test.createTestingModule({ imports: [AppModule] })
     .overrideProvider(MailService)

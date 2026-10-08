@@ -2,6 +2,13 @@
 
 Bibliotheekbeheer: catalogus, uitleen, reserveringen en meldingen.
 
+## Documentatie
+
+- [Beheerhandleiding](docs/beheerhandleiding.md): installeren, bijwerken, back-ups en herstel, monitoring, AVG
+- [Architectuur](docs/architectuur.md): onderdelen, domeinmodel, beveiliging, achtergrondwerk
+- [Toegankelijkheid](docs/accessibility.md): axe-audit, handmatige checklist, PWA
+- [Belastingtest](docs/load-test.md): methode en resultaten voor zoeken en de uitleenflow
+
 ## Stack
 
 - **API**: NestJS (Fastify), Prisma, PostgreSQL — `apps/api`
@@ -131,3 +138,15 @@ Lokaal kun je `PW_CHROMIUM=/pad/naar/chromium` zetten om een bestaande browser t
   bv. voor Mollie), registreer die in `PaymentsService` en wijs je webhook naar
   `POST /api/payments/webhook {providerRef}`; de status wordt altijd bij de provider opgevraagd en een
   betaling wordt idempotent geboekt. Zet `PAYMENT_PROVIDER=none` om het uit te zetten.
+
+## Productie (fase 7)
+
+Zie de [beheerhandleiding](docs/beheerhandleiding.md). In het kort:
+
+- **Deployen**: `deploy/docker-compose.prod.yml` (Caddy met automatisch HTTPS → API → Postgres + back-upcontainer), images via `deploy/Dockerfile.*`, uitrol via `.github/workflows/deploy.yml` (images naar GHCR, SSH-deploy, rooktest).
+- **Back-ups**: dagelijks `pg_dump` + covers, checksums, optioneel offsite (rclone); hersteltest wekelijks én in CI (`deploy/backup/test.sh`).
+- **Monitoring**: JSON-logs (pino), `/api/health` en `/api/health/ready`, Prometheus-metrics op `/api/metrics` (token) met alertregels.
+- **Beveiliging**: helmet + CSP/HSTS (Caddy en API), algemene rate limit, strikte productieconfiguratie (`validateEnv`), `pnpm audit --prod` in CI, Dependabot.
+- **AVG**: bewaartermijnen en anonimisering via de nachtelijke job, account zelf verwijderen, volledige gegevensexport, `/privacy`.
+- **Toegankelijkheid en PWA**: axe in CI, installeerbare app met offline app-shell (nooit API-data in de cache).
+- **Belasting**: `pnpm --filter @biblio/api load:seed` en `load:run`.

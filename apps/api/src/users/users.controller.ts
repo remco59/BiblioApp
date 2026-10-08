@@ -5,6 +5,7 @@ import { UpdateProfileDto } from '../auth/dto';
 import { Roles } from '../auth/decorators';
 import { AuditService } from '../audit/audit.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { PrivacyService } from '../privacy/privacy.service';
 
 @ApiTags('users')
 @Controller()
@@ -12,6 +13,7 @@ export class UsersController {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
+    private readonly privacy: PrivacyService,
   ) {}
 
   @Patch('users/me')
@@ -28,21 +30,8 @@ export class UsersController {
   @Get('users/me/export')
   @ApiOkResponse({ description: 'Export van alle persoonlijke gegevens' })
   async export(@Req() req: AuthedRequest) {
-    const user = await this.prisma.user.findUniqueOrThrow({
-      where: { id: req.user!.id },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        role: true,
-        emailVerifiedAt: true,
-        createdAt: true,
-        member: true,
-        auditLogs: { select: { action: true, createdAt: true } },
-      },
-    });
-    await this.audit.log('users.export', user.id);
-    return { exportedAt: new Date().toISOString(), user };
+    await this.audit.log('users.export', req.user!.id);
+    return this.privacy.exportFor(req.user!.id);
   }
 
   @Get('staff/ping')

@@ -5,6 +5,7 @@ const executablePath = process.env.PW_CHROMIUM || undefined;
 
 export default defineConfig({
   testDir: './e2e',
+  testIgnore: '**/pwa.spec.ts', // draait apart tegen de productiebuild (test:pwa)
   timeout: 30_000,
   fullyParallel: false,
   workers: 1,
@@ -18,7 +19,11 @@ export default defineConfig({
     {
       command: 'pnpm --filter @biblio/api start',
       // e2e logt vaak in vanaf één IP: rate limit ruim zetten
-      env: { ...(process.env as Record<string, string>), AUTH_RATE_LIMIT_MAX: '1000' },
+      env: {
+        ...(process.env as Record<string, string>),
+        AUTH_RATE_LIMIT_MAX: '1000',
+        RATE_LIMIT_MAX: '100000',
+      },
       url: 'http://localhost:3000/api/health',
       reuseExistingServer: !process.env.CI,
       timeout: 60_000,

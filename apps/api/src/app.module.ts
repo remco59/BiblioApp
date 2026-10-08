@@ -25,6 +25,11 @@ import { PaymentsController } from './payments/payments.controller';
 import { PaymentsService } from './payments/payments.service';
 import { ReportsController } from './reports/reports.controller';
 import { ReportsService } from './reports/reports.service';
+import { MetricsService } from './ops/metrics.service';
+import { OpsController } from './ops/ops.controller';
+import { PrivacyController } from './privacy/privacy.controller';
+import { PrivacyService } from './privacy/privacy.service';
+import { UsersController } from './users/users.controller';
 import { HealthController } from './health/health.controller';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuditModule } from './audit/audit.module';
@@ -45,8 +50,13 @@ import { MailModule } from './mail/mail.module';
     ReportsController,
     AdminController,
     PaymentsController,
+    OpsController,
+    PrivacyController,
+    UsersController,
   ],
   providers: [
+    PrivacyService,
+    MetricsService,
     CommunityService,
     RecommendationsService,
     ReportsService,

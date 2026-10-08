@@ -230,6 +230,14 @@ export class AuthService {
     return used.count === 1;
   }
 
+  /** Voor gevoelige acties: controleert een 2FA- of herstelcode van een bekende gebruiker. */
+  confirmSecondFactor(
+    user: { id: number; totpSecret: string | null; totpLastStep: number | null },
+    code: string,
+  ) {
+    return this.checkSecondFactor(user, code);
+  }
+
   async setupTotp(userId: number) {
     const user = await this.prisma.user.findUniqueOrThrow({ where: { id: userId } });
     if (user.totpEnabledAt) throw new DomainError('2FA staat al aan', 'TOTP_ALREADY_ENABLED');

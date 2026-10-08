@@ -582,3 +582,22 @@ td {
   font-size: 0.8rem;
   color: var(--muted);
 }
+
+.footer {
+  max-width: 64rem;
+  margin: 2rem auto 1rem;
+  padding: 1rem;
+  border-top: 1px solid var(--border);
+}
+.prose {
+  max-width: 42rem;
+}
+.danger-btn {
+  background: var(--bad);
+  color: #fff;
+  border-color: var(--bad);
+}
+button.secondary.danger-btn {
+  background: transparent;
+  color: var(--bad);
+}

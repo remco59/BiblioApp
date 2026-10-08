@@ -50,4 +50,8 @@ export class NightlyResultDto {
   @ApiProperty({ type: Number }) finesUpdated: number;
   @ApiProperty({ type: Number }) reservationsExpired: number;
   @ApiProperty({ type: Number }) membershipNotices: number;
+  @ApiProperty({ type: Number, description: 'AVG: verwijderde verouderde records' })
+  retentionDeleted: number;
+  @ApiProperty({ type: Number, description: 'AVG: geanonimiseerde inactieve leden' })
+  membersAnonymized: number;
 }
