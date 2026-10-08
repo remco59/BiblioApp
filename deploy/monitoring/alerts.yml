@@ -1,0 +1,38 @@
+groups:
+  - name: biblio
+    rules:
+      - alert: ApiDown
+        expr: up{job="biblio-api"} == 0
+        for: 2m
+        labels: { severity: critical }
+        annotations: { summary: 'De API is niet bereikbaar voor Prometheus' }
+
+      - alert: ServerErrors
+        expr: sum(rate(http_server_errors_total[5m])) > 0.05
+        for: 10m
+        labels: { severity: warning }
+        annotations: { summary: 'Verhoogd aantal 5xx-fouten' }
+
+      - alert: SlowRequests
+        expr: histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket[5m]))) > 1
+        for: 10m
+        labels: { severity: warning }
+        annotations: { summary: 'p95-latency boven 1 seconde' }
+
+      - alert: EmailBacklog
+        expr: biblio_emails_pending > 20
+        for: 30m
+        labels: { severity: warning }
+        annotations: { summary: 'Meldingen blijven onverzonden (mailserver of job-queue stuk?)' }
+
+      - alert: ManyOverdueLoans
+        expr: biblio_loans_overdue > 50
+        for: 1d
+        labels: { severity: info }
+        annotations: { summary: 'Veel te late uitleningen' }
+
+      - alert: HighMemory
+        expr: process_resident_memory_bytes{job="biblio-api"} > 800e6
+        for: 15m
+        labels: { severity: warning }
+        annotations: { summary: 'API gebruikt meer dan 800 MB geheugen' }

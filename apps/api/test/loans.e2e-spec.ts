@@ -460,6 +460,14 @@ describe('Uitleenproces (e2e)', () => {
       expect((await checkin('C1')).json().fine.amountCents).toBe(100); // 2 dagen × 50
     });
 
+    it('de instellingenpagina kan alle instellingen die de server teruggeeft ook weer opslaan', async () => {
+      const current = (await call('GET', 'staff/settings', staff)).json();
+      expect(Object.keys(current).length).toBeGreaterThanOrEqual(19);
+      const res = await call('PATCH', 'admin/settings', admin, current);
+      expect(res.statusCode).toBe(200);
+      expect(res.json()).toEqual(current);
+    });
+
     it('levert etikettendata per boek', async () => {
       await addCopy('C1');
       await addCopy('C2');

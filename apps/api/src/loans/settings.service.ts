@@ -18,6 +18,10 @@ export const SETTING_DEFAULTS = {
   reminderDays: 2,
   overdueNoticeEveryDays: 7,
   membershipNoticeDays: 14,
+  retentionLoanMonths: 24,
+  retentionAuditMonths: 12,
+  retentionNotificationDays: 90,
+  retentionInactiveMemberMonths: 36,
 } as const;
 
 export type Settings = { -readonly [K in keyof typeof SETTING_DEFAULTS]: number };

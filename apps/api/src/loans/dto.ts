@@ -151,6 +151,25 @@ export class SettingsDto {
   @ApiProperty({ type: Number, description: 'Aanmaning herhalen na zoveel dagen' })
   overdueNoticeEveryDays: number;
   @ApiProperty({ type: Number }) membershipNoticeDays: number;
+  @ApiProperty({
+    type: Number,
+    description:
+      'AVG: afgesloten uitleningen en afgehandelde boetes worden na zoveel maanden verwijderd',
+  })
+  retentionLoanMonths: number;
+  @ApiProperty({ type: Number, description: 'AVG: auditlog wordt na zoveel maanden verwijderd' })
+  retentionAuditMonths: number;
+  @ApiProperty({
+    type: Number,
+    description: 'AVG: gelezen meldingen worden na zoveel dagen verwijderd',
+  })
+  retentionNotificationDays: number;
+  @ApiProperty({
+    type: Number,
+    description:
+      'AVG: leden zonder activiteit worden na zoveel maanden na afloop van hun lidmaatschap geanonimiseerd',
+  })
+  retentionInactiveMemberMonths: number;
 }
 
 export class UpdateSettingsDto {
@@ -209,6 +228,60 @@ export class UpdateSettingsDto {
   @Min(1)
   @Max(60)
   membershipMonths?: number;
+  @ApiPropertyOptional({ type: Number })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(60)
+  reservationHoldDays?: number;
+  @ApiPropertyOptional({ type: Number })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  maxReservationsPerMember?: number;
+  @ApiPropertyOptional({ type: Number })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(60)
+  reminderDays?: number;
+  @ApiPropertyOptional({ type: Number })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(90)
+  overdueNoticeEveryDays?: number;
+  @ApiPropertyOptional({ type: Number })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(90)
+  membershipNoticeDays?: number;
+  @ApiPropertyOptional({ type: Number })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(120)
+  retentionLoanMonths?: number;
+  @ApiPropertyOptional({ type: Number })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(120)
+  retentionAuditMonths?: number;
+  @ApiPropertyOptional({ type: Number })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(3650)
+  retentionNotificationDays?: number;
+  @ApiPropertyOptional({ type: Number })
+  @IsOptional()
+  @IsInt()
+  @Min(6)
+  @Max(240)
+  retentionInactiveMemberMonths?: number;
 }
 
 export class LabelDto {

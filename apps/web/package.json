@@ -9,6 +9,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "test:pwa": "playwright test -c playwright.pwa.config.ts",
+    "icons": "node scripts/make-icons.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -17,9 +19,10 @@
     "qrcode": "^1.5.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.30.6"
+    "react-router-dom": "^7.18.4"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.64.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
@@ -31,6 +34,6 @@
     "jsdom": "^25.0.1",
     "typescript": "^5.7.2",
     "vite": "^6.0.7",
-    "vitest": "^3.2.7"
+    "vitest": "^4.1.11"
   }
 }

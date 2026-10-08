@@ -14,6 +14,7 @@ import {
 import { MyLoansPage } from './pages/MyLoansPage';
 import { NotificationsPage } from './pages/NotificationsPage';
 import { PayMockPage } from './pages/PayMockPage';
+import { PrivacyPage } from './pages/PrivacyPage';
 import { SuggestionsPage } from './pages/SuggestionsPage';
 import { WishlistPage } from './pages/WishlistPage';
 import { AdminUsersPage } from './pages/staff/AdminUsersPage';
@@ -95,6 +96,7 @@ export function App() {
       <main id="main">
         <Routes>
           <Route path="/" element={<CatalogPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/pay/mock/:ref" element={<PayMockPage />} />
           <Route
             path="/my/wishlist"
@@ -264,6 +266,9 @@ export function App() {
           />
         </Routes>
       </main>
+      <footer className="footer">
+        <Link to="/privacy">Privacy</Link>
+      </footer>
     </>
   );
 }

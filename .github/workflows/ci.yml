@@ -31,6 +31,8 @@ jobs:
       - run: pnpm build
       - run: pnpm lint
       - run: pnpm format:check
+      - name: Dependency-audit (productie, vanaf 'moderate')
+        run: pnpm audit --prod --audit-level=moderate
       - run: pnpm typecheck
       - run: pnpm test
       - name: OpenAPI-client is up-to-date
@@ -66,8 +68,97 @@ jobs:
       - run: pnpm --filter @biblio/api db:deploy
       - run: pnpm db:seed
       - run: pnpm --filter @biblio/web test:e2e
+      - name: PWA-test (productiebuild met service worker)
+        run: pnpm --filter @biblio/web test:pwa
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: playwright-results
           path: apps/web/test-results
+
+  # Bewijst dat een back-up te maken en te herstellen is (incl. checksum, offsite-stap en zoek-/integriteitsindexen)
+  backup-restore:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: biblio
+          POSTGRES_PASSWORD: biblio
+          POSTGRES_DB: biblio
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U biblio" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://biblio:biblio@localhost:5432/biblio?schema=public
+      PGHOST: localhost
+      PGUSER: biblio
+      PGPASSWORD: biblio
+      PGDATABASE: biblio
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @biblio/shared build
+      - run: pnpm --filter @biblio/api db:deploy
+      - run: pnpm db:seed
+      - name: Postgres-client 16
+        run: command -v pg_dump >/dev/null && pg_dump --version | grep -q ' 16\.' || (sudo apt-get update && sudo apt-get install -y postgresql-client-16)
+      - run: sh deploy/backup/test.sh
+
+  # Start het productiepakket zoals het in de Docker-image terechtkomt en controleert health, headers en metrics
+  smoke-prod:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: biblio
+          POSTGRES_PASSWORD: biblio
+          POSTGRES_DB: biblio
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U biblio" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://biblio:biblio@localhost:5432/biblio?schema=public
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm --filter @biblio/api db:deploy
+      - run: sh deploy/smoke-prod.sh
+
+  # Controleert dat de Docker-images bouwen (zonder te pushen)
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deploy/Dockerfile.api
+          push: false
+          cache-from: type=gha,scope=api
+          cache-to: type=gha,scope=api,mode=max
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deploy/Dockerfile.web
+          push: false
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,scope=web,mode=max
+      - name: Compose-bestand is geldig
+        run: |
+          cp deploy/.env.production.example deploy/.env
+          touch deploy/rclone.conf
+          docker compose -f deploy/docker-compose.prod.yml --env-file deploy/.env config -q

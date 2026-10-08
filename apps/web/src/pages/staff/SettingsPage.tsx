@@ -18,6 +18,10 @@ const FIELDS: [keyof Settings, string, string][] = [
   ['reminderDays', 'Herinnering vóór uiterste datum', 'dagen'],
   ['overdueNoticeEveryDays', 'Aanmaning herhalen na', 'dagen'],
   ['membershipNoticeDays', 'Waarschuwing vóór einde lidmaatschap', 'dagen'],
+  ['retentionLoanMonths', 'AVG: bewaartermijn afgesloten uitleningen en boetes', 'maanden'],
+  ['retentionAuditMonths', 'AVG: bewaartermijn auditlog', 'maanden'],
+  ['retentionNotificationDays', 'AVG: bewaartermijn gelezen meldingen', 'dagen'],
+  ['retentionInactiveMemberMonths', 'AVG: inactieve leden anonimiseren na', 'maanden'],
 ];
 
 export function SettingsPage() {
@@ -33,7 +37,7 @@ export function SettingsPage() {
     const { data, error } = await api.POST('/api/admin/jobs/nightly');
     setJob(
       data
-        ? `Klaar: ${data.reminders} herinneringen, ${data.overdueNotices} aanmaningen, ${data.finesUpdated} boetes bijgewerkt, ${data.reservationsExpired} reserveringen verlopen, ${data.membershipNotices} lidmaatschapsmeldingen`
+        ? `Klaar: ${data.reminders} herinneringen, ${data.overdueNotices} aanmaningen, ${data.finesUpdated} boetes bijgewerkt, ${data.reservationsExpired} reserveringen verlopen, ${data.membershipNotices} lidmaatschapsmeldingen, ${data.retentionDeleted} verouderde records verwijderd, ${data.membersAnonymized} leden geanonimiseerd`
         : errorMessage(error),
     );
   }

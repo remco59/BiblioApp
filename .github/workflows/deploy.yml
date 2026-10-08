@@ -1,0 +1,99 @@
+name: Deploy
+
+# Draait nadat CI op main is geslaagd. Zet de repository-variabele DEPLOY_ENABLED=true en de secrets/variabelen
+# uit docs/beheerhandleiding.md (omgeving "production") om te activeren.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  images:
+    if: vars.DEPLOY_ENABLED == 'true' && (github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      tag: ${{ steps.meta.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - id: meta
+        run: |
+          echo "tag=$(git rev-parse --short=12 HEAD)" >> "$GITHUB_OUTPUT"
+          echo "repo=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deploy/Dockerfile.api
+          push: true
+          tags: |
+            ghcr.io/${{ steps.meta.outputs.repo }}/api:${{ steps.meta.outputs.tag }}
+            ghcr.io/${{ steps.meta.outputs.repo }}/api:latest
+          cache-from: type=gha,scope=api
+          cache-to: type=gha,scope=api,mode=max
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deploy/Dockerfile.web
+          push: true
+          tags: |
+            ghcr.io/${{ steps.meta.outputs.repo }}/web:${{ steps.meta.outputs.tag }}
+            ghcr.io/${{ steps.meta.outputs.repo }}/web:latest
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,scope=web,mode=max
+
+  deploy:
+    needs: images
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - name: SSH-sleutel klaarzetten
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+          ssh-keyscan -H "${{ secrets.DEPLOY_HOST }}" >> ~/.ssh/known_hosts
+      - name: Compose-bestanden naar de server
+        run: |
+          scp -i ~/.ssh/id_deploy -r deploy/docker-compose.prod.yml deploy/backup deploy/monitoring \
+            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ vars.DEPLOY_PATH || '/opt/biblio' }}/"
+      - name: Nieuwe versie uitrollen
+        run: |
+          ssh -i ~/.ssh/id_deploy "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" <<'REMOTE'
+          set -eu
+          cd "${{ vars.DEPLOY_PATH || '/opt/biblio' }}"
+          mv docker-compose.prod.yml docker-compose.yml
+          # Vorige versie bewaren voor een snelle terugdraai
+          grep -q '^IMAGE_TAG=' .env && cp .env .env.previous
+          sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=${{ needs.images.outputs.tag }}/" .env
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+          docker compose pull
+          docker compose up -d --remove-orphans
+          docker image prune -f
+          REMOTE
+      - name: Rooktest (wacht tot de API gereed is)
+        run: |
+          for i in $(seq 1 30); do
+            if curl -fsS "https://${{ vars.SITE_ADDRESS }}/api/health/ready"; then echo; exit 0; fi
+            sleep 10
+          done
+          echo "De nieuwe versie werd niet gereed. Draai terug met: cp .env.previous .env && docker compose up -d" >&2
+          exit 1

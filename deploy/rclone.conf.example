@@ -1,0 +1,8 @@
+# Voorbeeld voor een S3-compatibele offsite bucket. Kopieer naar `rclone.conf` (chmod 600).
+# Test met:  docker compose run --rm backup rclone lsd s3remote:
+[s3remote]
+type = s3
+provider = Other
+access_key_id = VUL_IN
+secret_access_key = VUL_IN
+endpoint = https://s3.example.nl

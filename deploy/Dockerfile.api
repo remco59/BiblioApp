@@ -1,0 +1,30 @@
+# syntax=docker/dockerfile:1
+# Bouw vanuit de repo-root: docker build -f deploy/Dockerfile.api -t biblio-api .
+FROM node:22-slim AS build
+ENV PNPM_HOME=/pnpm PATH=/pnpm:$PATH
+RUN corepack enable && apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates && rm -rf /var/lib/apt/lists/*
+WORKDIR /repo
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json tsconfig.base.json ./
+COPY packages/shared/package.json packages/shared/
+COPY apps/api/package.json apps/api/
+RUN pnpm install --frozen-lockfile --filter @biblio/api...
+COPY packages/shared packages/shared
+COPY apps/api apps/api
+RUN pnpm --filter @biblio/shared build && pnpm --filter @biblio/api build
+# Alleen productie-afhankelijkheden (inclusief de prisma-CLI voor migraties)
+# (package.json "files": alleen dist en prisma worden meegenomen)
+RUN pnpm --filter @biblio/api deploy --prod --legacy /out
+
+FROM node:22-slim AS runtime
+RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates tini && rm -rf /var/lib/apt/lists/*
+ENV NODE_ENV=production API_PORT=3000 STORAGE_DIR=/data/uploads
+WORKDIR /app
+COPY --from=build /out /app
+COPY deploy/api-entrypoint.sh /app/entrypoint.sh
+RUN npx prisma generate && chmod +x /app/entrypoint.sh \
+ && mkdir -p /data/uploads && chown -R node:node /app /data
+USER node
+EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
+  CMD node -e "fetch('http://127.0.0.1:3000/api/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+ENTRYPOINT ["/usr/bin/tini", "--", "/app/entrypoint.sh"]

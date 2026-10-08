@@ -7,3 +7,6 @@ coverage
 test-results
 playwright-report
 apps/api/uploads
+deploy/.env
+deploy/rclone.conf
+deploy/monitoring/metrics-token

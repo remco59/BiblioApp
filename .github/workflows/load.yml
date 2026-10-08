@@ -1,0 +1,47 @@
+name: Load test
+
+# Handmatig starten (Actions → Load test). Uitkomst hangt af van de runner; daarom geen onderdeel van elke PR.
+on:
+  workflow_dispatch:
+    inputs:
+      concurrency:
+        description: Aantal gelijktijdige gebruikers
+        default: '20'
+      duration:
+        description: Seconden per fase
+        default: '15'
+
+jobs:
+  load:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: biblio
+          POSTGRES_PASSWORD: biblio
+          POSTGRES_DB: biblio
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U biblio" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://biblio:biblio@localhost:5432/biblio?schema=public
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm --filter @biblio/api db:deploy
+      - run: pnpm --filter @biblio/api load:seed
+      - run: PGPASSWORD=biblio psql -h localhost -U biblio -c ANALYZE
+      - name: API starten
+        run: |
+          RATE_LIMIT_MAX=1000000 AUTH_RATE_LIMIT_MAX=1000000 API_PORT=3300 LOG_PRETTY=0 \
+            node apps/api/dist/main.js > api.log 2>&1 &
+          for i in $(seq 1 30); do curl -fsS localhost:3300/api/health/ready && break; sleep 1; done
+      - name: Belastingtest
+        run: BASE_URL=http://localhost:3300 DURATION_S=${{ inputs.duration }} CONCURRENCY=${{ inputs.concurrency }} pnpm --filter @biblio/api load:run

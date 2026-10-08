@@ -1,0 +1,106 @@
+# Productiestack: Caddy (HTTPS) → API → PostgreSQL, plus dagelijkse backups.
+# Gebruik:  cp .env.production.example .env && (vul in)  &&  docker compose pull && docker compose up -d
+# Optioneel: monitoring (Prometheus):  docker compose --profile monitoring up -d
+name: biblio
+
+services:
+  web:
+    image: ${REGISTRY:-ghcr.io/remco59/biblioapp}/web:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:?SITE_ADDRESS is verplicht (bijv. bibliotheek.example.nl)}
+    ports:
+      - '80:80'
+      - '443:443'
+      - '443:443/udp'
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      api:
+        condition: service_healthy
+    networks: [edge, internal]
+
+  api:
+    image: ${REGISTRY:-ghcr.io/remco59/biblioapp}/api:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://biblio:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is verplicht}@postgres:5432/biblio?schema=public
+      WEB_ORIGIN: https://${SITE_ADDRESS}
+      NODE_ENV: production
+      STORAGE_DIR: /data/uploads
+    volumes:
+      - uploads:/data/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [internal]
+    # Geen gepubliceerde poort: alleen bereikbaar via Caddy en Prometheus binnen het docker-netwerk
+
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: biblio
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: biblio
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U biblio -d biblio']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [internal]
+
+  backup:
+    build:
+      context: ./backup
+    restart: unless-stopped
+    environment:
+      PGHOST: postgres
+      PGUSER: biblio
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: biblio
+      BACKUP_DIR: /backups
+      UPLOADS_DIR: /data/uploads
+      RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-14}
+      BACKUP_HOUR_UTC: ${BACKUP_HOUR_UTC:-2}
+      # Offsite kopie (rclone), bijv. "s3remote:biblio-backups" — zie docs/beheerhandleiding.md
+      BACKUP_REMOTE: ${BACKUP_REMOTE:-}
+      RCLONE_CONFIG: /config/rclone.conf
+    volumes:
+      - backups:/backups
+      - uploads:/data/uploads:ro
+      - ./rclone.conf:/config/rclone.conf:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [internal]
+
+  prometheus:
+    profiles: [monitoring]
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    command: ['--config.file=/etc/prometheus/prometheus.yml', '--storage.tsdb.retention.time=30d']
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - ./monitoring/metrics-token:/etc/prometheus/metrics-token:ro
+      - promdata:/prometheus
+    ports:
+      - '127.0.0.1:9090:9090' # alleen lokaal op de server; gebruik een SSH-tunnel
+    networks: [internal]
+
+volumes:
+  pgdata:
+  uploads:
+  backups:
+  caddy_data:
+  caddy_config:
+  promdata:
+
+networks:
+  edge:
+  internal:

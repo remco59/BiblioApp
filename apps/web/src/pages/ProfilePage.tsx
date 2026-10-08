@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { api, errorMessage } from '../api';
 import { useAuth } from '../auth';
+import { DeleteAccount } from '../components/DeleteAccount';
 import { TwoFactor } from '../components/TwoFactor';
 
 export function ProfilePage() {
@@ -63,6 +64,7 @@ export function ProfilePage() {
       <h2>Mijn gegevens (AVG)</h2>
       <p>Download een kopie van al je persoonlijke gegevens.</p>
       <button onClick={download}>Gegevens exporteren</button>
+      <DeleteAccount />
     </section>
   );
 }

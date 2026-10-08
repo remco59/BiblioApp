@@ -1,0 +1,18 @@
+# syntax=docker/dockerfile:1
+# Bouw vanuit de repo-root: docker build -f deploy/Dockerfile.web -t biblio-web .
+FROM node:22-slim AS build
+ENV PNPM_HOME=/pnpm PATH=/pnpm:$PATH
+RUN corepack enable
+WORKDIR /repo
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json tsconfig.base.json ./
+COPY packages/api-client/package.json packages/api-client/
+COPY apps/web/package.json apps/web/
+RUN pnpm install --frozen-lockfile --filter @biblio/web...
+COPY packages/api-client packages/api-client
+COPY apps/web apps/web
+RUN pnpm --filter @biblio/api-client build && pnpm --filter @biblio/web build
+
+# Caddy serveert de statische site, doet automatisch HTTPS en proxyt /api naar de API
+FROM caddy:2-alpine
+COPY deploy/Caddyfile /etc/caddy/Caddyfile
+COPY --from=build /repo/apps/web/dist /srv

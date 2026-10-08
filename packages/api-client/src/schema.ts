@@ -1060,6 +1060,150 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/health/ready": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["OpsController_ready"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/metrics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["OpsController_scrape"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/privacy/policy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PrivacyController_policy"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me/account/delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["PrivacyController_deleteAccount"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/users/{id}/anonymize": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["PrivacyController_adminAnonymize"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/users/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["UsersController_updateProfile"];
+        trace?: never;
+    };
+    "/api/users/me/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["UsersController_export"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/staff/ping": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["UsersController_staffPing"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/ping": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["UsersController_adminPing"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/register": {
         parameters: {
             query?: never;
@@ -1214,70 +1358,6 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["AuthController_disable2fa"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/users/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: operations["UsersController_updateProfile"];
-        trace?: never;
-    };
-    "/api/users/me/export": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["UsersController_export"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/staff/ping": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["UsersController_staffPing"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/admin/ping": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["UsersController_adminPing"];
-        put?: never;
-        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1542,6 +1622,14 @@ export interface components {
             /** @description Aanmaning herhalen na zoveel dagen */
             overdueNoticeEveryDays: number;
             membershipNoticeDays: number;
+            /** @description AVG: afgesloten uitleningen en afgehandelde boetes worden na zoveel maanden verwijderd */
+            retentionLoanMonths: number;
+            /** @description AVG: auditlog wordt na zoveel maanden verwijderd */
+            retentionAuditMonths: number;
+            /** @description AVG: gelezen meldingen worden na zoveel dagen verwijderd */
+            retentionNotificationDays: number;
+            /** @description AVG: leden zonder activiteit worden na zoveel maanden na afloop van hun lidmaatschap geanonimiseerd */
+            retentionInactiveMemberMonths: number;
         };
         LabelDto: {
             barcode: string;
@@ -1559,6 +1647,15 @@ export interface components {
             lostFeeCents?: number;
             damagedFeeCents?: number;
             membershipMonths?: number;
+            reservationHoldDays?: number;
+            maxReservationsPerMember?: number;
+            reminderDays?: number;
+            overdueNoticeEveryDays?: number;
+            membershipNoticeDays?: number;
+            retentionLoanMonths?: number;
+            retentionAuditMonths?: number;
+            retentionNotificationDays?: number;
+            retentionInactiveMemberMonths?: number;
         };
         ReserveDto: {
             bookId: number;
@@ -1604,6 +1701,10 @@ export interface components {
             finesUpdated: number;
             reservationsExpired: number;
             membershipNotices: number;
+            /** @description AVG: verwijderde verouderde records */
+            retentionDeleted: number;
+            /** @description AVG: geanonimiseerde inactieve leden */
+            membersAnonymized: number;
         };
         ReviewSummaryDto: {
             average: number | null;
@@ -1767,6 +1868,32 @@ export interface components {
             /** @enum {string} */
             outcome: "PAID" | "FAILED";
         };
+        ReadyDto: {
+            status: string;
+            database: boolean;
+            migrations: boolean;
+            /** @description Job-queue actief (of bewust uitgeschakeld) */
+            jobs: boolean;
+        };
+        PolicyDto: {
+            retentionLoanMonths: number;
+            retentionAuditMonths: number;
+            retentionNotificationDays: number;
+            retentionInactiveMemberMonths: number;
+        };
+        DeleteAccountDto: {
+            password: string;
+            /** @description 2FA-code of herstelcode (alleen als 2FA aanstaat) */
+            code?: string;
+        };
+        UpdateProfileDto: {
+            name?: string;
+            /**
+             * @description Taal van meldingen en e-mails
+             * @enum {string}
+             */
+            locale?: "nl" | "en";
+        };
         RegisterDto: {
             email: string;
             name: string;
@@ -1817,14 +1944,6 @@ export interface components {
         TotpDisableDto: {
             password: string;
             code: string;
-        };
-        UpdateProfileDto: {
-            name?: string;
-            /**
-             * @description Taal van meldingen en e-mails
-             * @enum {string}
-             */
-            locale?: "nl" | "en";
         };
     };
     responses: never;
@@ -3459,6 +3578,177 @@ export interface operations {
             };
         };
     };
+    OpsController_ready: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReadyDto"];
+                };
+            };
+        };
+    };
+    OpsController_scrape: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PrivacyController_policy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PolicyDto"];
+                };
+            };
+        };
+    };
+    PrivacyController_deleteAccount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeleteAccountDto"];
+            };
+        };
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PrivacyController_adminAnonymize: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    UsersController_updateProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateProfileDto"];
+            };
+        };
+        responses: {
+            /** @description Profiel bijgewerkt */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    UsersController_export: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Export van alle persoonlijke gegevens */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    UsersController_staffPing: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Alleen voor medewerkers */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    UsersController_adminPing: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Alleen voor beheerders */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     AuthController_register: {
         parameters: {
             query?: never;
@@ -3658,82 +3948,6 @@ export interface operations {
         };
         responses: {
             204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UsersController_updateProfile: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateProfileDto"];
-            };
-        };
-        responses: {
-            /** @description Profiel bijgewerkt */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UsersController_export: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Export van alle persoonlijke gegevens */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UsersController_staffPing: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Alleen voor medewerkers */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UsersController_adminPing: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Alleen voor beheerders */
-            200: {
                 headers: {
                     [name: string]: unknown;
                 };
