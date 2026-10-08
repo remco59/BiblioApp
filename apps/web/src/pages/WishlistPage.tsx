@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { Book } from '@biblio/api-client';
 import { api } from '../api';
-import { BookList } from '../components/BookCard';
+import { Shelf, ShelfBook, StatusPill } from '../components/Shelf';
 import { useServerEvent } from '../lib/events';
 
 export function WishlistPage() {
@@ -25,7 +25,21 @@ export function WishlistPage() {
           zodra een boek beschikbaar komt.
         </p>
       ) : (
-        <BookList books={books} />
+        <Shelf label="Verlanglijst">
+          {books.map((b) => (
+            <ShelfBook
+              key={b.id}
+              book={b}
+              caption={
+                b.copiesAvailable > 0 ? (
+                  <StatusPill tone="ok">Beschikbaar</StatusPill>
+                ) : (
+                  <StatusPill tone="neutral">Uitgeleend</StatusPill>
+                )
+              }
+            />
+          ))}
+        </Shelf>
       )}
     </>
   );

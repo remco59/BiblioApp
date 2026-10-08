@@ -66,8 +66,9 @@ test('lid ziet en verlengt een uitleen', async ({ page, browser }) => {
 
   try {
     await loginAs(page, 'lid@biblio.nl');
-    await page.getByRole('link', { name: 'Mijn uitleningen' }).click();
+    await page.getByRole('link', { name: 'Mijn bibliotheek' }).click();
     await expect(page.getByRole('heading', { name: 'Nu geleend' })).toBeVisible();
+    await page.getByRole('button', { name: 'Lijst' }).click();
     const active = page.locator('table').first(); // "Nu geleend"
     await expect(active.getByRole('cell', { name: /verlengd/ })).toHaveCount(0);
     await page.getByRole('button', { name: 'Verlengen' }).click();

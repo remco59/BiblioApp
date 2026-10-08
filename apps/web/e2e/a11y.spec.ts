@@ -28,9 +28,10 @@ async function scan(page: Page, path: string, ready: string | RegExp) {
 }
 
 const PUBLIC: [string, string | RegExp][] = [
-  ['/', 'Catalogus'],
-  ['/?q=diner', 'Catalogus'],
-  ['/?genre=Fantasy&available=true', 'Catalogus'],
+  ['/', /Goede|Welkom/],
+  ['/catalogus', 'Catalogus'],
+  ['/catalogus?q=diner', 'Catalogus'],
+  ['/catalogus?genre=Fantasy&available=true', 'Catalogus'],
   ['/login', 'Inloggen'],
   ['/register', 'Account aanmaken'],
   ['/forgot-password', 'Wachtwoord vergeten'],
@@ -55,7 +56,7 @@ test.describe('toegankelijkheid (axe, WCAG 2.1 AA)', () => {
   }
 
   test('boekdetailpagina (met reviews, exemplaren en vergelijkbare boeken)', async ({ page }) => {
-    await page.goto('/?q=Kruistocht');
+    await page.goto('/catalogus?q=Kruistocht');
     await page.getByRole('link', { name: 'Kruistocht in spijkerbroek' }).click();
     await expect(page.getByRole('heading', { name: 'Exemplaren' })).toBeVisible();
     await page.waitForLoadState('networkidle');
@@ -67,17 +68,17 @@ test.describe('toegankelijkheid (axe, WCAG 2.1 AA)', () => {
 
   test('donker thema: catalogus en login', async ({ page }) => {
     await page.emulateMedia({ colorScheme: 'dark' });
-    await scan(page, '/', 'Catalogus');
+    await scan(page, '/catalogus', 'Catalogus');
     await scan(page, '/login', 'Inloggen');
     await page.emulateMedia({ colorScheme: 'light' });
-    await page.goto('/');
+    await page.goto('/catalogus');
     await page.getByLabel('Thema').selectOption('dark');
-    await scan(page, '/', 'Catalogus');
+    await scan(page, '/catalogus', 'Catalogus');
   });
 
   test('mobiele weergave: catalogus', async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 740 });
-    await scan(page, '/', 'Catalogus');
+    await scan(page, '/catalogus', 'Catalogus');
   });
 
   test('lid: persoonlijke pagina’s', async ({ page }) => {

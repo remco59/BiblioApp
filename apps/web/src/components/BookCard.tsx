@@ -7,7 +7,7 @@ export function Cover({
   size = 'small',
 }: {
   book: Pick<Book, 'title' | 'coverUrl'>;
-  size?: 'small' | 'large';
+  size?: 'small' | 'large' | 'shelf';
 }) {
   return book.coverUrl ? (
     <img

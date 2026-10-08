@@ -3,6 +3,7 @@ import { RequireAuth, useAuth } from './auth';
 import { NotificationBell } from './components/NotificationBell';
 import { ThemeToggle } from './components/ThemeToggle';
 import { BookDetailPage } from './pages/BookDetailPage';
+import { HomePage } from './pages/HomePage';
 import { CatalogPage } from './pages/CatalogPage';
 import {
   ForgotPasswordPage,
@@ -36,39 +37,54 @@ import { StaffBooksPage } from './pages/staff/StaffBooksPage';
 
 const STAFF: ('LIBRARIAN' | 'ADMIN')[] = ['LIBRARIAN', 'ADMIN'];
 
+const icon = (d: string) => (
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d={d} />
+  </svg>
+);
+
+function TabBar() {
+  const { user } = useAuth();
+  return (
+    <nav className="tabbar" aria-label="Tabbalk">
+      <NavLink to="/" end>
+        {icon('M3 11l9-8 9 8M5 10v10h14V10')}
+        Ontdek
+      </NavLink>
+      <NavLink to="/catalogus">
+        {icon('M4 4h4v16H4zM10 4h4v16h-4zM16.5 5.5l3.5-1 3 15-3.5 1z')}
+        Catalogus
+      </NavLink>
+      <NavLink to="/my/loans">
+        {icon('M4 20h16M6 20V9l6-5 6 5v11M10 20v-6h4v6')}
+        Bibliotheek
+      </NavLink>
+      <NavLink to={user ? '/profile' : '/login'}>
+        {icon('M12 12a4 4 0 100-8 4 4 0 000 8zM4 21c0-4 4-6 8-6s8 2 8 6')}
+        {user ? 'Profiel' : 'Inloggen'}
+      </NavLink>
+    </nav>
+  );
+}
+
 function Nav() {
   const { user, logout } = useAuth();
+  const isStaff = user?.role === 'LIBRARIAN' || user?.role === 'ADMIN';
   return (
     <header className="nav">
       <Link to="/" className="brand">
         BiblioApp
       </Link>
       <nav aria-label="Hoofdmenu">
-        <NavLink to="/" end>
-          Catalogus
-        </NavLink>
-        {user && <NavLink to="/my/loans">Mijn uitleningen</NavLink>}
-        {user && <NavLink to="/my/wishlist">Verlanglijst</NavLink>}
-        {user && <NavLink to="/my/suggestions">Suggesties</NavLink>}
-        {(user?.role === 'LIBRARIAN' || user?.role === 'ADMIN') && (
-          <>
-            <NavLink to="/staff/desk">Balie</NavLink>
-            <NavLink to="/staff/members">Leden</NavLink>
-            <NavLink to="/staff/overdue">Te laat</NavLink>
-            <NavLink to="/staff/reservations">Reserveringen</NavLink>
-            <NavLink to="/staff/moderation">Reviews</NavLink>
-            <NavLink to="/staff/reports">Rapporten</NavLink>
-            <NavLink to="/staff/books">Beheer</NavLink>
-          </>
-        )}
-        {user?.role === 'ADMIN' && (
-          <>
-            <NavLink to="/admin/settings">Instellingen</NavLink>
-            <NavLink to="/admin/users">Gebruikers</NavLink>
-            <NavLink to="/admin/templates">Mailteksten</NavLink>
-            <NavLink to="/admin/audit">Auditlog</NavLink>
-          </>
-        )}
+        <span className="main-links">
+          <NavLink to="/" end>
+            Ontdek
+          </NavLink>
+          <NavLink to="/catalogus">Catalogus</NavLink>
+          {user && <NavLink to="/my/loans">Mijn bibliotheek</NavLink>}
+          {user && <NavLink to="/my/wishlist">Verlanglijst</NavLink>}
+          {user && <NavLink to="/my/suggestions">Suggesties</NavLink>}
+        </span>
         {user ? (
           <>
             <NotificationBell />
@@ -81,6 +97,25 @@ function Nav() {
           <NavLink to="/login">Inloggen</NavLink>
         )}
         <ThemeToggle />
+        {isStaff && (
+          <div className="staff-nav">
+            <NavLink to="/staff/desk">Balie</NavLink>
+            <NavLink to="/staff/members">Leden</NavLink>
+            <NavLink to="/staff/overdue">Te laat</NavLink>
+            <NavLink to="/staff/reservations">Reserveringen</NavLink>
+            <NavLink to="/staff/moderation">Reviews</NavLink>
+            <NavLink to="/staff/reports">Rapporten</NavLink>
+            <NavLink to="/staff/books">Beheer</NavLink>
+            {user?.role === 'ADMIN' && (
+              <>
+                <NavLink to="/admin/settings">Instellingen</NavLink>
+                <NavLink to="/admin/users">Gebruikers</NavLink>
+                <NavLink to="/admin/templates">Mailteksten</NavLink>
+                <NavLink to="/admin/audit">Auditlog</NavLink>
+              </>
+            )}
+          </div>
+        )}
       </nav>
     </header>
   );
@@ -95,7 +130,8 @@ export function App() {
       <Nav />
       <main id="main">
         <Routes>
-          <Route path="/" element={<CatalogPage />} />
+          <Route path="/" element={<HomePage />} />
+          <Route path="/catalogus" element={<CatalogPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/pay/mock/:ref" element={<PayMockPage />} />
           <Route
@@ -266,6 +302,7 @@ export function App() {
           />
         </Routes>
       </main>
+      <TabBar />
       <footer className="footer">
         <Link to="/privacy">Privacy</Link>
       </footer>

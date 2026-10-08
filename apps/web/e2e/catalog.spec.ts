@@ -10,14 +10,14 @@ async function loginAs(page: Page, email: string) {
 
 test.describe('zoeken in de catalogus', () => {
   test('toont de seed-boeken met beschikbaarheid', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/catalogus');
     await expect(page.getByRole('heading', { name: 'Catalogus' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Het diner' })).toBeVisible();
     await expect(page.getByText(/boeken gevonden/)).toBeVisible();
   });
 
   test('vindt een boek op titel, auteur en ondanks een typefout', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/catalogus');
     const search = page.getByRole('searchbox');
     for (const term of ['diner', 'Koch', 'dinner']) {
       await search.fill(term);
@@ -28,12 +28,12 @@ test.describe('zoeken in de catalogus', () => {
   });
 
   test('geeft een melding zonder resultaat', async ({ page }) => {
-    await page.goto('/?q=xqzvwk');
+    await page.goto('/catalogus?q=xqzvwk');
     await expect(page.getByText('Geen boeken gevonden')).toBeVisible();
   });
 
   test('filtert op genre en blijft in de URL staan', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/catalogus');
     await page.getByLabel('Genre').selectOption('Fantasy');
     await expect(page).toHaveURL(/genre=Fantasy/);
     await expect(page.getByRole('link', { name: 'Kruistocht in spijkerbroek' })).toBeVisible();
@@ -43,7 +43,7 @@ test.describe('zoeken in de catalogus', () => {
   });
 
   test('opent een detailpagina met exemplaren', async ({ page }) => {
-    await page.goto('/?q=Kruistocht');
+    await page.goto('/catalogus?q=Kruistocht');
     await page.getByRole('link', { name: 'Kruistocht in spijkerbroek' }).click();
     await expect(page.getByRole('heading', { name: 'Kruistocht in spijkerbroek' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Exemplaren' })).toBeVisible();
@@ -70,7 +70,7 @@ test.describe('collectiebeheer', () => {
     await page.getByRole('button', { name: 'Exemplaar toevoegen' }).click();
     await expect(page.getByRole('cell', { name: /^BB/ })).toBeVisible();
 
-    await page.goto('/?q=' + encodeURIComponent(title));
+    await page.goto('/catalogus?q=' + encodeURIComponent(title));
     await expect(page.getByRole('link', { name: title })).toBeVisible();
 
     await page.goto('/staff/books');
