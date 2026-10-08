@@ -46,6 +46,15 @@ export class LoanDto {
   @ApiProperty({ type: Boolean, description: 'Actief en over de uiterste inleverdatum' })
   overdue: boolean;
   @ApiProperty({ type: Boolean, description: 'Kan het lid dit nog verlengen?' }) canRenew: boolean;
+  @ApiProperty({ type: Number, description: 'Begonnen dagen te laat (alleen actief)' })
+  daysLate: number;
+  @ApiProperty({
+    type: String,
+    format: 'date-time',
+    nullable: true,
+    description: 'Laatste aanmaning',
+  })
+  lastNoticeAt: string | null;
 }
 
 export class FineDto {
@@ -66,6 +75,12 @@ export class CheckinResultDto {
   @ApiProperty({ type: LoanDto }) loan: LoanDto;
   @ApiProperty({ type: FineDto, nullable: true }) fine: FineDto | null;
   @ApiProperty({ type: Number }) daysLate: number;
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description: 'Naam van het lid voor wie het exemplaar nu klaarligt',
+  })
+  reservedFor: string | null;
 }
 
 export class MemberDto {
@@ -128,6 +143,14 @@ export class SettingsDto {
   @ApiProperty({ type: Number }) lostFeeCents: number;
   @ApiProperty({ type: Number }) damagedFeeCents: number;
   @ApiProperty({ type: Number }) membershipMonths: number;
+  @ApiProperty({ type: Number, description: 'Dagen dat een gereserveerd boek klaarligt' })
+  reservationHoldDays: number;
+  @ApiProperty({ type: Number }) maxReservationsPerMember: number;
+  @ApiProperty({ type: Number, description: 'Herinnering zoveel dagen vóór de uiterste datum' })
+  reminderDays: number;
+  @ApiProperty({ type: Number, description: 'Aanmaning herhalen na zoveel dagen' })
+  overdueNoticeEveryDays: number;
+  @ApiProperty({ type: Number }) membershipNoticeDays: number;
 }
 
 export class UpdateSettingsDto {

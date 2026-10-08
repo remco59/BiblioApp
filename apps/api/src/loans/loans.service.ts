@@ -2,6 +2,7 @@ import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { QueueEffects, ReservationsService } from '../reservations/reservations.service';
 import { CheckinResultDto, FineDto, LoanDto } from './dto';
 import { DomainError } from './errors';
 import { SettingsService } from './settings.service';
@@ -48,6 +49,7 @@ export class LoansService {
     private readonly prisma: PrismaService,
     private readonly settings: SettingsService,
     private readonly audit: AuditService,
+    private readonly reservations: ReservationsService,
   ) {}
 
   toDto(l: LoanRow, s: { maxRenewals: number }, now = new Date()): LoanDto {
@@ -68,6 +70,8 @@ export class LoansService {
       renewals: l.renewals,
       overdue,
       canRenew: active && !overdue && l.renewals < s.maxRenewals,
+      daysLate: overdue ? daysLate(l.dueAt, now) : 0,
+      lastNoticeAt: l.overdueNoticeAt?.toISOString() ?? null,
     };
   }
 
@@ -93,9 +97,10 @@ export class LoansService {
    * uitlenen, leenlimiet blijft kloppen).
    */
   async checkout(memberNumber: string, barcode: string, staffUserId: number): Promise<LoanDto> {
+    const effects: QueueEffects = { notifications: [], bookIds: [] };
     const loanId = await this.prisma.$transaction(async (tx) => {
-      const [copy] = await tx.$queryRaw<{ id: number; status: string }[]>`
-        SELECT "id", "status" FROM "Copy" WHERE "barcode" = ${barcode} FOR UPDATE`;
+      const [copy] = await tx.$queryRaw<{ id: number; status: string; bookId: number }[]>`
+        SELECT "id", "status", "bookId" FROM "Copy" WHERE "barcode" = ${barcode} FOR UPDATE`;
       if (!copy)
         throw new DomainError('Exemplaar niet gevonden', 'COPY_NOT_FOUND', HttpStatus.NOT_FOUND);
 
@@ -105,13 +110,22 @@ export class LoansService {
       const member = await tx.member.findUniqueOrThrow({ where: { id: m.id } });
       const s = await this.settings.getAll(tx);
 
-      if (copy.status !== 'AVAILABLE') {
+      if (copy.status === 'RESERVED_HOLD') {
+        // Een klaargelegd exemplaar mag alleen aan het lid dat het gereserveerd heeft.
+        const hold = await tx.reservation.findFirst({
+          where: { copyId: copy.id, status: 'READY' },
+        });
+        if (!hold || hold.memberId !== member.id) {
+          throw new DomainError(
+            'Dit exemplaar ligt klaar voor een reservering van een ander lid',
+            'COPY_RESERVED_HOLD',
+          );
+        }
+      } else if (copy.status !== 'AVAILABLE') {
         const msg =
           copy.status === 'LOANED'
             ? 'Dit exemplaar is al uitgeleend'
-            : copy.status === 'RESERVED_HOLD'
-              ? 'Dit exemplaar ligt klaar voor een reservering'
-              : 'Dit exemplaar is niet uitleenbaar (verloren of beschadigd)';
+            : 'Dit exemplaar is niet uitleenbaar (verloren of beschadigd)';
         throw new DomainError(msg, `COPY_${copy.status}`);
       }
       if (member.blocked)
@@ -152,9 +166,12 @@ export class LoansService {
         },
       });
       await tx.copy.update({ where: { id: copy.id }, data: { status: 'LOANED' } });
+      await this.reservations.fulfillOnCheckout(tx, member.id, copy.bookId, copy.id, effects);
+      effects.bookIds.push(copy.bookId);
       return loan.id;
     });
     await this.audit.log('loan.checkout', staffUserId, { loanId, barcode, memberNumber });
+    await this.reservations.publish(effects);
     return this.get(loanId);
   }
 
@@ -164,16 +181,17 @@ export class LoansService {
     return this.toDto(l, await this.settings.getAll());
   }
 
-  /** Innemen: sluit de actieve uitleen en berekent een boete bij te laat of beschadiging. */
+  /** Innemen: sluit de actieve uitleen, berekent boetes en geeft het exemplaar door aan de wachtrij. */
   async checkin(
     barcode: string,
     condition: 'OK' | 'DAMAGED',
     staffUserId: number,
   ): Promise<CheckinResultDto> {
-    const { loanId, fineId, late } = await this.prisma.$transaction(async (tx) => {
+    const effects: QueueEffects = { notifications: [], bookIds: [] };
+    const { loanId, fineId, late, reservedFor } = await this.prisma.$transaction(async (tx) => {
       const [copy] = await tx.$queryRaw<
-        { id: number }[]
-      >`SELECT "id" FROM "Copy" WHERE "barcode" = ${barcode} FOR UPDATE`;
+        { id: number; bookId: number }[]
+      >`SELECT "id", "bookId" FROM "Copy" WHERE "barcode" = ${barcode} FOR UPDATE`;
       if (!copy)
         throw new DomainError('Exemplaar niet gevonden', 'COPY_NOT_FOUND', HttpStatus.NOT_FOUND);
       const loan = await tx.loan.findFirst({ where: { copyId: copy.id, returnedAt: null } });
@@ -190,7 +208,6 @@ export class LoansService {
           outcome: condition === 'DAMAGED' ? 'DAMAGED' : 'RETURNED',
         },
       });
-      // Fase 5 zet het exemplaar hier op RESERVED_HOLD als er een reservering wacht.
       await tx.copy.update({
         where: { id: copy.id },
         data: { status: condition === 'DAMAGED' ? 'DAMAGED' : 'AVAILABLE' },
@@ -199,17 +216,29 @@ export class LoansService {
       let fineId: number | null = null;
       const overdueCents = Math.min(late * s.finePerDayCents, s.fineCapCents);
       if (overdueCents > 0) {
-        fineId = (
-          await tx.fine.create({
-            data: {
-              memberId: loan.memberId,
-              loanId: loan.id,
-              reason: 'OVERDUE',
-              amountCents: overdueCents,
-              note: `${late} dag(en) te laat`,
-            },
-          })
-        ).id;
+        // De nachtelijke job houdt al een te-laat-boete bij: bijwerken in plaats van dubbel aanmaken.
+        const existing = await tx.fine.findFirst({ where: { loanId: loan.id, reason: 'OVERDUE' } });
+        fineId = existing
+          ? (
+              await tx.fine.update({
+                where: { id: existing.id },
+                data: {
+                  amountCents: Math.max(existing.amountCents, overdueCents),
+                  note: `${late} dag(en) te laat`,
+                },
+              })
+            ).id
+          : (
+              await tx.fine.create({
+                data: {
+                  memberId: loan.memberId,
+                  loanId: loan.id,
+                  reason: 'OVERDUE',
+                  amountCents: overdueCents,
+                  note: `${late} dag(en) te laat`,
+                },
+              })
+            ).id;
       }
       if (condition === 'DAMAGED' && s.damagedFeeCents > 0) {
         fineId = (
@@ -223,7 +252,18 @@ export class LoansService {
           })
         ).id;
       }
-      return { loanId: loan.id, fineId, late };
+
+      effects.bookIds.push(copy.bookId);
+      let reservedFor: string | null = null;
+      if (condition === 'OK') {
+        await this.reservations.fillQueue(tx, copy.bookId, effects);
+        const hold = await tx.reservation.findFirst({
+          where: { copyId: copy.id, status: 'READY' },
+          include: { member: { include: { user: { select: { name: true } } } } },
+        });
+        reservedFor = hold?.member.user.name ?? null;
+      }
+      return { loanId: loan.id, fineId, late, reservedFor };
     });
     await this.audit.log('loan.checkin', staffUserId, {
       loanId,
@@ -231,10 +271,12 @@ export class LoansService {
       condition,
       daysLate: late,
     });
+    await this.reservations.publish(effects);
     return {
       loan: await this.get(loanId),
       fine: fineId ? await this.fine(fineId) : null,
       daysLate: late,
+      reservedFor,
     };
   }
 
@@ -270,6 +312,7 @@ export class LoansService {
       loan: await this.get(loanId),
       fine: fineId ? await this.fine(fineId) : null,
       daysLate: 0,
+      reservedFor: null,
     };
   }
 
@@ -317,9 +360,9 @@ export class LoansService {
     return this.get(loanId);
   }
 
-  /** Haak voor fase 5 (reserveringen): zijn er wachtenden op dit boek? */
-  async hasWaitingReservation(_bookId: number, _tx: Prisma.TransactionClient): Promise<boolean> {
-    return false;
+  /** Zijn er wachtenden op dit boek? Dan kan het niet verlengd worden. */
+  async hasWaitingReservation(bookId: number, tx: Prisma.TransactionClient): Promise<boolean> {
+    return this.reservations.hasWaiting(bookId, tx);
   }
 
   async fine(id: number): Promise<FineDto> {

@@ -21,24 +21,25 @@ model Genre {
 }
 
 model Book {
-  id            Int          @id @default(autoincrement())
+  id            Int           @id @default(autoincrement())
   title         String
-  isbn          String?      @unique
+  isbn          String?       @unique
   description   String?
-  language      String       @default("nl")
+  language      String        @default("nl")
   publishedYear Int?
   coverUrl      String?
   coverKey      String?
   seriesId      Int?
   seriesNumber  Int?
-  series        Series?      @relation(fields: [seriesId], references: [id], onDelete: SetNull)
+  series        Series?       @relation(fields: [seriesId], references: [id], onDelete: SetNull)
   tags          BookTag[]
   genreId       Int?
-  genre         Genre?       @relation(fields: [genreId], references: [id])
+  genre         Genre?        @relation(fields: [genreId], references: [id])
   authors       BookAuthor[]
   copies        Copy[]
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  reservations  Reservation[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
   @@index([title])
 }
@@ -82,13 +83,14 @@ enum CopyStatus {
 }
 
 model Copy {
-  id        Int        @id @default(autoincrement())
-  barcode   String     @unique
-  status    CopyStatus @default(AVAILABLE)
-  bookId    Int
-  book      Book       @relation(fields: [bookId], references: [id], onDelete: Cascade)
-  createdAt DateTime   @default(now())
-  loans     Loan[]
+  id           Int           @id @default(autoincrement())
+  barcode      String        @unique
+  status       CopyStatus    @default(AVAILABLE)
+  bookId       Int
+  book         Book          @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  createdAt    DateTime      @default(now())
+  loans        Loan[]
+  reservations Reservation[]
 
   @@index([bookId])
 }
@@ -105,40 +107,44 @@ enum EmailTokenType {
 }
 
 model User {
-  id              Int          @id @default(autoincrement())
-  email           String       @unique
+  id              Int            @id @default(autoincrement())
+  email           String         @unique
   name            String
   passwordHash    String
-  role            Role         @default(MEMBER)
+  role            Role           @default(MEMBER)
   emailVerifiedAt DateTime?
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  locale          String         @default("nl")
   member          Member?
+  notifications   Notification[]
   sessions        Session[]
   emailTokens     EmailToken[]
   auditLogs       AuditLog[]
 }
 
 model Member {
-  id              Int       @id @default(autoincrement())
-  userId          Int       @unique
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  memberNumber    String    @unique
+  id              Int           @id @default(autoincrement())
+  userId          Int           @unique
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  memberNumber    String        @unique
   membershipUntil DateTime
-  blocked         Boolean   @default(false)
+  blocked         Boolean       @default(false)
   blockedReason   String?
-  createdAt       DateTime  @default(now())
+  createdAt       DateTime      @default(now())
+  expiryNoticeFor DateTime?
   loans           Loan[]
   fines           Fine[]
+  reservations    Reservation[]
 }
 
 model Session {
-  id         String   @id // sha256 van het cookie-token
-  userId     Int
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  csrfToken  String
-  expiresAt  DateTime
-  createdAt  DateTime @default(now())
+  id        String   @id // sha256 van het cookie-token
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  csrfToken String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
 
   @@index([userId])
 }
@@ -173,19 +179,21 @@ enum LoanOutcome {
 }
 
 model Loan {
-  id           Int          @id @default(autoincrement())
-  copyId       Int
-  copy         Copy         @relation(fields: [copyId], references: [id])
-  memberId     Int
-  member       Member       @relation(fields: [memberId], references: [id])
-  loanedAt     DateTime     @default(now())
-  dueAt        DateTime
-  returnedAt   DateTime?
-  outcome      LoanOutcome?
-  renewals     Int          @default(0)
-  loanedById   Int?
-  returnedById Int?
-  fines        Fine[]
+  id              Int          @id @default(autoincrement())
+  copyId          Int
+  copy            Copy         @relation(fields: [copyId], references: [id])
+  memberId        Int
+  member          Member       @relation(fields: [memberId], references: [id])
+  loanedAt        DateTime     @default(now())
+  dueAt           DateTime
+  returnedAt      DateTime?
+  outcome         LoanOutcome?
+  renewals        Int          @default(0)
+  reminderSentAt  DateTime?
+  overdueNoticeAt DateTime?
+  loanedById      Int?
+  returnedById    Int?
+  fines           Fine[]
 
   @@index([memberId])
   @@index([copyId])
@@ -229,4 +237,45 @@ model Setting {
   key       String   @id
   value     Json
   updatedAt DateTime @updatedAt
+}
+
+enum ReservationStatus {
+  WAITING
+  READY
+  FULFILLED
+  CANCELLED
+  EXPIRED
+}
+
+model Reservation {
+  id        Int               @id @default(autoincrement())
+  bookId    Int
+  book      Book              @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  memberId  Int
+  member    Member            @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  status    ReservationStatus @default(WAITING)
+  copyId    Int?
+  copy      Copy?             @relation(fields: [copyId], references: [id], onDelete: SetNull)
+  createdAt DateTime          @default(now())
+  readyAt   DateTime?
+  expiresAt DateTime?
+  closedAt  DateTime?
+
+  @@index([bookId, status])
+  @@index([memberId])
+}
+
+model Notification {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  title     String
+  body      String
+  data      Json?
+  readAt    DateTime?
+  emailedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, readAt])
 }

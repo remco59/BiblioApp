@@ -64,7 +64,7 @@ export function DeskPage() {
             : '';
           push(
             true,
-            `Ingenomen: “${data.loan.title}” (${data.loan.memberName})${data.daysLate ? `, ${data.daysLate} dag(en) te laat` : ''}${fine}`,
+            `Ingenomen: “${data.loan.title}” (${data.loan.memberName})${data.daysLate ? `, ${data.daysLate} dag(en) te laat` : ''}${fine}${data.reservedFor ? ` — LEG APART: gereserveerd voor ${data.reservedFor}` : ''}`,
           );
         } else push(false, errorMessage(error));
         await refresh();

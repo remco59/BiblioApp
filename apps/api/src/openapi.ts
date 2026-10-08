@@ -1,5 +1,7 @@
 import 'reflect-metadata';
 import 'dotenv/config';
+
+process.env.JOBS_DISABLED = '1';
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { NestFactory } from '@nestjs/core';

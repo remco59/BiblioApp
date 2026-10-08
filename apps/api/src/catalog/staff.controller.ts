@@ -82,9 +82,7 @@ export class StaffCatalogController {
   @Patch('copies/:id')
   @ApiOkResponse({ type: CopyDto })
   async updateCopy(@Param('id', ParseIntPipe) id: number, @Body() dto: CopyUpdateDto) {
-    return this.prisma.copy.update({ where: { id }, data: { status: dto.status } }).catch(() => {
-      throw new NotFoundException('Exemplaar niet gevonden');
-    });
+    return this.books.setCopyStatus(id, dto.status);
   }
 
   @Delete('copies/:id')

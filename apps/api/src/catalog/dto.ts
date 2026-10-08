@@ -57,6 +57,8 @@ export class CopyDto {
 export class BookDetailDto extends BookDto {
   @ApiProperty({ type: [CopyDto] }) copies: CopyDto[];
   @ApiProperty({ type: [BookDto], description: 'Vergelijkbare boeken' }) similar: BookDto[];
+  @ApiProperty({ type: Number, description: 'Aantal leden dat op dit boek wacht' })
+  reservationsWaiting: number;
 }
 
 export class BookPageDto {

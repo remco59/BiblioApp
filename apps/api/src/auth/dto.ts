@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString, Length, MaxLength, MinLength } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsEmail, IsIn, IsOptional, IsString, Length, MaxLength, MinLength } from 'class-validator';
 
 export class RegisterDto {
   @ApiProperty({ type: String }) @IsEmail() @MaxLength(254) email: string;
@@ -34,7 +34,11 @@ export class ResetPasswordDto {
 }
 
 export class UpdateProfileDto {
-  @ApiProperty({ type: String }) @IsString() @Length(1, 100) name: string;
+  @ApiPropertyOptional({ type: String }) @IsOptional() @IsString() @Length(1, 100) name?: string;
+  @ApiPropertyOptional({ enum: ['nl', 'en'], description: 'Taal van meldingen en e-mails' })
+  @IsOptional()
+  @IsIn(['nl', 'en'])
+  locale?: 'nl' | 'en';
 }
 
 export class SessionUserDto {
@@ -42,6 +46,7 @@ export class SessionUserDto {
   @ApiProperty({ type: String }) email: string;
   @ApiProperty({ type: String }) name: string;
   @ApiProperty({ enum: ['MEMBER', 'LIBRARIAN', 'ADMIN'] }) role: string;
+  @ApiProperty({ enum: ['nl', 'en'] }) locale: string;
   @ApiProperty({ type: String, nullable: true }) memberNumber: string | null;
   @ApiProperty({ type: String, description: 'Stuur mee als X-CSRF-Token bij POST/PATCH/DELETE' })
   csrfToken: string;

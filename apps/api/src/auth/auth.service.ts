@@ -125,6 +125,7 @@ export class AuthService {
       email: string;
       name: string;
       role: string;
+      locale: string;
       member?: { memberNumber: string } | null;
     },
     csrfToken: string,
@@ -134,6 +135,7 @@ export class AuthService {
       email: user.email,
       name: user.name,
       role: user.role,
+      locale: user.locale,
       memberNumber: user.member?.memberNumber ?? null,
       csrfToken,
     };

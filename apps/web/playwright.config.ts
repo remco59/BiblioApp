@@ -17,6 +17,8 @@ export default defineConfig({
   webServer: [
     {
       command: 'pnpm --filter @biblio/api start',
+      // e2e logt vaak in vanaf één IP: rate limit ruim zetten
+      env: { ...(process.env as Record<string, string>), AUTH_RATE_LIMIT_MAX: '1000' },
       url: 'http://localhost:3000/api/health',
       reuseExistingServer: !process.env.CI,
       timeout: 60_000,

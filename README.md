@@ -87,3 +87,22 @@ Lokaal kun je `PW_CHROMIUM=/pad/naar/chromium` zetten om een bestaande browser t
 - **Instellingen** (`/admin/settings`, alleen admin): termijnen, limieten en tarieven staan in de database.
 - **Etiketten** (`/staff/labels`): Code128-barcodes, afdrukvriendelijk.
 - Foutcodes: de API geeft bij domeinfouten `{ message, code }` (bijv. `COPY_LOANED`, `LOAN_LIMIT`).
+
+## Reserveringen en meldingen (fase 5)
+
+- **Reserveren** (`POST /api/me/reservations`): alleen als er geen exemplaar beschikbaar is. Wachtrij
+  op volgorde van reserveren; één actieve reservering per lid per boek (database-index), limiet per lid.
+- **Klaarleggen**: bij inname (of nieuw/hersteld exemplaar) krijgt de eerste in de rij het exemplaar
+  (`RESERVED_HOLD`) met ophaaltermijn (standaard 5 dagen). Dat exemplaar is alleen uit te lenen aan die
+  reserveerder; de balie krijgt de melding “LEG APART”. De wachtrij per boek wordt serieel verwerkt
+  met een rij-lock op het boek (`SKIP LOCKED` op exemplaren), er is een test met parallelle inname.
+- **Verlopen** reserveringen schuiven door naar de volgende; verlengen is niet mogelijk zolang iemand wacht.
+- **Job-queue** (pg-boss, schema `pgboss` in dezelfde Postgres): e-mailverzending met retries en een
+  nachtelijke job om 03:00 voor herinneringen vóór de uiterste datum, aanmaningen en boetes voor te late
+  boeken (één boete per uitleen, dagelijks bijgewerkt), verlopen reserveringen en lidmaatschapscontrole.
+  Admins kunnen de job handmatig starten (`POST /api/admin/jobs/nightly`, of via Instellingen). Met
+  `JOBS_DISABLED=1` draaien jobs inline (tests).
+- **Meldingen**: in-app (`/notifications`, belletje met teller) en per e-mail, templates in NL en EN
+  (taalvoorkeur in het profiel).
+- **Realtime** via Server-Sent Events (`GET /api/events`): beschikbaarheid (iedereen) en eigen meldingen.
+- **Staff**: overzicht te late boeken met handmatige aanmaning (`/staff/overdue`) en alle reserveringen.
