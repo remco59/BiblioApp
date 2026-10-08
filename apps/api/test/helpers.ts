@@ -36,7 +36,23 @@ export async function createApp() {
   return { app, mail, prisma: app.get(PrismaService) };
 }
 
+/** Leegt alle gegevens die naar leden, exemplaren of boeken verwijzen (volgorde: kinderen eerst). */
+async function clearActivity(prisma: PrismaService) {
+  await prisma.notification.deleteMany();
+  await prisma.reservation.deleteMany();
+  await prisma.onlinePayment.deleteMany();
+  await prisma.payment.deleteMany();
+  await prisma.fine.deleteMany();
+  await prisma.loan.deleteMany();
+  await prisma.review.deleteMany();
+  await prisma.wishlistItem.deleteMany();
+  await prisma.suggestion.deleteMany();
+  await prisma.setting.deleteMany();
+  await prisma.emailTemplate.deleteMany();
+}
+
 export async function resetCatalog(prisma: PrismaService) {
+  await clearActivity(prisma);
   await prisma.copy.deleteMany();
   await prisma.bookTag.deleteMany();
   await prisma.bookAuthor.deleteMany();
@@ -48,6 +64,8 @@ export async function resetCatalog(prisma: PrismaService) {
 }
 
 export async function resetDb(prisma: PrismaService) {
+  await clearActivity(prisma);
+  await prisma.recoveryCode.deleteMany();
   await prisma.auditLog.deleteMany();
   await prisma.emailToken.deleteMany();
   await prisma.session.deleteMany();

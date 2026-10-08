@@ -44,6 +44,13 @@ export class BookDto {
   @ApiProperty({ type: Number, description: 'Totaal aantal exemplaren' }) copiesTotal: number;
   @ApiProperty({ type: Number, description: 'Beschikbare exemplaren (afgeleid)' })
   copiesAvailable: number;
+  @ApiProperty({
+    type: Number,
+    nullable: true,
+    description: 'Gemiddelde van goedgekeurde reviews (1-5)',
+  })
+  ratingAverage: number | null;
+  @ApiProperty({ type: Number }) ratingCount: number;
 }
 
 export class CopyDto {

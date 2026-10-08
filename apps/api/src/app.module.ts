@@ -16,6 +16,15 @@ import { NotificationsService } from './notifications/notifications.service';
 import { MaintenanceService } from './reservations/maintenance.service';
 import { ReservationsController } from './reservations/reservations.controller';
 import { ReservationsService } from './reservations/reservations.service';
+import { AdminController } from './admin/admin.controller';
+import { AdminService } from './admin/admin.service';
+import { CommunityController } from './community/community.controller';
+import { CommunityService } from './community/community.service';
+import { RecommendationsService } from './community/recommendations.service';
+import { PaymentsController } from './payments/payments.controller';
+import { PaymentsService } from './payments/payments.service';
+import { ReportsController } from './reports/reports.controller';
+import { ReportsService } from './reports/reports.service';
 import { HealthController } from './health/health.controller';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuditModule } from './audit/audit.module';
@@ -32,8 +41,17 @@ import { MailModule } from './mail/mail.module';
     AdminSettingsController,
     MeController,
     ReservationsController,
+    CommunityController,
+    ReportsController,
+    AdminController,
+    PaymentsController,
   ],
   providers: [
+    CommunityService,
+    RecommendationsService,
+    ReportsService,
+    AdminService,
+    PaymentsService,
     EventsService,
     NotificationsService,
     ReservationsService,

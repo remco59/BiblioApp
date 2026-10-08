@@ -24,3 +24,7 @@ export type MemberDetail = components['schemas']['MemberDetailDto'];
 export type Settings = components['schemas']['SettingsDto'];
 export type Reservation = components['schemas']['ReservationDto'];
 export type Notification = components['schemas']['NotificationDto'];
+export type BookReviews = components['schemas']['BookReviewsDto'];
+export type Review = components['schemas']['ReviewDto'];
+export type Suggestion = components['schemas']['SuggestionDto'];
+export type AdminUser = components['schemas']['AdminUserDto'];

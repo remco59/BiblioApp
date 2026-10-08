@@ -1,46 +1,12 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-import {
-  BookDetailDto,
-  BookDto,
-  BookInputDto,
-  BookPageDto,
-  FiltersDto,
-  SearchQueryDto,
-} from './dto';
+import { BookDetailDto, BookInputDto, BookPageDto, FiltersDto, SearchQueryDto } from './dto';
+import { RecommendationsService } from '../community/recommendations.service';
+import { bookInclude, BookRow, toBookDto } from './book-mapper';
 import { normalizeIsbn } from './isbn.service';
 import { SearchService } from './search.service';
 import { QueueEffects, ReservationsService } from '../reservations/reservations.service';
-
-export const bookInclude = {
-  genre: true,
-  series: true,
-  tags: { include: { tag: true } },
-  authors: { include: { author: true } },
-  copies: { select: { id: true, barcode: true, status: true }, orderBy: { id: 'asc' } },
-} satisfies Prisma.BookInclude;
-
-type BookRow = Prisma.BookGetPayload<{ include: typeof bookInclude }>;
-
-export function toBookDto(b: BookRow): BookDto {
-  return {
-    id: b.id,
-    title: b.title,
-    isbn: b.isbn,
-    description: b.description,
-    language: b.language,
-    publishedYear: b.publishedYear,
-    genre: b.genre?.name ?? null,
-    coverUrl: b.coverKey ? `/api/covers/${b.coverKey}` : b.coverUrl,
-    series: b.series?.name ?? null,
-    seriesNumber: b.seriesNumber,
-    tags: b.tags.map((t) => t.tag.name).sort(),
-    authors: b.authors.map((a) => ({ id: a.author.id, name: a.author.name })),
-    copiesTotal: b.copies.length,
-    copiesAvailable: b.copies.filter((c) => c.status === 'AVAILABLE').length,
-  };
-}
 
 const clean = (names?: string[]) => [
   ...new Set((names ?? []).map((n) => n.trim()).filter(Boolean)),
@@ -52,6 +18,7 @@ export class BooksService {
     private readonly prisma: PrismaService,
     private readonly searchService: SearchService,
     private readonly reservations: ReservationsService,
+    private readonly recommendations: RecommendationsService,
   ) {}
 
   async list(query: SearchQueryDto): Promise<BookPageDto> {
@@ -91,20 +58,6 @@ export class BooksService {
   async detail(id: number, isStaff: boolean): Promise<BookDetailDto> {
     const row = await this.prisma.book.findUnique({ where: { id }, include: bookInclude });
     if (!row) throw new NotFoundException('Boek niet gevonden');
-    const authorIds = row.authors.map((a) => a.authorId);
-    const similar = await this.prisma.book.findMany({
-      where: {
-        id: { not: id },
-        OR: [
-          ...(authorIds.length ? [{ authors: { some: { authorId: { in: authorIds } } } }] : []),
-          ...(row.genreId ? [{ genreId: row.genreId }] : []),
-          ...(row.seriesId ? [{ seriesId: row.seriesId }] : []),
-        ],
-      },
-      include: bookInclude,
-      orderBy: { title: 'asc' },
-      take: 4,
-    });
     return {
       ...toBookDto(row),
       copies: row.copies.map((c) => ({
@@ -112,7 +65,7 @@ export class BooksService {
         status: c.status,
         barcode: isStaff ? c.barcode : null,
       })),
-      similar: similar.map(toBookDto),
+      similar: await this.recommendations.similarTo(id),
       reservationsWaiting: await this.reservations.waitingCount(id),
     };
   }

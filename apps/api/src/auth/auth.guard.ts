@@ -31,7 +31,7 @@ export class AuthGuard implements CanActivate {
 
     const cookie = req.cookies?.[SESSION_COOKIE];
     const session = cookie ? await this.auth.findSession(cookie) : null;
-    if (session) {
+    if (session && !session.user.disabledAt) {
       req.user = {
         id: session.user.id,
         email: session.user.email,

@@ -20,6 +20,8 @@ describe('BookList', () => {
               series: null,
               seriesNumber: null,
               tags: [],
+              ratingAverage: 4.5,
+              ratingCount: 2,
               authors: [{ id: 1, name: 'Herman Koch' }],
               copiesTotal: 2,
               copiesAvailable: 1,
@@ -31,6 +33,9 @@ describe('BookList', () => {
     expect(screen.getByText('Het diner')).toBeInTheDocument();
     expect(screen.getByText(/Herman Koch · Roman · 2009/)).toBeInTheDocument();
     expect(screen.getByText(/1 van 2 beschikbaar/)).toBeInTheDocument();
+    expect(
+      screen.getByRole('img', { name: /4.5 van 5 sterren, 2 beoordelingen/ }),
+    ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Het diner' })).toHaveAttribute('href', '/books/1');
   });
 });

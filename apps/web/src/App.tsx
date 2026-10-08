@@ -13,6 +13,14 @@ import {
 } from './pages/AuthPages';
 import { MyLoansPage } from './pages/MyLoansPage';
 import { NotificationsPage } from './pages/NotificationsPage';
+import { PayMockPage } from './pages/PayMockPage';
+import { SuggestionsPage } from './pages/SuggestionsPage';
+import { WishlistPage } from './pages/WishlistPage';
+import { AdminUsersPage } from './pages/staff/AdminUsersPage';
+import { AuditPage } from './pages/staff/AuditPage';
+import { ModerationPage } from './pages/staff/ModerationPage';
+import { ReportsPage } from './pages/staff/ReportsPage';
+import { TemplatesPage } from './pages/staff/TemplatesPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { DeskPage } from './pages/staff/DeskPage';
 import { LabelsPage } from './pages/staff/LabelsPage';
@@ -39,16 +47,27 @@ function Nav() {
           Catalogus
         </NavLink>
         {user && <NavLink to="/my/loans">Mijn uitleningen</NavLink>}
+        {user && <NavLink to="/my/wishlist">Verlanglijst</NavLink>}
+        {user && <NavLink to="/my/suggestions">Suggesties</NavLink>}
         {(user?.role === 'LIBRARIAN' || user?.role === 'ADMIN') && (
           <>
             <NavLink to="/staff/desk">Balie</NavLink>
             <NavLink to="/staff/members">Leden</NavLink>
             <NavLink to="/staff/overdue">Te laat</NavLink>
             <NavLink to="/staff/reservations">Reserveringen</NavLink>
+            <NavLink to="/staff/moderation">Reviews</NavLink>
+            <NavLink to="/staff/reports">Rapporten</NavLink>
             <NavLink to="/staff/books">Beheer</NavLink>
           </>
         )}
-        {user?.role === 'ADMIN' && <NavLink to="/admin/settings">Instellingen</NavLink>}
+        {user?.role === 'ADMIN' && (
+          <>
+            <NavLink to="/admin/settings">Instellingen</NavLink>
+            <NavLink to="/admin/users">Gebruikers</NavLink>
+            <NavLink to="/admin/templates">Mailteksten</NavLink>
+            <NavLink to="/admin/audit">Auditlog</NavLink>
+          </>
+        )}
         {user ? (
           <>
             <NotificationBell />
@@ -76,6 +95,63 @@ export function App() {
       <main id="main">
         <Routes>
           <Route path="/" element={<CatalogPage />} />
+          <Route path="/pay/mock/:ref" element={<PayMockPage />} />
+          <Route
+            path="/my/wishlist"
+            element={
+              <RequireAuth>
+                <WishlistPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/my/suggestions"
+            element={
+              <RequireAuth>
+                <SuggestionsPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/staff/moderation"
+            element={
+              <RequireAuth roles={STAFF}>
+                <ModerationPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/staff/reports"
+            element={
+              <RequireAuth roles={STAFF}>
+                <ReportsPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <RequireAuth roles={['ADMIN']}>
+                <AdminUsersPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/admin/templates"
+            element={
+              <RequireAuth roles={['ADMIN']}>
+                <TemplatesPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/admin/audit"
+            element={
+              <RequireAuth roles={['ADMIN']}>
+                <AuditPage />
+              </RequireAuth>
+            }
+          />
           <Route
             path="/notifications"
             element={
