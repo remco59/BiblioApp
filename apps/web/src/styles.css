@@ -53,3 +53,76 @@ header h1 {
     color: #f87171;
   }
 }
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid color-mix(in srgb, CanvasText 20%, transparent);
+}
+.nav nav {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+.brand {
+  font-weight: 700;
+  font-size: 1.2rem;
+  text-decoration: none;
+  color: inherit;
+}
+.card {
+  max-width: 26rem;
+  margin: 2rem auto;
+}
+.field {
+  display: grid;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+}
+.field input {
+  padding: 0.5rem;
+  font: inherit;
+  border: 1px solid color-mix(in srgb, CanvasText 40%, transparent);
+  border-radius: 0.35rem;
+}
+button {
+  padding: 0.5rem 1rem;
+  font: inherit;
+  border-radius: 0.35rem;
+  border: 1px solid transparent;
+  background: #2563eb;
+  color: #fff;
+  cursor: pointer;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 3px solid #f59e0b;
+  outline-offset: 2px;
+}
+button.link {
+  background: none;
+  color: inherit;
+  text-decoration: underline;
+  padding: 0;
+}
+.error {
+  color: #b91c1c;
+}
+dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.25rem 1rem;
+}
+dt {
+  font-weight: 600;
+}
+dd {
+  margin: 0;
+}
+@media (prefers-color-scheme: dark) {
+  .error {
+    color: #f87171;
+  }
+}

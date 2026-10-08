@@ -1,6 +1,16 @@
 import { useEffect, useState } from 'react';
 import type { Book } from '@biblio/api-client';
+import { Link, NavLink, Route, Routes } from 'react-router-dom';
 import { api } from './api';
+import { RequireAuth, useAuth } from './auth';
+import {
+  ForgotPasswordPage,
+  LoginPage,
+  RegisterPage,
+  ResetPasswordPage,
+  VerifyEmailPage,
+} from './pages/AuthPages';
+import { ProfilePage } from './pages/ProfilePage';
 
 export function BookList({ books }: { books: Book[] }) {
   return (
@@ -22,7 +32,7 @@ export function BookList({ books }: { books: Book[] }) {
   );
 }
 
-export function App() {
+function Catalog() {
   const [books, setBooks] = useState<Book[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,14 +44,61 @@ export function App() {
   }, []);
 
   return (
-    <main>
-      <header>
-        <h1>BiblioApp</h1>
-        <p>Catalogus</p>
-      </header>
+    <>
+      <h1>Catalogus</h1>
       {error && <p role="alert">Kon boeken niet laden: {error}</p>}
       {!books && !error && <p>Laden…</p>}
       {books && <BookList books={books} />}
-    </main>
+    </>
+  );
+}
+
+function Nav() {
+  const { user, logout } = useAuth();
+  return (
+    <header className="nav">
+      <Link to="/" className="brand">
+        BiblioApp
+      </Link>
+      <nav aria-label="Hoofdmenu">
+        <NavLink to="/">Catalogus</NavLink>
+        {user ? (
+          <>
+            <NavLink to="/profile">{user.name}</NavLink>
+            <button className="link" onClick={() => void logout()}>
+              Uitloggen
+            </button>
+          </>
+        ) : (
+          <NavLink to="/login">Inloggen</NavLink>
+        )}
+      </nav>
+    </header>
+  );
+}
+
+export function App() {
+  return (
+    <>
+      <Nav />
+      <main>
+        <Routes>
+          <Route path="/" element={<Catalog />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route
+            path="/profile"
+            element={
+              <RequireAuth>
+                <ProfilePage />
+              </RequireAuth>
+            }
+          />
+        </Routes>
+      </main>
+    </>
   );
 }

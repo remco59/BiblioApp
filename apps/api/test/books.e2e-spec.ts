@@ -12,7 +12,7 @@ describe('API (e2e)', () => {
   beforeAll(async () => {
     const mod = await Test.createTestingModule({ imports: [AppModule] }).compile();
     app = mod.createNestApplication<NestFastifyApplication>(new FastifyAdapter());
-    setup(app);
+    await setup(app);
     await app.init();
     await app.getHttpAdapter().getInstance().ready();
     prisma = app.get(PrismaService);

@@ -11,7 +11,7 @@ async function main() {
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter(), {
     logger: false,
   });
-  setup(app);
+  await setup(app);
   await app.init();
   writeFileSync(
     join(__dirname, '..', 'openapi.json'),

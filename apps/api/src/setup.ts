@@ -1,4 +1,6 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
+import { ValidationPipe } from '@nestjs/common';
+import fastifyCookie from '@fastify/cookie';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 export function buildOpenApi(app: NestFastifyApplication) {
@@ -6,7 +8,9 @@ export function buildOpenApi(app: NestFastifyApplication) {
   return SwaggerModule.createDocument(app, config);
 }
 
-export function setup(app: NestFastifyApplication) {
+export async function setup(app: NestFastifyApplication) {
+  await app.register(fastifyCookie);
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }));
   app.setGlobalPrefix('api');
   app.enableCors({ origin: process.env.WEB_ORIGIN ?? 'http://localhost:5173', credentials: true });
 }

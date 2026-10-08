@@ -1,8 +1,10 @@
+import { Public } from '../auth/decorators';
 import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
 import { ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { BookDto } from './book.dto';
 import { BooksService } from './books.service';
 
+@Public()
 @ApiTags('books')
 @Controller('books')
 export class BooksController {
