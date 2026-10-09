@@ -2066,24 +2066,28 @@ details.danger-zone[open] > summary {
 .hero .meta {
   color: var(--muted);
 }
-@media (min-width: 800px) {
+@media (min-width: 1000px) {
   .hero {
-    aspect-ratio: 1916 / 821;
+    box-sizing: border-box;
+    height: calc(100cqw * 821 / 1916);
     background-image:
       linear-gradient(90deg, rgb(18 11 6 / 60%), transparent 60%), url('/hero-shelf.webp');
     background-size:
-      100% auto,
-      100% auto;
+      100% 100%,
+      100% 100%;
     background-position:
       0 0,
       left bottom;
     padding-left: clamp(2.5rem, 13cqw, 9rem);
     padding-bottom: 0;
   }
+  .hero-book .cover {
+    width: min(13rem, 21cqw);
+  }
   .hero-book {
     align-self: end;
-    /* plankbovenkant in de foto ligt op ~26% van de beeldhoogte (cqw / 2,334) */
-    margin-bottom: 13.6cqw;
+    /* de plank in de foto loopt van 73,6% tot 83% van de hoogte; het boek staat op ~78% */
+    margin-bottom: 9.6cqw;
   }
   .hero-book .plank {
     display: none;
