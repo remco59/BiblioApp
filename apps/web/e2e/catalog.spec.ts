@@ -22,9 +22,10 @@ test.describe('zoeken in de catalogus', () => {
     for (const term of ['diner', 'Koch', 'dinner']) {
       await search.fill(term);
       await search.press('Enter');
+      // Eerst op de nieuwe zoekopdracht wachten; anders staat het vorige resultaat nog in beeld.
+      await expect(page).toHaveURL(new RegExp(`q=${term}`));
       await expect(page.getByRole('link', { name: 'Het diner' })).toBeVisible();
     }
-    await expect(page).toHaveURL(/q=dinner/);
   });
 
   test('geeft een melding zonder resultaat', async ({ page }) => {

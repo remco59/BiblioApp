@@ -352,8 +352,9 @@ describe('Catalogus (e2e)', () => {
             : new Response('', { status: 404 }),
         ) as never;
         const ext = 'https://covers.openlibrary.org/b/isbn/9780261102217-L.jpg';
-        const book = (await send('POST', 'staff/books', staff, { title: 'Cover', coverUrl: ext }))
-          .json();
+        const book = (
+          await send('POST', 'staff/books', staff, { title: 'Cover', coverUrl: ext })
+        ).json();
         expect(book.coverUrl).toMatch(/^\/api\/covers\/remote-[0-9a-f]+\.jpg$/);
         const served = await app.inject({ method: 'GET', url: book.coverUrl });
         expect(served.headers['content-type']).toBe('image/jpeg');
