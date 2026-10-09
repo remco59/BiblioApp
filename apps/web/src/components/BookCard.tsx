@@ -45,7 +45,7 @@ export function Cover({
         : { role: 'img', 'aria-label': `Geen omslag voor ${book.title}` })}
     >
       <span className="ph-title">{book.title}</span>
-      {author && <span className="ph-author">{author}</span>}
+      {author && decorative && <span className="ph-author">{author}</span>}
     </div>
   );
 }
