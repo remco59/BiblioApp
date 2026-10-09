@@ -468,6 +468,22 @@ export interface paths {
         patch: operations["AdminSettingsController_update"];
         trace?: never;
     };
+    "/api/rules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["RulesController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/me/membership": {
         parameters: {
             query?: never;
@@ -1657,6 +1673,15 @@ export interface components {
             retentionNotificationDays?: number;
             retentionInactiveMemberMonths?: number;
         };
+        LoanRulesDto: {
+            loanDays: number;
+            maxRenewals: number;
+            renewalDays: number;
+            maxLoansPerMember: number;
+            finePerDayCents: number;
+            fineCapCents: number;
+            reservationHoldDays: number;
+        };
         ReserveDto: {
             bookId: number;
         };
@@ -2693,6 +2718,25 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SettingsDto"];
+                };
+            };
+        };
+    };
+    RulesController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LoanRulesDto"];
                 };
             };
         };

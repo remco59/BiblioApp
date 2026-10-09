@@ -54,13 +54,14 @@ test.describe('zoeken in de catalogus', () => {
 test.describe('collectiebeheer', () => {
   test('lid heeft geen toegang, bibliothecaris maakt en verwijdert een boek', async ({ page }) => {
     await loginAs(page, 'lid@biblio.nl');
-    await expect(page.getByRole('link', { name: 'Beheer' })).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'Werkplek' })).toHaveCount(0);
     await page.goto('/staff/books');
     await expect(page.getByText('Geen toegang')).toBeVisible();
     await page.getByRole('button', { name: 'Uitloggen' }).click();
 
     await loginAs(page, 'bibliothecaris@biblio.nl');
-    await page.getByRole('link', { name: 'Beheer' }).click();
+    await page.getByRole('link', { name: 'Werkplek' }).click();
+    await page.getByRole('link', { name: 'Boeken', exact: true }).click();
     await page.getByRole('link', { name: 'Nieuw boek' }).click();
     const title = `E2E-testboek ${Date.now()}`;
     await page.getByLabel('Titel *').fill(title);

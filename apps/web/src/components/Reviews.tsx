@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import type { BookReviews } from '@biblio/api-client';
 import { api, errorMessage } from '../api';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth';
 import { dateNl } from '../lib/format';
 import { StarInput, Stars } from './Stars';
@@ -9,8 +10,9 @@ const STATUS: Record<string, string> = { PENDING: 'wacht op goedkeuring', REJECT
 
 export function Reviews({ bookId }: { bookId: number }) {
   const { user } = useAuth();
+  const location = useLocation();
   const [data, setData] = useState<BookReviews | null>(null);
-  const [rating, setRating] = useState(5);
+  const [rating, setRating] = useState(0);
   const [body, setBody] = useState('');
   const [message, setMessage] = useState<{ text: string; error?: boolean } | null>(null);
 
@@ -51,10 +53,13 @@ export function Reviews({ bookId }: { bookId: number }) {
   return (
     <section aria-labelledby="reviews-h">
       <h2 id="reviews-h">Reviews</h2>
-      <p>
-        <Stars value={data.summary.average} count={data.summary.count} />
-      </p>
-      {data.items.length === 0 && <p>Er zijn nog geen reviews.</p>}
+      {data.summary.count > 0 ? (
+        <p>
+          <Stars value={data.summary.average} count={data.summary.count} />
+        </p>
+      ) : (
+        <p className="empty">Nog niemand heeft dit boek beoordeeld.</p>
+      )}
       <ul className="reviews">
         {data.items.map((r) => (
           <li key={r.id}>
@@ -90,7 +95,9 @@ export function Reviews({ bookId }: { bookId: number }) {
               {message.text}
             </p>
           )}
-          <button type="submit">Plaatsen</button>{' '}
+          <button type="submit" disabled={rating === 0}>
+            {rating === 0 ? 'Kies eerst een aantal sterren' : 'Review plaatsen'}
+          </button>{' '}
           {data.mine && (
             <button type="button" className="secondary" onClick={() => void remove()}>
               Verwijderen
@@ -99,7 +106,13 @@ export function Reviews({ bookId }: { bookId: number }) {
         </form>
       )}
       {!user && (
-        <p className="meta">Log in om een review te schrijven nadat je het boek hebt geleend.</p>
+        <p className="meta">
+          Heb je dit boek geleend?{' '}
+          <Link to="/login" state={{ from: location.pathname }}>
+            Log in
+          </Link>{' '}
+          om er een review over te schrijven.
+        </p>
       )}
     </section>
   );

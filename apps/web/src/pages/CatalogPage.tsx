@@ -1,10 +1,12 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import type { BookPage, Filters } from '@biblio/api-client';
 import { api } from '../api';
 import { BookList } from '../components/BookCard';
 import { Pagination } from '../components/Pagination';
 import { useServerEvent } from '../lib/events';
+import { languageName } from '../lib/format';
+import { LoadError, Loading } from '../components/LoadState';
 
 const SORTS = [
   ['relevance', 'Relevantie'],
@@ -23,6 +25,13 @@ export function CatalogPage() {
   const [error, setError] = useState<string | null>(null);
   const [q, setQ] = useState(params.get('q') ?? '');
   const [refresh, setRefresh] = useState(0);
+  // Op mobiel staan de filters ingeklapt, zodat de boeken meteen in beeld zijn.
+  const [filtersOpen, setFiltersOpen] = useState(
+    () => typeof window === 'undefined' || window.matchMedia('(min-width: 701px)').matches,
+  );
+  const activeFilters = ['genre', 'language', 'yearFrom', 'yearTo', 'available'].filter((k) =>
+    params.get(k),
+  ).length;
   // Realtime: beschikbaarheid verandert ergens → lijst opnieuw ophalen
   useServerEvent('availability', () => setRefresh((n) => n + 1));
 
@@ -58,8 +67,9 @@ export function CatalogPage() {
         if (data) {
           setResult(data);
           setError(null);
-        } else setError('Kon de catalogus niet laden');
-      });
+        } else setError('De catalogus');
+      })
+      .catch(() => !stale && setError('De catalogus'));
     return () => {
       stale = true;
     };
@@ -90,7 +100,7 @@ export function CatalogPage() {
         <input
           id="q"
           type="search"
-          placeholder="Zoek op titel, auteur, ISBN of trefwoord"
+          placeholder="Titel, auteur of ISBN"
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
@@ -98,88 +108,93 @@ export function CatalogPage() {
       </form>
 
       <div className="catalog-layout">
-        <form className="filters" aria-label="Filters" onSubmit={(e) => e.preventDefault()}>
-          <label className="field">
-            <span>Genre</span>
-            <select
-              value={get('genre')}
-              onChange={(e) => update({ genre: e.target.value || null })}
-            >
-              <option value="">Alle genres</option>
-              {filters?.genres.map((g) => (
-                <option key={g}>{g}</option>
-              ))}
-            </select>
-          </label>
-          <label className="field">
-            <span>Taal</span>
-            <select
-              value={get('language')}
-              onChange={(e) => update({ language: e.target.value || null })}
-            >
-              <option value="">Alle talen</option>
-              {filters?.languages.map((l) => (
-                <option key={l}>{l}</option>
-              ))}
-            </select>
-          </label>
-          <div className="field-row">
+        <details
+          className="filters-wrap"
+          open={filtersOpen}
+          onToggle={(e) => setFiltersOpen(e.currentTarget.open)}
+        >
+          <summary>Filters{activeFilters > 0 && ` (${activeFilters} actief)`}</summary>
+          <form className="filters" aria-label="Filters" onSubmit={(e) => e.preventDefault()}>
             <label className="field">
-              <span>Jaar vanaf</span>
-              <input
-                type="number"
-                min={filters?.minYear ?? undefined}
-                max={filters?.maxYear ?? undefined}
-                defaultValue={get('yearFrom')}
-                key={`from-${get('yearFrom')}`}
-                onBlur={(e) => update({ yearFrom: e.target.value || null })}
-              />
+              <span>Genre</span>
+              <select
+                value={get('genre')}
+                onChange={(e) => update({ genre: e.target.value || null })}
+              >
+                <option value="">Alle genres</option>
+                {filters?.genres.map((g) => (
+                  <option key={g}>{g}</option>
+                ))}
+              </select>
             </label>
             <label className="field">
-              <span>tot</span>
-              <input
-                type="number"
-                min={filters?.minYear ?? undefined}
-                max={filters?.maxYear ?? undefined}
-                defaultValue={get('yearTo')}
-                key={`to-${get('yearTo')}`}
-                onBlur={(e) => update({ yearTo: e.target.value || null })}
-              />
+              <span>Taal</span>
+              <select
+                value={get('language')}
+                onChange={(e) => update({ language: e.target.value || null })}
+              >
+                <option value="">Alle talen</option>
+                {filters?.languages.map((l) => (
+                  <option key={l} value={l}>
+                    {languageName(l)}
+                  </option>
+                ))}
+              </select>
             </label>
-          </div>
-          <label className="check">
-            <input
-              type="checkbox"
-              checked={get('available') === 'true'}
-              onChange={(e) => update({ available: e.target.checked ? 'true' : null })}
-            />
-            Alleen beschikbaar
-          </label>
-          <label className="field">
-            <span>Sorteren</span>
-            <select
-              value={get('sort') || (get('q') ? 'relevance' : 'title')}
-              onChange={(e) => update({ sort: e.target.value })}
-            >
-              {SORTS.map(([v, l]) => (
-                <option key={v} value={v}>
-                  {l}
-                </option>
-              ))}
-            </select>
-          </label>
-          <button type="button" className="secondary" onClick={() => setParams({})}>
-            Filters wissen
-          </button>
-        </form>
+            <div className="field-row">
+              <label className="field">
+                <span>Jaar vanaf</span>
+                <input
+                  type="number"
+                  min={filters?.minYear ?? undefined}
+                  max={filters?.maxYear ?? undefined}
+                  defaultValue={get('yearFrom')}
+                  key={`from-${get('yearFrom')}`}
+                  onBlur={(e) => update({ yearFrom: e.target.value || null })}
+                />
+              </label>
+              <label className="field">
+                <span>tot</span>
+                <input
+                  type="number"
+                  min={filters?.minYear ?? undefined}
+                  max={filters?.maxYear ?? undefined}
+                  defaultValue={get('yearTo')}
+                  key={`to-${get('yearTo')}`}
+                  onBlur={(e) => update({ yearTo: e.target.value || null })}
+                />
+              </label>
+            </div>
+            <label className="check">
+              <input
+                type="checkbox"
+                checked={get('available') === 'true'}
+                onChange={(e) => update({ available: e.target.checked ? 'true' : null })}
+              />
+              Alleen beschikbaar
+            </label>
+            <label className="field">
+              <span>Sorteren</span>
+              <select
+                value={get('sort') || (get('q') ? 'relevance' : 'title')}
+                onChange={(e) => update({ sort: e.target.value })}
+              >
+                {SORTS.map(([v, l]) => (
+                  <option key={v} value={v}>
+                    {l}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <button type="button" className="secondary" onClick={() => setParams({})}>
+              Filters wissen
+            </button>
+          </form>
+        </details>
 
         <section aria-label="Resultaten">
-          {error && (
-            <p role="alert" className="error">
-              {error}
-            </p>
-          )}
-          {!result && !error && <p>Laden…</p>}
+          {error && <LoadError what="De catalogus" onRetry={() => setRefresh((n) => n + 1)} />}
+          {!result && !error && <Loading label="Catalogus laden…" />}
           {result && (
             <>
               <p role="status" aria-live="polite" className="count">
@@ -187,6 +202,15 @@ export function CatalogPage() {
                   ? 'Geen boeken gevonden'
                   : `${result.total} ${result.total === 1 ? 'boek' : 'boeken'} gevonden`}
               </p>
+              {result.total === 0 && !result.suggestion && (
+                <p className="empty">
+                  Probeer een ander zoekwoord of{' '}
+                  <button className="link" onClick={() => setParams({})}>
+                    wis alle filters
+                  </button>
+                  . Staat het boek er echt niet in? <Link to="/my/suggestions">Stel het voor</Link>.
+                </p>
+              )}
               {result.total === 0 && result.suggestion && (
                 <p>
                   Bedoelde je{' '}

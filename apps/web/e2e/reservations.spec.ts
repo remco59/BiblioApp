@@ -56,7 +56,7 @@ test('reserveren, klaarleggen bij inname en live melding aan het lid', async ({ 
   await loginAs(lid, 'lid@biblio.nl');
   await lid.goto('/catalogus?q=' + encodeURIComponent(TITLE));
   await lid.getByRole('link', { name: TITLE }).click();
-  await expect(lid.getByText(/0 van 1 beschikbaar/)).toBeVisible();
+  await expect(lid.getByText('Alle exemplaren zijn uitgeleend')).toBeVisible();
   await lid.getByRole('button', { name: 'Reserveren' }).click();
   await expect(lid.getByText(/Je staat op plek/)).toBeVisible();
   await expect(lid.getByText('plek 1', { exact: false })).toBeVisible();
@@ -65,10 +65,10 @@ test('reserveren, klaarleggen bij inname en live melding aan het lid', async ({ 
   await staff.getByRole('tab', { name: 'Innemen' }).click();
   await staff.getByLabel('Scan ingeleverd exemplaar').fill(BARCODE);
   await staff.getByLabel('Scan ingeleverd exemplaar').press('Enter');
-  await expect(staff.getByText(/LEG APART: gereserveerd voor/)).toBeVisible();
+  await expect(staff.getByText(/is gereserveerd voor/)).toBeVisible();
 
   // 4. Zonder herladen krijgt het lid de realtime update en een melding
-  await expect(lid.getByText('Je reservering ligt klaar!')).toBeVisible({ timeout: 10_000 });
+  await expect(lid.getByText('Je reservering ligt klaar')).toBeVisible({ timeout: 10_000 });
   await expect(lid.getByRole('link', { name: /Meldingen, \d+ ongelezen/ })).toBeVisible();
   await lid.getByRole('link', { name: /Meldingen/ }).click();
   await expect(
@@ -97,6 +97,7 @@ test('staff ziet reserveringen en te late boeken', async ({ page, playwright }) 
   await staffApi.dispose();
 
   await loginAs(page, 'bibliothecaris@biblio.nl');
+  await page.getByRole('link', { name: 'Werkplek' }).click();
   await page.getByRole('link', { name: 'Reserveringen' }).click();
   await expect(page.getByRole('heading', { name: 'Reserveringen' })).toBeVisible();
   await expect(

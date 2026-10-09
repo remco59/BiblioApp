@@ -26,10 +26,10 @@ export function ThemeToggle() {
   }, [theme]);
 
   return (
-    <label className="theme">
-      <span className="sr-only">Thema</span>
-      <select value={theme} onChange={(e) => setTheme(e.target.value as Theme)} aria-label="Thema">
-        <option value="system">Automatisch</option>
+    <label className="field theme">
+      <span>Weergave</span>
+      <select value={theme} onChange={(e) => setTheme(e.target.value as Theme)}>
+        <option value="system">Automatisch (volgt je apparaat)</option>
         <option value="light">Licht</option>
         <option value="dark">Donker</option>
       </select>

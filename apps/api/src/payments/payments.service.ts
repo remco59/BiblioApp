@@ -116,7 +116,7 @@ export class PaymentsService {
       reference: `fine-${fineId}`,
       amountCents: outstanding,
       description: `Boete #${fineId}`,
-      returnUrl: `${base}/my/loans`,
+      returnUrl: `${base}/my/loans?betaling=${fineId}`,
     });
     const payment = await this.prisma.onlinePayment.create({
       data: {

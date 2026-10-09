@@ -72,7 +72,7 @@ test.describe('toegankelijkheid (axe, WCAG 2.1 AA)', () => {
     await scan(page, '/login', 'Inloggen');
     await page.emulateMedia({ colorScheme: 'light' });
     await page.goto('/catalogus');
-    await page.getByLabel('Thema').selectOption('dark');
+    await page.getByLabel('Weergave').selectOption('dark');
     await scan(page, '/catalogus', 'Catalogus');
   });
 

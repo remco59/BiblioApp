@@ -128,6 +128,17 @@ export class PayDto {
   method?: 'CASH' | 'CARD';
 }
 
+/** Leenregels die iedereen mag zien (uitleg voor leden). */
+export class LoanRulesDto {
+  @ApiProperty({ type: Number }) loanDays: number;
+  @ApiProperty({ type: Number }) maxRenewals: number;
+  @ApiProperty({ type: Number }) renewalDays: number;
+  @ApiProperty({ type: Number }) maxLoansPerMember: number;
+  @ApiProperty({ type: Number }) finePerDayCents: number;
+  @ApiProperty({ type: Number }) fineCapCents: number;
+  @ApiProperty({ type: Number }) reservationHoldDays: number;
+}
+
 export class SettingsDto {
   @ApiProperty({ type: Number }) loanDays: number;
   @ApiProperty({ type: Number }) maxRenewals: number;

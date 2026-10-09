@@ -43,7 +43,10 @@ export function HomePage() {
   }, [user, refresh]);
 
   const featured = recs[0] ?? fresh.find((b) => b.coverUrl) ?? fresh[0];
-  const shelfTwo = recs.length > 0 ? recs : fresh;
+  // Het uitgelichte boek staat al groot in beeld; niet nog eens op de planken.
+  const notFeatured = (b: Book) => b.id !== featured?.id;
+  const shelfOne = available.filter(notFeatured);
+  const shelfTwo = (recs.length > 0 ? recs : fresh).filter(notFeatured);
 
   function submit(e: FormEvent) {
     e.preventDefault();
@@ -52,7 +55,6 @@ export function HomePage() {
 
   return (
     <>
-      <p className="kicker">Ontdek</p>
       <h1>{greeting(user?.name)}</h1>
       <p className="lede">Wat wil je deze week lezen?</p>
       <form role="search" onSubmit={submit} className="searchbar">
@@ -62,7 +64,7 @@ export function HomePage() {
         <input
           id="home-q"
           type="search"
-          placeholder="Zoek op titel, auteur of trefwoord"
+          placeholder="Titel, auteur of trefwoord"
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
@@ -75,15 +77,24 @@ export function HomePage() {
               <Link to={`/catalogus?genre=${encodeURIComponent(g)}`}>{g}</Link>
             </li>
           ))}
+          {filters.genres.length > 5 && (
+            <li>
+              <Link to="/catalogus" className="more">
+                Alle {filters.genres.length} genres
+              </Link>
+            </li>
+          )}
         </ul>
       )}
 
       {featured && (
         <section className="hero" aria-labelledby="hero-h">
           <div className="hero-text">
-            <p className="kicker">{recs[0] ? 'Voor jou uitgekozen' : 'Uitgelicht'}</p>
             <h2 id="hero-h">{featured.title}</h2>
-            <p className="meta">{featured.authors.map((a) => a.name).join(', ')}</p>
+            <p className="meta">
+              {featured.authors.map((a) => a.name).join(', ')} ·{' '}
+              {recs[0] ? 'voor jou uitgekozen' : 'nieuw in de kast'}
+            </p>
             {featured.description && <p className="description">{featured.description}</p>}
             <p>
               {featured.copiesAvailable > 0 ? (
@@ -91,7 +102,7 @@ export function HomePage() {
                   {featured.copiesAvailable} van {featured.copiesTotal} beschikbaar
                 </StatusPill>
               ) : (
-                <StatusPill tone="bad">Nu uitgeleend — reserveren kan</StatusPill>
+                <StatusPill tone="warn">Nu uitgeleend, reserveren kan</StatusPill>
               )}
             </p>
             <Link className="button" to={`/books/${featured.id}`}>
@@ -105,11 +116,11 @@ export function HomePage() {
         </section>
       )}
 
-      {available.length > 0 && (
+      {shelfOne.length > 0 && (
         <section aria-labelledby="avail-h">
           <SectionHeader id="avail-h" title="Nu beschikbaar" to="/catalogus?available=true" />
           <Shelf label="Nu beschikbare boeken">
-            {available.map((b) => (
+            {shelfOne.map((b) => (
               <ShelfBook key={b.id} book={b} />
             ))}
           </Shelf>

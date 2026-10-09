@@ -1,6 +1,8 @@
-import { Link, NavLink, Route, Routes } from 'react-router-dom';
+import { Link, NavLink, Route, Routes, useLocation } from 'react-router-dom';
 import { RequireAuth, useAuth } from './auth';
+import { Icon } from './components/Icon';
 import { NotificationBell } from './components/NotificationBell';
+import { StaffLayout } from './components/StaffLayout';
 import { ThemeToggle } from './components/ThemeToggle';
 import { BookDetailPage } from './pages/BookDetailPage';
 import { HomePage } from './pages/HomePage';
@@ -15,6 +17,7 @@ import {
 import { MyLoansPage } from './pages/MyLoansPage';
 import { NotificationsPage } from './pages/NotificationsPage';
 import { PayMockPage } from './pages/PayMockPage';
+import { NotFoundPage } from './pages/NotFoundPage';
 import { PrivacyPage } from './pages/PrivacyPage';
 import { SuggestionsPage } from './pages/SuggestionsPage';
 import { WishlistPage } from './pages/WishlistPage';
@@ -37,30 +40,36 @@ import { StaffBooksPage } from './pages/staff/StaffBooksPage';
 
 const STAFF: ('LIBRARIAN' | 'ADMIN')[] = ['LIBRARIAN', 'ADMIN'];
 
-const icon = (d: string) => (
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <path d={d} />
-  </svg>
-);
-
 function TabBar() {
   const { user } = useAuth();
+  const isStaff = user?.role === 'LIBRARIAN' || user?.role === 'ADMIN';
+  const { pathname } = useLocation();
   return (
     <nav className="tabbar" aria-label="Tabbalk">
-      <NavLink to="/" end>
-        {icon('M3 11l9-8 9 8M5 10v10h14V10')}
-        Ontdek
-      </NavLink>
+      {isStaff ? (
+        <NavLink
+          to="/staff/desk"
+          aria-current={/^\/(staff|admin)\//.test(pathname) ? 'page' : undefined}
+        >
+          <Icon name="desk" />
+          Werkplek
+        </NavLink>
+      ) : (
+        <NavLink to="/" end>
+          <Icon name="home" />
+          Ontdek
+        </NavLink>
+      )}
       <NavLink to="/catalogus">
-        {icon('M4 4h4v16H4zM10 4h4v16h-4zM16.5 5.5l3.5-1 3 15-3.5 1z')}
+        <Icon name="books" />
         Catalogus
       </NavLink>
-      <NavLink to="/my/loans">
-        {icon('M4 20h16M6 20V9l6-5 6 5v11M10 20v-6h4v6')}
+      <NavLink to="/my/loans" aria-current={pathname.startsWith('/my/') ? 'page' : undefined}>
+        <Icon name="library" />
         Bibliotheek
       </NavLink>
       <NavLink to={user ? '/profile' : '/login'}>
-        {icon('M12 12a4 4 0 100-8 4 4 0 000 8zM4 21c0-4 4-6 8-6s8 2 8 6')}
+        <Icon name="user" />
         {user ? 'Profiel' : 'Inloggen'}
       </NavLink>
     </nav>
@@ -69,6 +78,7 @@ function TabBar() {
 
 function Nav() {
   const { user, logout } = useAuth();
+  const { pathname } = useLocation();
   const isStaff = user?.role === 'LIBRARIAN' || user?.role === 'ADMIN';
   return (
     <header className="nav">
@@ -81,40 +91,37 @@ function Nav() {
             Ontdek
           </NavLink>
           <NavLink to="/catalogus">Catalogus</NavLink>
-          {user && <NavLink to="/my/loans">Mijn bibliotheek</NavLink>}
-          {user && <NavLink to="/my/wishlist">Verlanglijst</NavLink>}
-          {user && <NavLink to="/my/suggestions">Suggesties</NavLink>}
+          {user && (
+            <NavLink to="/my/loans" aria-current={pathname.startsWith('/my/') ? 'page' : undefined}>
+              Mijn bibliotheek
+            </NavLink>
+          )}
+          {isStaff && (
+            <NavLink
+              to="/staff/desk"
+              aria-current={/^\/(staff|admin)\//.test(pathname) ? 'page' : undefined}
+            >
+              Werkplek
+            </NavLink>
+          )}
         </span>
         {user ? (
           <>
             <NotificationBell />
-            <NavLink to="/profile">{user.name}</NavLink>
-            <button className="link" onClick={() => void logout()}>
-              Uitloggen
-            </button>
+            <span className="account-links">
+              <NavLink to="/profile">{user.name}</NavLink>
+              <button className="link" onClick={() => void logout()}>
+                Uitloggen
+              </button>
+            </span>
           </>
         ) : (
-          <NavLink to="/login">Inloggen</NavLink>
-        )}
-        <ThemeToggle />
-        {isStaff && (
-          <div className="staff-nav">
-            <NavLink to="/staff/desk">Balie</NavLink>
-            <NavLink to="/staff/members">Leden</NavLink>
-            <NavLink to="/staff/overdue">Te laat</NavLink>
-            <NavLink to="/staff/reservations">Reserveringen</NavLink>
-            <NavLink to="/staff/moderation">Reviews</NavLink>
-            <NavLink to="/staff/reports">Rapporten</NavLink>
-            <NavLink to="/staff/books">Beheer</NavLink>
-            {user?.role === 'ADMIN' && (
-              <>
-                <NavLink to="/admin/settings">Instellingen</NavLink>
-                <NavLink to="/admin/users">Gebruikers</NavLink>
-                <NavLink to="/admin/templates">Mailteksten</NavLink>
-                <NavLink to="/admin/audit">Auditlog</NavLink>
-              </>
-            )}
-          </div>
+          <span className="account-links">
+            <NavLink to="/login">Inloggen</NavLink>
+            <Link to="/register" className="button small">
+              Word lid
+            </Link>
+          </span>
         )}
       </nav>
     </header>
@@ -151,46 +158,6 @@ export function App() {
             }
           />
           <Route
-            path="/staff/moderation"
-            element={
-              <RequireAuth roles={STAFF}>
-                <ModerationPage />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/staff/reports"
-            element={
-              <RequireAuth roles={STAFF}>
-                <ReportsPage />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/admin/users"
-            element={
-              <RequireAuth roles={['ADMIN']}>
-                <AdminUsersPage />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/admin/templates"
-            element={
-              <RequireAuth roles={['ADMIN']}>
-                <TemplatesPage />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/admin/audit"
-            element={
-              <RequireAuth roles={['ADMIN']}>
-                <AuditPage />
-              </RequireAuth>
-            }
-          />
-          <Route
             path="/notifications"
             element={
               <RequireAuth>
@@ -198,92 +165,12 @@ export function App() {
               </RequireAuth>
             }
           />
-          <Route
-            path="/staff/overdue"
-            element={
-              <RequireAuth roles={STAFF}>
-                <OverduePage />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/staff/reservations"
-            element={
-              <RequireAuth roles={STAFF}>
-                <ReservationsPage />
-              </RequireAuth>
-            }
-          />
           <Route path="/books/:id" element={<BookDetailPage />} />
-          <Route
-            path="/staff/books"
-            element={
-              <RequireAuth roles={STAFF}>
-                <StaffBooksPage />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/staff/books/:id"
-            element={
-              <RequireAuth roles={STAFF}>
-                <BookFormPage />
-              </RequireAuth>
-            }
-          />
           <Route
             path="/my/loans"
             element={
               <RequireAuth>
                 <MyLoansPage />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/staff/desk"
-            element={
-              <RequireAuth roles={STAFF}>
-                <DeskPage />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/staff/members"
-            element={
-              <RequireAuth roles={STAFF}>
-                <MembersPage />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/staff/members/:id"
-            element={
-              <RequireAuth roles={STAFF}>
-                <MemberDetailPage />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/staff/labels"
-            element={
-              <RequireAuth roles={STAFF}>
-                <LabelsPage />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/admin/settings"
-            element={
-              <RequireAuth roles={['ADMIN']}>
-                <SettingsPage />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/staff/lookups"
-            element={
-              <RequireAuth roles={STAFF}>
-                <LookupsPage />
               </RequireAuth>
             }
           />
@@ -300,12 +187,142 @@ export function App() {
               </RequireAuth>
             }
           />
+          <Route
+            element={
+              <RequireAuth roles={STAFF}>
+                <StaffLayout />
+              </RequireAuth>
+            }
+          >
+            <Route
+              path="/staff/moderation"
+              element={
+                <RequireAuth roles={STAFF}>
+                  <ModerationPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/staff/reports"
+              element={
+                <RequireAuth roles={STAFF}>
+                  <ReportsPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/admin/users"
+              element={
+                <RequireAuth roles={['ADMIN']}>
+                  <AdminUsersPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/admin/templates"
+              element={
+                <RequireAuth roles={['ADMIN']}>
+                  <TemplatesPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/admin/audit"
+              element={
+                <RequireAuth roles={['ADMIN']}>
+                  <AuditPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/staff/overdue"
+              element={
+                <RequireAuth roles={STAFF}>
+                  <OverduePage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/staff/reservations"
+              element={
+                <RequireAuth roles={STAFF}>
+                  <ReservationsPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/staff/books"
+              element={
+                <RequireAuth roles={STAFF}>
+                  <StaffBooksPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/staff/books/:id"
+              element={
+                <RequireAuth roles={STAFF}>
+                  <BookFormPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/staff/desk"
+              element={
+                <RequireAuth roles={STAFF}>
+                  <DeskPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/staff/members"
+              element={
+                <RequireAuth roles={STAFF}>
+                  <MembersPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/staff/members/:id"
+              element={
+                <RequireAuth roles={STAFF}>
+                  <MemberDetailPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/staff/labels"
+              element={
+                <RequireAuth roles={STAFF}>
+                  <LabelsPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/admin/settings"
+              element={
+                <RequireAuth roles={['ADMIN']}>
+                  <SettingsPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/staff/lookups"
+              element={
+                <RequireAuth roles={STAFF}>
+                  <LookupsPage />
+                </RequireAuth>
+              }
+            />
+          </Route>
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
-      <TabBar />
       <footer className="footer">
         <Link to="/privacy">Privacy</Link>
+        <ThemeToggle />
       </footer>
+      <TabBar />
     </>
   );
 }

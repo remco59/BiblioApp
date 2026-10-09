@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import type { Book } from '@biblio/api-client';
 import { api } from '../api';
 import { Shelf, ShelfBook, StatusPill } from '../components/Shelf';
 import { useServerEvent } from '../lib/events';
+import { LibraryTabs } from '../components/LibraryTabs';
+import { Loading } from '../components/LoadState';
 
 export function WishlistPage() {
   const [books, setBooks] = useState<Book[] | null>(null);
@@ -15,14 +18,15 @@ export function WishlistPage() {
   }, [load]);
   useServerEvent('availability', () => void load());
 
-  if (!books) return <p>Laden…</p>;
+  if (!books) return <Loading label="Verlanglijst laden…" />;
   return (
     <>
-      <h1>Mijn verlanglijst</h1>
+      <h1>Mijn bibliotheek</h1>
+      <LibraryTabs />
       {books.length === 0 ? (
-        <p>
-          Je verlanglijst is leeg. Open een boek en kies “Op verlanglijst”. Je krijgt een melding
-          zodra een boek beschikbaar komt.
+        <p className="empty">
+          Je verlanglijst is leeg. Open een boek en kies “Zet op verlanglijst”: je krijgt een
+          melding zodra het beschikbaar komt. <Link to="/catalogus">Naar de catalogus</Link>
         </p>
       ) : (
         <Shelf label="Verlanglijst">

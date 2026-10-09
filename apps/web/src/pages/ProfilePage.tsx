@@ -5,15 +5,20 @@ import { api, errorMessage } from '../api';
 import { useAuth } from '../auth';
 import { DeleteAccount } from '../components/DeleteAccount';
 import { TwoFactor } from '../components/TwoFactor';
-import { ThemeToggle } from '../components/ThemeToggle';
 import { SectionHeader, Shelf, ShelfBook } from '../components/Shelf';
 import { dateNl } from '../lib/format';
 import { useBooks } from '../lib/useBooks';
 
+const ROLE: Record<string, string> = {
+  MEMBER: 'Lid',
+  LIBRARIAN: 'Bibliothecaris',
+  ADMIN: 'Beheerder',
+};
+
 export function ProfilePage() {
-  const { user, setUser } = useAuth();
+  const { user, setUser, logout } = useAuth();
   const [name, setName] = useState(user?.name ?? '');
-  const [message, setMessage] = useState<string | null>(null);
+  const [message, setMessage] = useState<{ text: string; error?: boolean } | null>(null);
   const [m, setM] = useState<MemberDetail | null>(null);
   useEffect(() => {
     if (!user?.memberNumber) return;
@@ -23,14 +28,15 @@ export function ProfilePage() {
   const dueSoon = active
     .filter((l) => new Date(l.dueAt).getTime() - Date.now() < 5 * 86_400_000)
     .slice(0, 4);
+  const overdue = active.filter((l) => l.overdue).length;
   const books = useBooks(dueSoon.map((l) => l.bookId));
 
   async function save(e: FormEvent) {
     e.preventDefault();
     const { error } = await api.PATCH('/api/users/me', { body: { name } });
-    if (error) return setMessage(errorMessage(error));
+    if (error) return setMessage({ text: errorMessage(error), error: true });
     if (user) setUser({ ...user, name });
-    setMessage('Opgeslagen');
+    setMessage({ text: 'Je naam is opgeslagen.' });
   }
 
   async function setLocale(locale: 'nl' | 'en') {
@@ -51,51 +57,44 @@ export function ProfilePage() {
   if (!user) return null;
   return (
     <>
-      <p className="kicker">Account</p>
       <h1>Mijn profiel</h1>
 
       <div className="profile-grid">
-        <section className="panel profile-section" aria-labelledby="card-h">
+        <section aria-labelledby="card-h" className="profile-section">
           <h2 id="card-h" className="sr-only">
-            Lidmaatschap
+            Bibliotheekpas
           </h2>
           <div className="library-card">
-            <span>Bibliotheekpas</span>
+            <span className="card-label">Bibliotheekpas</span>
             <span className="number">{user.memberNumber ?? '—'}</span>
-            <span>{user.name}</span>
-            {m && <span>Lid tot {dateNl(m.membershipUntil)}</span>}
+            <span className="card-name">{user.name}</span>
+            {m && <span>Lid tot en met {dateNl(m.membershipUntil)}</span>}
           </div>
+          {m && (
+            <p className="card-status">
+              <Link to="/my/loans">
+                {active.length === 0
+                  ? 'Je hebt nu niets geleend'
+                  : `${active.length} ${active.length === 1 ? 'boek' : 'boeken'} geleend`}
+              </Link>
+              {dueSoon.length > 0 && <> · {dueSoon.length} binnenkort terug</>}
+              {overdue > 0 && <span className="bad"> · {overdue} te laat</span>}
+            </p>
+          )}
+        </section>
+
+        <section className="panel profile-section" aria-labelledby="account-h">
+          <h2 id="account-h">Account</h2>
           <dl>
             <dt>E-mailadres</dt>
             <dd>{user.email}</dd>
-            <dt>Lidnummer</dt>
-            <dd>{user.memberNumber ?? '—'}</dd>
             <dt>Rol</dt>
-            <dd>{user.role}</dd>
+            <dd>{ROLE[user.role] ?? user.role}</dd>
           </dl>
+          <button className="secondary" onClick={() => void logout()}>
+            Uitloggen
+          </button>
         </section>
-
-        {m && (
-          <section aria-labelledby="sum-h" className="profile-section">
-            <h2 id="sum-h" className="sr-only">
-              Overzicht
-            </h2>
-            <ul className="summary">
-              <li>
-                <strong>{active.length}</strong> geleend
-              </li>
-              <li>
-                <strong>{dueSoon.length}</strong> binnenkort terug
-              </li>
-              <li>
-                <strong>{active.filter((l) => l.overdue).length}</strong> te laat
-              </li>
-            </ul>
-            <p>
-              <Link to="/my/loans">Naar mijn bibliotheek →</Link>
-            </p>
-          </section>
-        )}
       </div>
 
       {dueSoon.length > 0 && (
@@ -122,23 +121,28 @@ export function ProfilePage() {
 
       <div className="profile-grid">
         <section className="panel profile-section" aria-labelledby="gegevens-h">
-          <h2 id="gegevens-h" style={{ marginTop: 0 }}>
-            Gegevens
-          </h2>
+          <h2 id="gegevens-h">Gegevens</h2>
           <form onSubmit={save}>
             <label className="field">
               <span>Naam</span>
-              <input value={name} required onChange={(e) => setName(e.target.value)} />
+              <input
+                value={name}
+                required
+                autoComplete="name"
+                onChange={(e) => setName(e.target.value)}
+              />
             </label>
-            {message && <p role="status">{message}</p>}
-            <button type="submit">Opslaan</button>
+            {message && (
+              <p role={message.error ? 'alert' : 'status'} className={message.error ? 'error' : ''}>
+                {message.text}
+              </p>
+            )}
+            <button type="submit">Naam opslaan</button>
           </form>
         </section>
 
         <section className="panel profile-section" aria-labelledby="voorkeur-h">
-          <h2 id="voorkeur-h" style={{ marginTop: 0 }}>
-            Voorkeuren
-          </h2>
+          <h2 id="voorkeur-h">Voorkeuren</h2>
           <label className="field">
             <span>Meldingen en e-mails in</span>
             <select
@@ -149,8 +153,8 @@ export function ProfilePage() {
               <option value="en">English</option>
             </select>
           </label>
-          <p>
-            Weergave: <ThemeToggle />
+          <p className="meta">
+            De weergave (licht, donker of automatisch) kies je onderaan elke pagina.
           </p>
         </section>
       </div>
@@ -158,12 +162,16 @@ export function ProfilePage() {
       <section className="panel">
         <TwoFactor />
       </section>
-      <section className="panel">
-        <h2 style={{ marginTop: 0 }}>Mijn gegevens (AVG)</h2>
-        <p>Download een kopie van al je persoonlijke gegevens.</p>
-        <button onClick={download}>Gegevens exporteren</button>
+
+      <details className="panel danger-zone">
+        <summary>Privacy: je gegevens downloaden of je account verwijderen</summary>
+        <h2>Mijn gegevens (AVG)</h2>
+        <p>Download een kopie van al je persoonlijke gegevens als JSON-bestand.</p>
+        <button className="secondary" onClick={() => void download()}>
+          Gegevens downloaden
+        </button>
         <DeleteAccount />
-      </section>
+      </details>
     </>
   );
 }

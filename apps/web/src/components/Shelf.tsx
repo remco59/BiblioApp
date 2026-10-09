@@ -2,15 +2,15 @@ import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import type { Book } from '@biblio/api-client';
 import { Cover } from './BookCard';
+import { Icon, type IconName } from './Icon';
 
-/** Rij boeken die op een doorlopende houten plank staat. */
+/** Rij boeken op een doorlopende houten plank (elk boek draagt zijn eigen stuk plank). */
 export function Shelf({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="shelf">
+    <div className="bookshelf">
       <ul className="shelf-row" aria-label={label}>
         {children}
       </ul>
-      <div className="plank" aria-hidden="true" />
     </div>
   );
 }
@@ -28,7 +28,8 @@ export function ShelfBook({
   return (
     <li className="shelf-book">
       <Link to={`/books/${book.id}`} className="shelf-link">
-        <Cover book={book} size="shelf" />
+        <Cover book={book} size="shelf" decorative />
+        <span className="plank" aria-hidden="true" />
         <span className="shelf-title">{book.title}</span>
       </Link>
       <span className="shelf-author">{book.authors.map((a) => a.name).join(', ')}</span>
@@ -66,10 +67,11 @@ export function StatusPill({
   tone: 'ok' | 'warn' | 'bad' | 'neutral';
   children: ReactNode;
 }) {
-  const icon = tone === 'ok' ? '✓' : tone === 'bad' ? '!' : tone === 'warn' ? '◷' : '•';
+  const icon: IconName =
+    tone === 'ok' ? 'check' : tone === 'bad' ? 'alert' : tone === 'warn' ? 'clock' : 'dot';
   return (
     <span className={`pill ${tone}`}>
-      <span aria-hidden="true">{icon}</span> {children}
+      <Icon name={icon} /> {children}
     </span>
   );
 }
