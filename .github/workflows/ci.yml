@@ -8,23 +8,14 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:16
-        credentials:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-        env:
-          POSTGRES_USER: biblio
-          POSTGRES_PASSWORD: biblio
-          POSTGRES_DB: biblio
-        ports: ['5432:5432']
-        options: >-
-          --health-cmd "pg_isready -U biblio" --health-interval 5s --health-timeout 5s --health-retries 10
     env:
       DATABASE_URL: postgresql://biblio:biblio@localhost:5432/biblio?schema=public
     steps:
       - uses: actions/checkout@v7
+      - uses: ./.github/actions/postgres
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v6
         with:
@@ -45,24 +36,15 @@ jobs:
 
   e2e:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:16
-        credentials:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-        env:
-          POSTGRES_USER: biblio
-          POSTGRES_PASSWORD: biblio
-          POSTGRES_DB: biblio
-        ports: ['5432:5432']
-        options: >-
-          --health-cmd "pg_isready -U biblio" --health-interval 5s --health-timeout 5s --health-retries 10
     env:
       DATABASE_URL: postgresql://biblio:biblio@localhost:5432/biblio?schema=public
       CI: 'true'
     steps:
       - uses: actions/checkout@v7
+      - uses: ./.github/actions/postgres
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v6
         with:
@@ -85,19 +67,6 @@ jobs:
   # Bewijst dat een back-up te maken en te herstellen is (incl. checksum, offsite-stap en zoek-/integriteitsindexen)
   backup-restore:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:16
-        credentials:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-        env:
-          POSTGRES_USER: biblio
-          POSTGRES_PASSWORD: biblio
-          POSTGRES_DB: biblio
-        ports: ['5432:5432']
-        options: >-
-          --health-cmd "pg_isready -U biblio" --health-interval 5s --health-timeout 5s --health-retries 10
     env:
       DATABASE_URL: postgresql://biblio:biblio@localhost:5432/biblio?schema=public
       PGHOST: localhost
@@ -106,6 +75,10 @@ jobs:
       PGDATABASE: biblio
     steps:
       - uses: actions/checkout@v7
+      - uses: ./.github/actions/postgres
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v6
         with:
@@ -123,23 +96,14 @@ jobs:
   # Start het productiepakket zoals het in de Docker-image terechtkomt en controleert health, headers en metrics
   smoke-prod:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:16
-        credentials:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-        env:
-          POSTGRES_USER: biblio
-          POSTGRES_PASSWORD: biblio
-          POSTGRES_DB: biblio
-        ports: ['5432:5432']
-        options: >-
-          --health-cmd "pg_isready -U biblio" --health-interval 5s --health-timeout 5s --health-retries 10
     env:
       DATABASE_URL: postgresql://biblio:biblio@localhost:5432/biblio?schema=public
     steps:
       - uses: actions/checkout@v7
+      - uses: ./.github/actions/postgres
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v6
         with:
@@ -153,9 +117,13 @@ jobs:
   # Controleert dat de Docker-images bouwen (zonder te pushen)
   docker-build:
     runs-on: ubuntu-latest
+    env:
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v7
-      - uses: docker/login-action@v3
+      - name: Docker Hub-login (alleen met secrets)
+        if: env.DOCKERHUB_TOKEN != ''
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
