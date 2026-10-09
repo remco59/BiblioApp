@@ -1255,11 +1255,11 @@ button.secondary.danger-btn {
   }
   .shelf-plant.left {
     right: 0.25rem;
-    width: 5.8rem;
+    width: 6.8rem;
   }
   .shelf-plant.right {
     left: 0.75rem;
-    width: 3.8rem;
+    width: 4.4rem;
   }
 }
 /* De plank zelf: bovenvlak (lichter), voorkant met nerf, schaduw eronder */
@@ -2038,4 +2038,54 @@ details.danger-zone[open] > summary {
 .hero {
   position: relative;
   overflow: hidden;
+}
+
+/* Hero: foto van een plank in warm licht; het boek staat op de plank in de foto */
+.hero-wrap {
+  container-type: inline-size;
+  margin: var(--space-3) 0;
+}
+.hero {
+  --fg: #f1e7d8;
+  --muted: #cdbca6;
+  --ok: #8fc47a;
+  --accent: #e0a458;
+  --accent-fg: #1d130a;
+  --focus: #f2b861;
+  margin: 0;
+  color: var(--fg);
+  border-color: rgb(255 255 255 / 8%);
+  background:
+    linear-gradient(180deg, rgb(18 11 6 / 55%), rgb(18 11 6 / 78%)),
+    url('/hero-shelf.webp') right bottom / cover no-repeat #1c130b;
+}
+.hero h2,
+.hero .meta {
+  color: var(--fg);
+}
+.hero .meta {
+  color: var(--muted);
+}
+@media (min-width: 800px) {
+  .hero {
+    aspect-ratio: 1916 / 821;
+    background-image:
+      linear-gradient(90deg, rgb(18 11 6 / 60%), transparent 60%), url('/hero-shelf.webp');
+    background-size:
+      100% auto,
+      100% auto;
+    background-position:
+      0 0,
+      left bottom;
+    padding-left: clamp(2.5rem, 13cqw, 9rem);
+    padding-bottom: 0;
+  }
+  .hero-book {
+    align-self: end;
+    /* plankbovenkant in de foto ligt op ~26% van de beeldhoogte (cqw / 2,334) */
+    margin-bottom: 13.6cqw;
+  }
+  .hero-book .plank {
+    display: none;
+  }
 }

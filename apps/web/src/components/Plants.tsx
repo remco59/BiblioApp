@@ -64,7 +64,7 @@ const POTHOS: Leaf[] = [
 /** Kamerplant in grijze pot met overhangende ranken. */
 export function PottedPlant({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 110 190" aria-hidden="true" focusable="false">
+    <svg className={className} viewBox="-24 -40 140 240" aria-hidden="true" focusable="false">
       <Defs />
       <path d="M52 112C52 90 52 80 52 70" stroke="#2c5a30" strokeWidth="2" fill="none" />
       <path d="M44 112C34 90 30 80 40 78" stroke="#2c5a30" strokeWidth="2" fill="none" />
@@ -106,7 +106,7 @@ const SPROUT: Leaf[] = [
 /** Kleine plant in een beige vaas. */
 export function VasePlant({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 80 130" aria-hidden="true" focusable="false">
+    <svg className={className} viewBox="-8 -12 96 148" aria-hidden="true" focusable="false">
       <Defs />
       {SPROUT.map((l, i) => (
         <LeafShape key={i} {...l} />

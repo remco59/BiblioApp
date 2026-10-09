@@ -93,29 +93,31 @@ export function HomePage() {
       )}
 
       {featured && (
-        <section className="hero" aria-labelledby="hero-h">
-          <div className="hero-text">
-            <p className="eyebrow">{recs[0] ? 'Voor jou uitgekozen' : 'Nieuw in de kast'}</p>
-            <h2 id="hero-h">{featured.title}</h2>
-            <p className="meta">{featured.authors.map((a) => a.name).join(', ')}</p>
-            <p>
-              {featured.copiesAvailable > 0 ? (
-                <StatusPill tone="ok">
-                  {featured.copiesAvailable} van {featured.copiesTotal} beschikbaar
-                </StatusPill>
-              ) : (
-                <StatusPill tone="warn">Nu uitgeleend, reserveren kan</StatusPill>
-              )}
-            </p>
-            <Link className="button" to={`/books/${featured.id}`}>
-              Bekijk boek
-            </Link>
-          </div>
-          <div className="hero-book" aria-hidden="true">
-            <Cover book={featured} size="shelf" />
-            <div className="plank" />
-          </div>
-        </section>
+        <div className="hero-wrap">
+          <section className="hero" aria-labelledby="hero-h">
+            <div className="hero-text">
+              <p className="eyebrow">{recs[0] ? 'Voor jou uitgekozen' : 'Nieuw in de kast'}</p>
+              <h2 id="hero-h">{featured.title}</h2>
+              <p className="meta">{featured.authors.map((a) => a.name).join(', ')}</p>
+              <p>
+                {featured.copiesAvailable > 0 ? (
+                  <StatusPill tone="ok">
+                    {featured.copiesAvailable} van {featured.copiesTotal} beschikbaar
+                  </StatusPill>
+                ) : (
+                  <StatusPill tone="warn">Nu uitgeleend, reserveren kan</StatusPill>
+                )}
+              </p>
+              <Link className="button" to={`/books/${featured.id}`}>
+                Bekijk boek
+              </Link>
+            </div>
+            <div className="hero-book" aria-hidden="true">
+              <Cover book={featured} size="shelf" />
+              <div className="plank" />
+            </div>
+          </section>
+        </div>
       )}
 
       {shelfOne.length > 0 && (
