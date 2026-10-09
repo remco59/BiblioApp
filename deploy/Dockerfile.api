@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # Bouw vanuit de repo-root: docker build -f deploy/Dockerfile.api -t biblio-api .
-FROM node:22-slim AS build
+FROM node:25-slim AS build
 ENV PNPM_HOME=/pnpm PATH=/pnpm:$PATH
 RUN corepack enable && apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 WORKDIR /repo
@@ -15,7 +15,7 @@ RUN pnpm --filter @biblio/shared build && pnpm --filter @biblio/api build
 # (package.json "files": alleen dist en prisma worden meegenomen)
 RUN pnpm --filter @biblio/api deploy --prod --legacy /out
 
-FROM node:22-slim AS runtime
+FROM node:25-slim AS runtime
 RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates tini && rm -rf /var/lib/apt/lists/*
 ENV NODE_ENV=production API_PORT=3000 STORAGE_DIR=/data/uploads
 WORKDIR /app
