@@ -77,38 +77,40 @@ export function StaffBooksPage() {
         />
       </label>
       {result && (
-        <table>
-          <thead>
-            <tr>
-              <th scope="col">Titel</th>
-              <th scope="col">Auteur(s)</th>
-              <th scope="col">Exemplaren</th>
-              <th scope="col">
-                <span className="sr-only">Acties</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {result.items.map((b) => (
-              <tr key={b.id}>
-                <td>
-                  <Link to={`/books/${b.id}`}>{b.title}</Link>
-                </td>
-                <td>{b.authors.map((a) => a.name).join(', ')}</td>
-                <td>
-                  {b.copiesAvailable}/{b.copiesTotal}
-                </td>
-                <td>
-                  <Link to={`/staff/books/${b.id}`}>Bewerken</Link>{' '}
-                  <Link to={`/staff/labels?bookId=${b.id}`}>Etiketten</Link>{' '}
-                  <button className="link danger" onClick={() => void remove(b.id, b.title)}>
-                    Verwijderen
-                  </button>
-                </td>
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Titel</th>
+                <th scope="col">Auteur(s)</th>
+                <th scope="col">Exemplaren</th>
+                <th scope="col">
+                  <span className="sr-only">Acties</span>
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {result.items.map((b) => (
+                <tr key={b.id}>
+                  <td>
+                    <Link to={`/books/${b.id}`}>{b.title}</Link>
+                  </td>
+                  <td>{b.authors.map((a) => a.name).join(', ')}</td>
+                  <td>
+                    {b.copiesAvailable}/{b.copiesTotal}
+                  </td>
+                  <td>
+                    <Link to={`/staff/books/${b.id}`}>Bewerken</Link>{' '}
+                    <Link to={`/staff/labels?bookId=${b.id}`}>Etiketten</Link>{' '}
+                    <button className="link danger" onClick={() => void remove(b.id, b.title)}>
+                      Verwijderen
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
       {result && result.total > result.pageSize && (
         <p className="pagination">

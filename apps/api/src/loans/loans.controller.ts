@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import type { AuthedRequest } from '../auth/auth.guard';
-import { Roles } from '../auth/decorators';
+import { Public, Roles } from '../auth/decorators';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   BlockDto,
@@ -23,6 +23,7 @@ import {
   FineDto,
   LabelDto,
   LoanDto,
+  LoanRulesDto,
   MemberDetailDto,
   MemberDto,
   PayDto,
@@ -160,6 +161,29 @@ export class AdminSettingsController {
   @ApiOkResponse({ type: SettingsDto })
   update(@Body() dto: UpdateSettingsDto) {
     return this.settings.update(dto);
+  }
+}
+
+/** Openbare leenregels, zodat leden weten hoe lenen werkt. */
+@ApiTags('rules')
+@Controller('rules')
+export class RulesController {
+  constructor(private readonly settings: SettingsService) {}
+
+  @Public()
+  @Get()
+  @ApiOkResponse({ type: LoanRulesDto })
+  async get(): Promise<LoanRulesDto> {
+    const s = await this.settings.getAll();
+    return {
+      loanDays: s.loanDays,
+      maxRenewals: s.maxRenewals,
+      renewalDays: s.renewalDays,
+      maxLoansPerMember: s.maxLoansPerMember,
+      finePerDayCents: s.finePerDayCents,
+      fineCapCents: s.fineCapCents,
+      reservationHoldDays: s.reservationHoldDays,
+    };
   }
 }
 

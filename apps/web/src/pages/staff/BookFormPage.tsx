@@ -245,42 +245,44 @@ export function BookFormPage() {
           </label>
 
           <h2>Exemplaren</h2>
-          <table>
-            <thead>
-              <tr>
-                <th scope="col">Barcode</th>
-                <th scope="col">Status</th>
-                <th scope="col">
-                  <span className="sr-only">Acties</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {book.copies.map((c) => (
-                <tr key={c.id}>
-                  <td>{c.barcode}</td>
-                  <td>
-                    <select
-                      aria-label={`Status ${c.barcode}`}
-                      value={c.status}
-                      onChange={(e) => void setStatus(c.id, e.target.value as never)}
-                    >
-                      <option value="AVAILABLE">Beschikbaar</option>
-                      <option value="LOANED">Uitgeleend</option>
-                      <option value="RESERVED_HOLD">Klaargelegd</option>
-                      <option value="LOST">Verloren</option>
-                      <option value="DAMAGED">Beschadigd</option>
-                    </select>
-                  </td>
-                  <td>
-                    <button className="link danger" onClick={() => void removeCopy(c.id)}>
-                      Verwijderen
-                    </button>
-                  </td>
+          <div className="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Barcode</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">
+                    <span className="sr-only">Acties</span>
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {book.copies.map((c) => (
+                  <tr key={c.id}>
+                    <td>{c.barcode}</td>
+                    <td>
+                      <select
+                        aria-label={`Status ${c.barcode}`}
+                        value={c.status}
+                        onChange={(e) => void setStatus(c.id, e.target.value as never)}
+                      >
+                        <option value="AVAILABLE">Beschikbaar</option>
+                        <option value="LOANED">Uitgeleend</option>
+                        <option value="RESERVED_HOLD">Klaargelegd</option>
+                        <option value="LOST">Verloren</option>
+                        <option value="DAMAGED">Beschadigd</option>
+                      </select>
+                    </td>
+                    <td>
+                      <button className="link danger" onClick={() => void removeCopy(c.id)}>
+                        Verwijderen
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
           <button onClick={() => void addCopy()}>Exemplaar toevoegen</button>
         </>
       )}

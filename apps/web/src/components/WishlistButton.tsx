@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { api } from '../api';
 import { useAuth } from '../auth';
+import { Icon } from './Icon';
 
 export function WishlistButton({ bookId }: { bookId: number }) {
   const { user } = useAuth();
@@ -23,8 +24,8 @@ export function WishlistButton({ bookId }: { bookId: number }) {
 
   if (on === null) return null;
   return (
-    <button className="secondary" aria-pressed={on} onClick={() => void toggle()}>
-      {on ? '♥ Op je verlanglijst' : '♡ Op verlanglijst'}
+    <button className="secondary icon-btn" aria-pressed={on} onClick={() => void toggle()}>
+      <Icon name="heart" filled={on} /> {on ? 'Op je verlanglijst' : 'Zet op verlanglijst'}
     </button>
   );
 }

@@ -93,9 +93,10 @@ test('verlanglijst en aankoopsuggestie', async ({ page }) => {
   await loginAs(page, 'lid@biblio.nl');
   await page.goto('/catalogus?q=' + TITLE);
   await page.getByRole('link', { name: TITLE }).click();
-  await page.getByRole('button', { name: /Op verlanglijst/ }).click();
+  await page.getByRole('button', { name: /Zet op verlanglijst/ }).click();
   await expect(page.getByRole('button', { name: /Op je verlanglijst/ })).toBeVisible();
-  await page.getByRole('link', { name: 'Verlanglijst' }).click();
+  await page.getByRole('link', { name: 'Mijn bibliotheek' }).click();
+  await page.getByRole('link', { name: 'Verlanglijst', exact: true }).click();
   await expect(page.getByRole('link', { name: TITLE })).toBeVisible();
 
   await page.getByRole('link', { name: 'Suggesties' }).click();
@@ -109,11 +110,12 @@ test('verlanglijst en aankoopsuggestie', async ({ page }) => {
 
 test('rapportages tonen grafiek, tabellen en CSV-links', async ({ page }) => {
   await loginAs(page, 'bibliothecaris@biblio.nl');
-  await page.getByRole('link', { name: 'Rapporten' }).click();
+  await page.getByRole('link', { name: 'Werkplek' }).click();
+  await page.getByRole('link', { name: 'Rapportages' }).click();
   await expect(page.getByRole('heading', { name: 'Rapportages' })).toBeVisible();
   await expect(page.getByRole('img', { name: /Uitleenvolume per periode/ })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Populairste boeken' })).toBeVisible();
-  const link = page.getByRole('link', { name: 'Exporteer CSV' }).first();
+  const link = page.getByRole('link', { name: /als CSV/ }).first();
   await expect(link).toHaveAttribute('href', /format=csv/);
 });
 
@@ -126,6 +128,7 @@ test('beheerder ziet gebruikers, mailteksten en het auditlog; bibliothecaris nie
   await page.getByRole('button', { name: 'Uitloggen' }).click();
 
   await loginAs(page, 'admin@biblio.nl');
+  await page.getByRole('link', { name: 'Werkplek' }).click();
   await page.getByRole('link', { name: 'Gebruikers' }).click();
   await expect(page.getByRole('heading', { name: 'Gebruikers en rollen' })).toBeVisible();
   await expect(page.getByRole('cell', { name: 'lid@biblio.nl' })).toBeVisible();

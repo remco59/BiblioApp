@@ -3,6 +3,7 @@ import type { Notification } from '@biblio/api-client';
 import { api } from '../api';
 import { useServerEvent } from '../lib/events';
 import { dateNl } from '../lib/format';
+import { Loading } from '../components/LoadState';
 
 export function NotificationsPage() {
   const [items, setItems] = useState<Notification[] | null>(null);
@@ -29,7 +30,7 @@ export function NotificationsPage() {
     void load();
   }
 
-  if (!items) return <p>Laden…</p>;
+  if (!items) return <Loading label="Meldingen laden…" />;
   return (
     <>
       <h1>Meldingen</h1>
@@ -41,11 +42,19 @@ export function NotificationsPage() {
           </button>
         )}
       </p>
-      {items.length === 0 && <p>Je hebt nog geen meldingen.</p>}
+      {items.length === 0 && (
+        <p className="empty">
+          Je hebt nog geen meldingen. Hier lees je straks wanneer een reservering klaarligt of een
+          boek bijna terug moet.
+        </p>
+      )}
       <ul className="notifications">
         {items.map((n) => (
           <li key={n.id} className={n.readAt ? 'read' : 'unread'}>
-            <h2>{n.title}</h2>
+            <h2>
+              {!n.readAt && <span className="sr-only">Ongelezen: </span>}
+              {n.title}
+            </h2>
             <p>{n.body}</p>
             <p className="meta">
               {dateNl(n.createdAt)}

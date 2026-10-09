@@ -30,7 +30,7 @@ describe('BookList', () => {
         />
       </MemoryRouter>,
     );
-    expect(screen.getByText('Het diner')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Het diner' })).toBeInTheDocument();
     expect(screen.getByText(/Herman Koch · Roman · 2009/)).toBeInTheDocument();
     expect(screen.getByText(/1 van 2 beschikbaar/)).toBeInTheDocument();
     expect(

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api';
 import { useServerEvent } from '../lib/events';
+import { Icon } from './Icon';
 
 export function NotificationBell() {
   const [unread, setUnread] = useState(0);
@@ -24,7 +25,7 @@ export function NotificationBell() {
       className="bell"
       aria-label={unread ? `Meldingen, ${unread} ongelezen` : 'Meldingen'}
     >
-      <span aria-hidden="true">🔔</span>
+      <Icon name="bell" />
       {unread > 0 && (
         <span className="badge" aria-hidden="true">
           {unread}

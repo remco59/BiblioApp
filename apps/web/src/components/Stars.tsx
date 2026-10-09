@@ -2,11 +2,12 @@ export function Stars({ value, count }: { value: number | null; count?: number }
   if (value === null)
     return count === 0 ? <span className="meta">Nog geen beoordelingen</span> : null;
   const full = Math.round(value);
+  const shown = value.toLocaleString('nl-NL', { maximumFractionDigits: 1 });
   return (
     <span
       className="stars"
       role="img"
-      aria-label={`${value} van 5 sterren${count !== undefined ? `, ${count} beoordelingen` : ''}`}
+      aria-label={`${shown} van 5 sterren${count !== undefined ? `, ${count} ${count === 1 ? 'beoordeling' : 'beoordelingen'}` : ''}`}
     >
       <span aria-hidden="true">
         {'★'.repeat(full)}
@@ -14,7 +15,7 @@ export function Stars({ value, count }: { value: number | null; count?: number }
       </span>
       <span className="meta" aria-hidden="true">
         {' '}
-        {value.toFixed(1)}
+        {value.toLocaleString('nl-NL', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
         {count !== undefined && ` (${count})`}
       </span>
     </span>

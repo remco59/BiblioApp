@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import type { Suggestion } from '@biblio/api-client';
 import { api, errorMessage } from '../api';
+import { LibraryTabs } from '../components/LibraryTabs';
 import { dateNl } from '../lib/format';
 
 export const SUGGESTION_STATUS: Record<string, string> = {
@@ -44,8 +45,12 @@ export function SuggestionsPage() {
 
   return (
     <>
-      <h1>Aankoopsuggesties</h1>
-      <p>Mis je een boek in de collectie? Laat het ons weten.</p>
+      <h1>Mijn bibliotheek</h1>
+      <LibraryTabs />
+      <h2>Een boek voorstellen</h2>
+      <p>
+        Mis je een boek in de collectie? Laat het ons weten; je ziet hieronder wat we ermee doen.
+      </p>
       <form onSubmit={submit} className="book-form">
         <label className="field">
           <span>Titel *</span>

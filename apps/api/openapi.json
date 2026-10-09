@@ -1134,6 +1134,27 @@
         ]
       }
     },
+    "/api/rules": {
+      "get": {
+        "operationId": "RulesController_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanRulesDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "rules"
+        ]
+      }
+    },
     "/api/me/membership": {
       "get": {
         "operationId": "MeController_membership",
@@ -3885,6 +3906,41 @@
             "type": "number"
           }
         }
+      },
+      "LoanRulesDto": {
+        "type": "object",
+        "properties": {
+          "loanDays": {
+            "type": "number"
+          },
+          "maxRenewals": {
+            "type": "number"
+          },
+          "renewalDays": {
+            "type": "number"
+          },
+          "maxLoansPerMember": {
+            "type": "number"
+          },
+          "finePerDayCents": {
+            "type": "number"
+          },
+          "fineCapCents": {
+            "type": "number"
+          },
+          "reservationHoldDays": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "loanDays",
+          "maxRenewals",
+          "renewalDays",
+          "maxLoansPerMember",
+          "finePerDayCents",
+          "fineCapCents",
+          "reservationHoldDays"
+        ]
       },
       "ReserveDto": {
         "type": "object",

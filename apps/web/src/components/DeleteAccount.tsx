@@ -11,12 +11,12 @@ export function DeleteAccount() {
   const [password, setPassword] = useState('');
   const [code, setCode] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [understood, setUnderstood] = useState(false);
 
   if (!user || user.role === 'ADMIN') return null; // beheerders: eerst de rol verlagen
 
   async function submit(e: FormEvent) {
     e.preventDefault();
-    if (!window.confirm('Weet je het zeker? Dit kan niet ongedaan worden gemaakt.')) return;
     const { error: err } = await api.POST('/api/me/account/delete', {
       body: { password, code: code || undefined },
     });
@@ -59,16 +59,25 @@ export function DeleteAccount() {
               />
             </label>
           )}
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={understood}
+              onChange={(e) => setUnderstood(e.target.checked)}
+              required
+            />
+            Ik begrijp dat mijn account en leengeschiedenis niet terug te halen zijn.
+          </label>
           {error && (
             <p role="alert" className="error">
               {error}
             </p>
           )}
-          <button type="submit" className="danger-btn">
+          <button type="submit" className="danger-btn" disabled={!understood}>
             Definitief verwijderen
           </button>{' '}
           <button type="button" className="secondary" onClick={() => setOpen(false)}>
-            Annuleren
+            Toch niet
           </button>
         </form>
       )}

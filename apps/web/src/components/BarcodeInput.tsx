@@ -4,6 +4,8 @@ interface Props {
   label: string;
   onScan: (code: string) => void | Promise<void>;
   autoFocus?: boolean;
+  /** Tekst op de verzendknop, bv. "Uitlenen". */
+  action?: string;
 }
 
 type DetectorCtor = new (opts: { formats: string[] }) => {
@@ -11,7 +13,7 @@ type DetectorCtor = new (opts: { formats: string[] }) => {
 };
 
 /** Handscanner (typt de code + Enter) of camera via de BarcodeDetector-API, indien beschikbaar. */
-export function BarcodeInput({ label, onScan, autoFocus }: Props) {
+export function BarcodeInput({ label, onScan, autoFocus, action = 'Zoeken' }: Props) {
   const [value, setValue] = useState('');
   const [camera, setCamera] = useState(false);
   const video = useRef<HTMLVideoElement>(null);
@@ -76,10 +78,10 @@ export function BarcodeInput({ label, onScan, autoFocus }: Props) {
           spellCheck={false}
         />
       </label>
-      <button type="submit">OK</button>
+      <button type="submit">{action}</button>
       {detectorSupported && (
         <button type="button" className="secondary" onClick={() => setCamera(!camera)}>
-          {camera ? 'Camera uit' : 'Camera'}
+          {camera ? 'Camera uit' : 'Scannen met camera'}
         </button>
       )}
       {camera && (

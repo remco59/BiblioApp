@@ -72,7 +72,7 @@ test('lid ziet en verlengt een uitleen', async ({ page, browser }) => {
     const active = page.locator('table').first(); // "Nu geleend"
     await expect(active.getByRole('cell', { name: /verlengd/ })).toHaveCount(0);
     await page.getByRole('button', { name: 'Verlengen' }).click();
-    await expect(page.getByText('Verlengd', { exact: true })).toBeVisible();
+    await expect(page.getByText(/is verlengd tot/)).toBeVisible();
     await expect(active.getByRole('cell', { name: /1× verlengd/ })).toBeVisible();
   } finally {
     await staff.getByRole('tab', { name: 'Innemen' }).click();

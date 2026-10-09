@@ -72,7 +72,7 @@ test.describe('toegankelijkheid (axe, WCAG 2.1 AA)', () => {
     await scan(page, '/login', 'Inloggen');
     await page.emulateMedia({ colorScheme: 'light' });
     await page.goto('/catalogus');
-    await page.getByLabel('Thema').selectOption('dark');
+    await page.getByLabel('Weergave').selectOption('dark');
     await scan(page, '/catalogus', 'Catalogus');
   });
 
@@ -84,9 +84,9 @@ test.describe('toegankelijkheid (axe, WCAG 2.1 AA)', () => {
   test('lid: persoonlijke pagina’s', async ({ page }) => {
     await loginAs(page, 'lid@biblio.nl');
     for (const [path, heading] of [
-      ['/my/loans', 'Mijn uitleningen'],
-      ['/my/wishlist', 'Mijn verlanglijst'],
-      ['/my/suggestions', 'Aankoopsuggesties'],
+      ['/my/loans', 'Nu geleend'],
+      ['/my/wishlist', 'Mijn bibliotheek'],
+      ['/my/suggestions', 'Een boek voorstellen'],
       ['/notifications', 'Meldingen'],
       ['/profile', 'Mijn profiel'],
     ] as [string, string][]) {

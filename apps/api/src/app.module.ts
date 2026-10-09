@@ -6,7 +6,12 @@ import { IsbnService } from './catalog/isbn.service';
 import { SearchService } from './catalog/search.service';
 import { StaffCatalogController } from './catalog/staff.controller';
 import { StorageService } from './catalog/storage.service';
-import { AdminSettingsController, DeskController, MeController } from './loans/loans.controller';
+import {
+  AdminSettingsController,
+  DeskController,
+  MeController,
+  RulesController,
+} from './loans/loans.controller';
 import { LoansService } from './loans/loans.service';
 import { MembersService } from './loans/members.service';
 import { SettingsService } from './loans/settings.service';
@@ -44,6 +49,7 @@ import { MailModule } from './mail/mail.module';
     StaffCatalogController,
     DeskController,
     AdminSettingsController,
+    RulesController,
     MeController,
     ReservationsController,
     CommunityController,

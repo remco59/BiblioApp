@@ -83,33 +83,35 @@ export function LookupsPage() {
           {error}
         </p>
       )}
-      <table>
-        <thead>
-          <tr>
-            <th scope="col">Naam</th>
-            <th scope="col">Boeken</th>
-            <th scope="col">
-              <span className="sr-only">Acties</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r) => (
-            <tr key={r.id}>
-              <td>{r.name}</td>
-              <td>{r.books}</td>
-              <td>
-                <button className="link" onClick={() => void rename(r)}>
-                  Hernoemen
-                </button>{' '}
-                <button className="link danger" onClick={() => void remove(r)}>
-                  Verwijderen
-                </button>
-              </td>
+      <div className="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Naam</th>
+              <th scope="col">Boeken</th>
+              <th scope="col">
+                <span className="sr-only">Acties</span>
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.id}>
+                <td>{r.name}</td>
+                <td>{r.books}</td>
+                <td>
+                  <button className="link" onClick={() => void rename(r)}>
+                    Hernoemen
+                  </button>{' '}
+                  <button className="link danger" onClick={() => void remove(r)}>
+                    Verwijderen
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 }

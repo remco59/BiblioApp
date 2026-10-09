@@ -22,6 +22,7 @@ export type Fine = components['schemas']['FineDto'];
 export type Member = components['schemas']['MemberDto'];
 export type MemberDetail = components['schemas']['MemberDetailDto'];
 export type Settings = components['schemas']['SettingsDto'];
+export type LoanRules = components['schemas']['LoanRulesDto'];
 export type Reservation = components['schemas']['ReservationDto'];
 export type Notification = components['schemas']['NotificationDto'];
 export type BookReviews = components['schemas']['BookReviewsDto'];

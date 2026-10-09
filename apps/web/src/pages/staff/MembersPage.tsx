@@ -24,43 +24,45 @@ export function MembersPage() {
         <span>Zoeken op naam, e-mail of lidnummer</span>
         <input type="search" value={q} onChange={(e) => setQ(e.target.value)} />
       </label>
-      <table>
-        <thead>
-          <tr>
-            <th scope="col">Lidnummer</th>
-            <th scope="col">Naam</th>
-            <th scope="col">Uitgeleend</th>
-            <th scope="col">Boete</th>
-            <th scope="col">Lidmaatschap tot</th>
-            <th scope="col">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((m) => (
-            <tr key={m.id}>
-              <td>{m.memberNumber}</td>
-              <td>
-                <Link to={`/staff/members/${m.id}`}>{m.name}</Link>
-              </td>
-              <td>
-                {m.activeLoans}
-                {m.overdueLoans > 0 && <span className="bad"> ({m.overdueLoans} te laat)</span>}
-              </td>
-              <td>{m.outstandingFinesCents ? money(m.outstandingFinesCents) : '—'}</td>
-              <td>{dateNl(m.membershipUntil)}</td>
-              <td>
-                {m.blocked ? (
-                  <span className="bad">Geblokkeerd</span>
-                ) : m.membershipValid ? (
-                  'Actief'
-                ) : (
-                  <span className="bad">Verlopen</span>
-                )}
-              </td>
+      <div className="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Lidnummer</th>
+              <th scope="col">Naam</th>
+              <th scope="col">Uitgeleend</th>
+              <th scope="col">Boete</th>
+              <th scope="col">Lidmaatschap tot</th>
+              <th scope="col">Status</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {rows.map((m) => (
+              <tr key={m.id}>
+                <td>{m.memberNumber}</td>
+                <td>
+                  <Link to={`/staff/members/${m.id}`}>{m.name}</Link>
+                </td>
+                <td>
+                  {m.activeLoans}
+                  {m.overdueLoans > 0 && <span className="bad"> ({m.overdueLoans} te laat)</span>}
+                </td>
+                <td>{m.outstandingFinesCents ? money(m.outstandingFinesCents) : '—'}</td>
+                <td>{dateNl(m.membershipUntil)}</td>
+                <td>
+                  {m.blocked ? (
+                    <span className="bad">Geblokkeerd</span>
+                  ) : m.membershipValid ? (
+                    'Actief'
+                  ) : (
+                    <span className="bad">Verlopen</span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 }
