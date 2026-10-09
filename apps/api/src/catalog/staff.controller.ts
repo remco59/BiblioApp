@@ -33,12 +33,8 @@ import {
 import { ImportExportService } from './import-export.service';
 import { IsbnService } from './isbn.service';
 import { StorageService } from './storage.service';
+import { COVER_TYPES } from './cover-mirror';
 
-const COVER_TYPES: Record<string, string> = {
-  'image/jpeg': 'jpg',
-  'image/png': 'png',
-  'image/webp': 'webp',
-};
 const KINDS = ['authors', 'genres', 'tags', 'series'] as const;
 type Kind = (typeof KINDS)[number];
 

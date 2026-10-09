@@ -6,6 +6,8 @@ import { RecommendationsService } from '../community/recommendations.service';
 import { bookInclude, BookRow, toBookDto } from './book-mapper';
 import { normalizeIsbn } from './isbn.service';
 import { SearchService } from './search.service';
+import { StorageService } from './storage.service';
+import { mirrorCover } from './cover-mirror';
 import { QueueEffects, ReservationsService } from '../reservations/reservations.service';
 
 const clean = (names?: string[]) => [
@@ -19,6 +21,7 @@ export class BooksService {
     private readonly searchService: SearchService,
     private readonly reservations: ReservationsService,
     private readonly recommendations: RecommendationsService,
+    private readonly storage: StorageService,
   ) {}
 
   async list(query: SearchQueryDto): Promise<BookPageDto> {
@@ -105,6 +108,8 @@ export class BooksService {
     if (isbn && (await this.prisma.book.findUnique({ where: { isbn } }))) {
       throw new ConflictException('Er bestaat al een boek met dit ISBN');
     }
+    // Externe covers (Open Library e.d.) eenmalig binnenhalen en zelf serveren.
+    const coverKey = dto.coverUrl ? await mirrorCover(this.storage, dto.coverUrl) : null;
     const id = await this.prisma.$transaction(async (tx) => {
       const rel = await this.relations(tx, dto);
       const book = await tx.book.create({
@@ -115,6 +120,7 @@ export class BooksService {
           language: dto.language ?? 'nl',
           publishedYear: dto.publishedYear ?? null,
           coverUrl: dto.coverUrl ?? null,
+          coverKey,
           genreId: rel.genre?.id ?? null,
           seriesId: rel.series?.id ?? null,
           seriesNumber: dto.seriesNumber ?? null,
@@ -134,6 +140,9 @@ export class BooksService {
       if (other && other.id !== id)
         throw new ConflictException('Er bestaat al een boek met dit ISBN');
     }
+    // Een nieuw opgegeven cover-URL vervangt de huidige cover; lukt binnenhalen niet, dan valt
+    // de weergave terug op de externe URL.
+    const coverKey = dto.coverUrl ? await mirrorCover(this.storage, dto.coverUrl) : undefined;
     await this.prisma.$transaction(async (tx) => {
       const exists = await tx.book.findUnique({ where: { id } });
       if (!exists) throw new NotFoundException('Boek niet gevonden');
@@ -149,6 +158,7 @@ export class BooksService {
           language: dto.language ?? exists.language,
           publishedYear: dto.publishedYear ?? null,
           coverUrl: dto.coverUrl ?? (exists.coverKey ? exists.coverUrl : null),
+          coverKey: coverKey === undefined ? exists.coverKey : coverKey,
           genreId: rel.genre?.id ?? null,
           seriesId: rel.series?.id ?? null,
           seriesNumber: dto.seriesNumber ?? null,

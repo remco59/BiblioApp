@@ -342,6 +342,36 @@ describe('Catalogus (e2e)', () => {
       expect((await get('covers/..%2F..%2Fetc%2Fpasswd')).statusCode).toBe(404);
     });
 
+    it('haalt een externe cover eenmalig binnen en serveert hem zelf', async () => {
+      const real = global.fetch;
+      const jpg = Buffer.alloc(4096, 7);
+      try {
+        global.fetch = jest.fn(async (url: string | URL | Request) =>
+          String(url).includes('/b/isbn/')
+            ? new Response(jpg, { status: 200, headers: { 'content-type': 'image/jpeg' } })
+            : new Response('', { status: 404 }),
+        ) as never;
+        const ext = 'https://covers.openlibrary.org/b/isbn/9780261102217-L.jpg';
+        const book = (
+          await send('POST', 'staff/books', staff, { title: 'Cover', coverUrl: ext })
+        ).json();
+        expect(book.coverUrl).toMatch(/^\/api\/covers\/remote-[0-9a-f]+\.jpg$/);
+        const served = await app.inject({ method: 'GET', url: book.coverUrl });
+        expect(served.headers['content-type']).toBe('image/jpeg');
+        expect(served.rawPayload.equals(jpg)).toBe(true);
+
+        // Mislukt binnenhalen: de externe URL blijft in gebruik.
+        const missing = 'https://covers.openlibrary.org/b/id/0-L.jpg';
+        const kept = await send('PATCH', `staff/books/${book.id}`, staff, {
+          title: 'Cover',
+          coverUrl: missing,
+        });
+        expect(kept.json().coverUrl).toBe(missing);
+      } finally {
+        global.fetch = real;
+      }
+    });
+
     it('ISBN-lookup (Open Library, met fallback op Google Books)', async () => {
       const real = global.fetch;
       try {
