@@ -4,6 +4,7 @@ import type { Book, Filters } from '@biblio/api-client';
 import { api } from '../api';
 import { useAuth } from '../auth';
 import { Cover } from '../components/BookCard';
+import { Icon } from '../components/Icon';
 import { SectionHeader, Shelf, ShelfBook, StatusPill } from '../components/Shelf';
 import { useServerEvent } from '../lib/events';
 
@@ -55,19 +56,23 @@ export function HomePage() {
 
   return (
     <>
+      <p className="eyebrow">Ontdek</p>
       <h1>{greeting(user?.name)}</h1>
       <p className="lede">Wat wil je deze week lezen?</p>
       <form role="search" onSubmit={submit} className="searchbar">
         <label htmlFor="home-q" className="sr-only">
           Zoeken op titel, auteur, ISBN of trefwoord
         </label>
-        <input
-          id="home-q"
-          type="search"
-          placeholder="Titel, auteur of trefwoord"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-        />
+        <span className="search-field">
+          <Icon name="search" />
+          <input
+            id="home-q"
+            type="search"
+            placeholder="Titel, auteur of trefwoord"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+          />
+        </span>
         <button type="submit">Zoeken</button>
       </form>
       {filters && filters.genres.length > 0 && (
@@ -88,32 +93,31 @@ export function HomePage() {
       )}
 
       {featured && (
-        <section className="hero" aria-labelledby="hero-h">
-          <div className="hero-text">
-            <h2 id="hero-h">{featured.title}</h2>
-            <p className="meta">
-              {featured.authors.map((a) => a.name).join(', ')} ·{' '}
-              {recs[0] ? 'voor jou uitgekozen' : 'nieuw in de kast'}
-            </p>
-            {featured.description && <p className="description">{featured.description}</p>}
-            <p>
-              {featured.copiesAvailable > 0 ? (
-                <StatusPill tone="ok">
-                  {featured.copiesAvailable} van {featured.copiesTotal} beschikbaar
-                </StatusPill>
-              ) : (
-                <StatusPill tone="warn">Nu uitgeleend, reserveren kan</StatusPill>
-              )}
-            </p>
-            <Link className="button" to={`/books/${featured.id}`}>
-              Bekijk boek
-            </Link>
-          </div>
-          <div className="hero-book" aria-hidden="true">
-            <Cover book={featured} size="shelf" />
-            <div className="plank" />
-          </div>
-        </section>
+        <div className="hero-wrap">
+          <section className="hero" aria-labelledby="hero-h">
+            <div className="hero-text">
+              <p className="eyebrow">{recs[0] ? 'Voor jou uitgekozen' : 'Nieuw in de kast'}</p>
+              <h2 id="hero-h">{featured.title}</h2>
+              <p className="meta">{featured.authors.map((a) => a.name).join(', ')}</p>
+              <p>
+                {featured.copiesAvailable > 0 ? (
+                  <StatusPill tone="ok">
+                    {featured.copiesAvailable} van {featured.copiesTotal} beschikbaar
+                  </StatusPill>
+                ) : (
+                  <StatusPill tone="warn">Nu uitgeleend, reserveren kan</StatusPill>
+                )}
+              </p>
+              <Link className="button" to={`/books/${featured.id}`}>
+                Bekijk boek
+              </Link>
+            </div>
+            <div className="hero-book" aria-hidden="true">
+              <Cover book={featured} size="shelf" />
+              <div className="plank" />
+            </div>
+          </section>
+        </div>
       )}
 
       {shelfOne.length > 0 && (

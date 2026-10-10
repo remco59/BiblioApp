@@ -3,34 +3,49 @@ import type { Book } from '@biblio/api-client';
 import { StatusPill } from './Shelf';
 import { Stars } from './Stars';
 
+const TINTS = ['wine', 'forest', 'navy', 'ink'] as const;
+const MOTIFS = ['circle', 'corner', 'bands', 'sun'] as const;
+
+function hash(text: string) {
+  let h = 0;
+  for (const ch of text) h = (h * 31 + ch.codePointAt(0)!) >>> 0;
+  return h;
+}
+
 /**
- * Omslag (of een typografische plaatsvervanger). `decorative` waar de titel er direct naast staat,
- * zodat schermlezers de titel niet twee keer horen.
+ * Omslag (of een typografische plaatsvervanger met vaste kleur en motief per titel).
+ * `decorative` waar de titel er direct naast staat, zodat schermlezers de titel niet twee keer horen.
  */
 export function Cover({
   book,
   size = 'small',
   decorative = false,
 }: {
-  book: Pick<Book, 'title' | 'coverUrl'>;
+  book: Pick<Book, 'title' | 'coverUrl'> & { authors?: Pick<Book['authors'][number], 'name'>[] };
   size?: 'small' | 'large' | 'shelf';
   decorative?: boolean;
 }) {
-  return book.coverUrl ? (
-    <img
-      className={`cover ${size}`}
-      src={book.coverUrl}
-      alt={decorative ? '' : `Omslag van ${book.title}`}
-      loading="lazy"
-    />
-  ) : (
+  if (book.coverUrl) {
+    return (
+      <img
+        className={`cover ${size}`}
+        src={book.coverUrl}
+        alt={decorative ? '' : `Omslag van ${book.title}`}
+        loading="lazy"
+      />
+    );
+  }
+  const h = hash(book.title);
+  const author = book.authors?.map((a) => a.name).join(' & ');
+  return (
     <div
-      className={`cover placeholder ${size}`}
+      className={`cover placeholder ${size} tint-${TINTS[h % TINTS.length]} motif-${MOTIFS[(h >> 3) % MOTIFS.length]}`}
       {...(decorative
         ? { 'aria-hidden': true }
         : { role: 'img', 'aria-label': `Geen omslag voor ${book.title}` })}
     >
-      <span>{book.title}</span>
+      <span className="ph-title">{book.title}</span>
+      {author && decorative && <span className="ph-author">{author}</span>}
     </div>
   );
 }

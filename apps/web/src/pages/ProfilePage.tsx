@@ -7,6 +7,7 @@ import { DeleteAccount } from '../components/DeleteAccount';
 import { TwoFactor } from '../components/TwoFactor';
 import { SectionHeader, Shelf, ShelfBook } from '../components/Shelf';
 import { dateNl } from '../lib/format';
+import { useShelfTitles } from '../lib/preferences';
 import { useBooks } from '../lib/useBooks';
 
 const ROLE: Record<string, string> = {
@@ -17,6 +18,7 @@ const ROLE: Record<string, string> = {
 
 export function ProfilePage() {
   const { user, setUser, logout } = useAuth();
+  const [shelfTitles, setShelfTitles] = useShelfTitles();
   const [name, setName] = useState(user?.name ?? '');
   const [message, setMessage] = useState<{ text: string; error?: boolean } | null>(null);
   const [m, setM] = useState<MemberDetail | null>(null);
@@ -94,6 +96,23 @@ export function ProfilePage() {
           <button className="secondary" onClick={() => void logout()}>
             Uitloggen
           </button>
+        </section>
+
+        <section className="panel profile-section" aria-labelledby="display-h">
+          <h2 id="display-h">Weergave</h2>
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={shelfTitles}
+              onChange={(e) => setShelfTitles(e.target.checked)}
+            />
+            <span>Toon titel en auteur onder de boeken op de planken</span>
+          </label>
+          <p className="meta">
+            Uit: alleen de omslagen; titel en auteur verschijnen als je er met de muis of het
+            toetsenbord op gaat staan, of bij de eerste tik op een touchscreen. Wordt op dit
+            apparaat onthouden.
+          </p>
         </section>
       </div>
 
