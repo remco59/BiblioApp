@@ -156,14 +156,14 @@ importers:
         specifier: ^1.5.4
         version: 1.5.4
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.3.0
+        version: 19.3.0
       react-dom:
         specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        version: 18.3.1(react@19.3.0)
       react-router-dom:
         specifier: ^7.18.4
-        version: 7.18.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 7.18.4(react-dom@18.3.1(react@19.3.0))(react@19.3.0)
     devDependencies:
       '@axe-core/playwright':
         specifier: ^4.13.0
@@ -176,7 +176,7 @@ importers:
         version: 6.10.0(@testing-library/dom@10.4.2)
       '@testing-library/react':
         specifier: ^16.1.0
-        version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@18.3.7(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@18.3.1(react@19.3.0))(react@19.3.0)
       '@types/jsbarcode':
         specifier: ^3.11.4
         version: 3.11.4
@@ -184,11 +184,11 @@ importers:
         specifier: ^1.5.6
         version: 1.5.6
       '@types/react':
-        specifier: ^18.3.18
-        version: 18.3.31
+        specifier: ^19.3.0
+        version: 19.3.0
       '@types/react-dom':
         specifier: ^18.3.5
-        version: 18.3.7(@types/react@18.3.31)
+        version: 18.3.7(@types/react@19.3.0)
       '@vitejs/plugin-react':
         specifier: ^4.3.4
         version: 4.7.0(vite@6.4.4(@types/node@22.20.5)(jiti@2.7.0)(tsx@4.23.15))
@@ -1058,6 +1058,7 @@ packages:
     engines: {node: ^22.20 || ^24.12 || >=25}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@nestjs/common@11.2.7':
     resolution: {integrity: sha512-CGOa0I/5Ac43ydfpjztozOrvgDWYBdY9ktkO0OrRqRo1d8n5cphtrTGYHOwKLMIel0BpSYZoQymJ9Dywv/BzLw==}
@@ -1187,24 +1188,28 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@node-rs/argon2-linux-arm64-musl@2.2.2':
     resolution: {integrity: sha512-FYlfj3XgQ1xrx6HzQbKbUcKiYMG/3iSi/X81KyhHaItTJ7vZlMwrbVLl9yqDmvotKUF6VjrhrlZ8KRbbzchseA==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@node-rs/argon2-linux-x64-gnu@2.2.2':
     resolution: {integrity: sha512-ULXLs8UFYZANlwiROM7AeccxZndr2Xk3IstADq3jAUhnwV2W75mxMBTABUZ+7AdKRhPLOrxU77OgnMWlDkYJQg==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@node-rs/argon2-linux-x64-musl@2.2.2':
     resolution: {integrity: sha512-zgjIwc9TyGodn62vGc+36DGwFqVV5e7L8Ptd2FQWuBxe5aFrcFxvtDGn1/qfYwoHLv09utgtR+RBAPCXepWG3Q==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@node-rs/argon2-win32-arm64-msvc@2.2.2':
     resolution: {integrity: sha512-3nLhvLie/ec5xfxUBXXqGMb7oGeqF+YXrcGckqaTaGkPtOBozho0Kh2IuP/zi9BcOriirTG2LW3gtIOfpuh+mQ==}
@@ -1317,66 +1322,79 @@ packages:
     resolution: {integrity: sha512-CXFLEt384BUwwOLR9DURWNHl1bQOVLd1ibOee+yKBJm/fZtvrSAOZ0JbxjAxszVMIovYMwFMS+oP+Q1aPcx8Eg==}
     cpu: [arm]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-arm-musleabihf@4.64.2':
     resolution: {integrity: sha512-T1dorY0WHm5mMNpMHFl5rYRZ02gLSZcr6J45r66tYb3S3R3DyIRGiGWVdLtF+zOQjratNJaObl9jYumueRiL1A==}
     cpu: [arm]
     os: [linux]
+    libc: [musl]
 
   '@rollup/rollup-linux-arm64-gnu@4.64.2':
     resolution: {integrity: sha512-ia6bfaCIc0ldp6bvs9oEkFrJVJKNUMoiDF0+LBZsQAZg+vE0znXnzGqH+ew/FYswE30cruAWPTO3dPw7keaVkQ==}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-arm64-musl@4.64.2':
     resolution: {integrity: sha512-mB/gwfBfXtT0EBpbSssqKCqMFuX8b21Zy2TGoIhehSJEssZ5ksybxymwp1BkEM5Nczh/AAxpmh5q+MkhtundGg==}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@rollup/rollup-linux-loong64-gnu@4.64.2':
     resolution: {integrity: sha512-VPd0a+XlHoNRI9jIPRHww2UKhDkD6XjbtcKYXZijAnhJS1jLLbiNtVl6a5LyEfNN+eyiyWcJOZXPzBo69oTsew==}
     cpu: [loong64]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-loong64-musl@4.64.2':
     resolution: {integrity: sha512-10N1I6oBpERqzGtHKcCLrEpHlbXSBbMK9TURHvqgWbIFZuU3oJROxJ0H2nHfq96TVI0XJHQ9qzolJMFd2tz0LA==}
     cpu: [loong64]
     os: [linux]
+    libc: [musl]
 
   '@rollup/rollup-linux-ppc64-gnu@4.64.2':
     resolution: {integrity: sha512-dhJrLVZ3wNNhwCmy9/VTg6Pq6J8a8eZ0n15dVRlbSWcDb+8V/1mDfbnvis+vt8W6Pbxzv6gUbTEl4piOT3bbUQ==}
     cpu: [ppc64]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-ppc64-musl@4.64.2':
     resolution: {integrity: sha512-tPd2QuwxkTxgju5eARyb3RdgBWWi/O9dn/NFH0VkvGbLzoQeXrH6qMABtW8IODb5lUeBzB3sy2U7qmI4MtQ72g==}
     cpu: [ppc64]
     os: [linux]
+    libc: [musl]
 
   '@rollup/rollup-linux-riscv64-gnu@4.64.2':
     resolution: {integrity: sha512-njtDdPvSQWI9CDhIPPxsiEMeHayCfu7wwcbSQ7c2kYPhGVviL+WGVhq6Jfj/b+VuhSTkFuQ0z4ZFbFjkWwBFmg==}
     cpu: [riscv64]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-riscv64-musl@4.64.2':
     resolution: {integrity: sha512-EbOBo3dqCj9ecEV9Z7zvulB6AieMP2ztnKQYGVOSN0pzIyOu+3JH2YJZnLmbPeVvfn6yP6Qi7NbBM27EzGbj2w==}
     cpu: [riscv64]
     os: [linux]
+    libc: [musl]
 
   '@rollup/rollup-linux-s390x-gnu@4.64.2':
     resolution: {integrity: sha512-8wLt2Q5n4qmfiE2Gk8V6KNLSf+oJuBX7Kdw5joFDtnZIZvirS0hLzBc79OiJjV71oYDmBUZLNy6pDgvylo4qiQ==}
     cpu: [s390x]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-x64-gnu@4.64.2':
     resolution: {integrity: sha512-aIChbkhC4d33bxkVP0LSi2/2lUSGRXE6k4Qa0G7tgpgTOK7kxHTixmx5qC3SKUJ6yUMznHBtQoWaG4QMqLUnhw==}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-x64-musl@4.64.2':
     resolution: {integrity: sha512-gQ+TkVZRfjZVcl/UOAxxfWw+sHjzIXoieNwxEyJlD3tRBmBhR8ZDq11w+QEgQDcpslEB+fhN/OEpaTsDoIIHhQ==}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@rollup/rollup-openbsd-x64@4.64.2':
     resolution: {integrity: sha512-sUaJpMKS2JBCvUk8fYimG7aMq2jHVT4kw/uVHxPolKLrMmkKy0KXirmZyZehdNpL7PffqAlPAWUELQcTiD8ChA==}
@@ -1543,9 +1561,6 @@ packages:
   '@types/nodemailer@8.0.2':
     resolution: {integrity: sha512-c7M5ox8p0nEOfbJ2E9Qcmt8/QCu/VzsiAhzBiZbvky2PhKZDHpKB3sQHBM5MEZNkCfBOaS6S9//AGPRTNB7IaA==}
 
-  '@types/prop-types@15.7.15':
-    resolution: {integrity: sha512-F6bEyamV9jKGAFBEmlQnesRPGOQqS2+Uwi0Em15xenOxHaf2hv6L8YCVn3rPdPJOiJfPiCnLIRyvwVaqMY3MIw==}
-
   '@types/qrcode@1.5.6':
     resolution: {integrity: sha512-te7NQcV2BOvdj2b1hCAHzAoMNuj65kNBMz0KBaxM6c3VGBOhU0dURQKOtH8CFNI/dsKkwlv32p26qYQTWoB5bw==}
 
@@ -1554,8 +1569,8 @@ packages:
     peerDependencies:
       '@types/react': ^18.0.0
 
-  '@types/react@18.3.31':
-    resolution: {integrity: sha512-vfEqpXTvwT91yhmwdfouStN2hSKwTvyRs8qpLfADyrq/kxDw0hZM7Wk9Ug1FELj8hIby+S/+kQCSRFF32nv2Qw==}
+  '@types/react@19.3.0':
+    resolution: {integrity: sha512-N0rFCuH9YoxG9/m61l9MfpJKfmLOVU0em7ipIz6TRgSSkvReLB9vL85GB+yr8Bs5leqpvg96JSwF4ZS1s4viQg==}
 
   '@types/stack-utils@2.0.3':
     resolution: {integrity: sha512-9aEbYZ3TbYMznPdcdr3SmIrLXwC/AKZXQeCf9Pgao5CKb8CyHuEX5jzWPTkvregvhRJHcpRO6BFoGW9ycaOkYw==}
@@ -3219,8 +3234,8 @@ packages:
       react-dom:
         optional: true
 
-  react@18.3.1:
-    resolution: {integrity: sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==}
+  react@19.3.0:
+    resolution: {integrity: sha512-E8LUcbtBWt20bbl2YoHfx4ZDBdxVTfOKtCZn9cDSJ4l6/nuoApcpIBcj47t2wZoVX8g2ZHuMHbiShgCR1T5Sog==}
     engines: {node: '>=0.10.0'}
 
   readdirp@4.1.2:
@@ -5099,15 +5114,15 @@ snapshots:
       picocolors: 1.1.1
       redent: 3.0.0
 
-  '@testing-library/react@16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@testing-library/react@16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@18.3.7(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@18.3.1(react@19.3.0))(react@19.3.0)':
     dependencies:
       '@babel/runtime': 7.29.10
       '@testing-library/dom': 10.4.2
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      react: 19.3.0
+      react-dom: 18.3.1(react@19.3.0)
     optionalDependencies:
-      '@types/react': 18.3.31
-      '@types/react-dom': 18.3.7(@types/react@18.3.31)
+      '@types/react': 19.3.0
+      '@types/react-dom': 18.3.7(@types/react@19.3.0)
 
   '@tokenizer/inflate@0.4.1':
     dependencies:
@@ -5191,19 +5206,16 @@ snapshots:
     dependencies:
       '@types/node': 22.20.5
 
-  '@types/prop-types@15.7.15': {}
-
   '@types/qrcode@1.5.6':
     dependencies:
       '@types/node': 22.20.5
 
-  '@types/react-dom@18.3.7(@types/react@18.3.31)':
+  '@types/react-dom@18.3.7(@types/react@19.3.0)':
     dependencies:
-      '@types/react': 18.3.31
+      '@types/react': 19.3.0
 
-  '@types/react@18.3.31':
+  '@types/react@19.3.0':
     dependencies:
-      '@types/prop-types': 15.7.15
       csstype: 3.2.3
 
   '@types/stack-utils@2.0.3': {}
@@ -7090,10 +7102,10 @@ snapshots:
       defu: 6.1.7
       destr: 2.0.5
 
-  react-dom@18.3.1(react@18.3.1):
+  react-dom@18.3.1(react@19.3.0):
     dependencies:
       loose-envify: 1.4.0
-      react: 18.3.1
+      react: 19.3.0
       scheduler: 0.23.2
 
   react-is@17.0.2: {}
@@ -7102,23 +7114,21 @@ snapshots:
 
   react-refresh@0.17.0: {}
 
-  react-router-dom@7.18.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  react-router-dom@7.18.4(react-dom@18.3.1(react@19.3.0))(react@19.3.0):
     dependencies:
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      react-router: 7.18.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react: 19.3.0
+      react-dom: 18.3.1(react@19.3.0)
+      react-router: 7.18.4(react-dom@18.3.1(react@19.3.0))(react@19.3.0)
 
-  react-router@7.18.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  react-router@7.18.4(react-dom@18.3.1(react@19.3.0))(react@19.3.0):
     dependencies:
       cookie: 1.1.1
-      react: 18.3.1
+      react: 19.3.0
       set-cookie-parser: 2.7.2
     optionalDependencies:
-      react-dom: 18.3.1(react@18.3.1)
+      react-dom: 18.3.1(react@19.3.0)
 
-  react@18.3.1:
-    dependencies:
-      loose-envify: 1.4.0
+  react@19.3.0: {}
 
   readdirp@4.1.2: {}
 
