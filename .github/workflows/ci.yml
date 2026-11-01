@@ -58,7 +58,7 @@ jobs:
       - run: pnpm --filter @biblio/web test:e2e
       - name: PWA-test (productiebuild met service worker)
         run: pnpm --filter @biblio/web test:pwa
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: playwright-results
