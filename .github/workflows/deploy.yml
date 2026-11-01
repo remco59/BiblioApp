@@ -36,7 +36,7 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/build-push-action@v6
+      - uses: docker/build-push-action@v7
         with:
           context: .
           file: deploy/Dockerfile.api
@@ -46,7 +46,7 @@ jobs:
             ghcr.io/${{ steps.meta.outputs.repo }}/api:latest
           cache-from: type=gha,scope=api
           cache-to: type=gha,scope=api,mode=max
-      - uses: docker/build-push-action@v6
+      - uses: docker/build-push-action@v7
         with:
           context: .
           file: deploy/Dockerfile.web
